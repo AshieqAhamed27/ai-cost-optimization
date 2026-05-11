@@ -80,6 +80,32 @@ Use these exact keys:
 | `PAYMENT_SIMULATION` | `true` for testing, `false` for live payments |
 | `VITE_API_URL` | Your backend API URL ending in `/api` |
 
+### Render deployment settings
+
+For the backend Render Web Service:
+
+```text
+Root Directory: backend
+Build Command: npm install
+Start Command: npm start
+```
+
+If Render is already set to `yarn install; yarn build`, the backend includes a `build` script so that command can pass too.
+
+For the frontend Render Static Site:
+
+```text
+Root Directory: frontend
+Build Command: npm install && npm run build
+Publish Directory: dist
+```
+
+Set `VITE_API_URL` to your deployed backend URL with `/api` at the end, for example:
+
+```text
+https://your-backend.onrender.com/api
+```
+
 4. Create frontend `.env`:
 
 Copy `frontend/.env.example` to `frontend/.env`.
