@@ -62,6 +62,24 @@ PAYMENT_SIMULATION=true
 
 Use `PAYMENT_SIMULATION=true` while testing. Change it to `false` only after Razorpay keys are correct.
 
+### Deployment environment variables
+
+If your hosting dashboard asks for a variable **Key** and **Value**, do not paste the full `KEY=value` line into the Key field. For example, enter `MONGO_URI` as the key and the MongoDB connection string as the value.
+
+Use these exact keys:
+
+| Key | Value |
+| --- | --- |
+| `PORT` | `5001` |
+| `MONGO_URI` | Your MongoDB connection string |
+| `JWT_SECRET` | A long random secret |
+| `FRONTEND_URL` | Your frontend URL, for example `https://your-site.vercel.app` |
+| `CORS_ORIGINS` | Comma-separated frontend URLs |
+| `RAZORPAY_KEY_ID` | Your Razorpay key ID |
+| `RAZORPAY_KEY_SECRET` | Your Razorpay key secret |
+| `PAYMENT_SIMULATION` | `true` for testing, `false` for live payments |
+| `VITE_API_URL` | Your backend API URL ending in `/api` |
+
 4. Create frontend `.env`:
 
 Copy `frontend/.env.example` to `frontend/.env`.
