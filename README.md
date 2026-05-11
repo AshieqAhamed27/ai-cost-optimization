@@ -12,6 +12,8 @@ AI Cost Optimization Audit helps businesses:
 - create audit reports
 - collect payment through Razorpay
 
+Report creation is gated behind an active paid plan so the product can collect revenue before client work is delivered.
+
 ## Tech stack
 
 - Frontend: React, Vite, Tailwind CSS, React Router

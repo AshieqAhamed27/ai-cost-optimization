@@ -32,6 +32,17 @@ export const logout = () => {
 
 export const isLoggedIn = () => Boolean(getToken());
 
+export const planNames = {
+  mini_audit: 'Mini Audit',
+  business_audit: 'Business Audit',
+  monthly_monitor: 'Monthly Monitor'
+};
+
+export const hasActivePlan = (user = getUser()) =>
+  user?.planStatus === 'active' && user?.activePlan && user.activePlan !== 'free';
+
+export const getPlanName = (planId) => planNames[planId] || 'Choose Plan';
+
 export async function apiRequest(path, options = {}) {
   const headers = {
     'Content-Type': 'application/json',

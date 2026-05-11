@@ -104,10 +104,10 @@ export default function Pricing() {
       <section className="mb-10 text-center">
         <p className="label text-yellow-300">Pricing</p>
         <h1 className="mx-auto mt-3 max-w-3xl text-4xl font-black text-white md:text-6xl">
-          Choose the audit plan that matches the client engagement.
+          Get paid before creating client reports.
         </h1>
         <p className="mx-auto mt-4 max-w-2xl text-sm font-semibold leading-relaxed text-zinc-500">
-          Secure checkout is handled through Razorpay. After payment, the account is ready to create and manage reports.
+          A paid plan unlocks report creation. Secure checkout is handled through Razorpay.
         </p>
       </section>
 
@@ -126,7 +126,7 @@ export default function Pricing() {
               <li className="rounded-2xl border border-white/10 bg-black/20 p-3">Client-ready action plan</li>
             </ul>
             <button type="button" onClick={() => startCheckout(plan.id)} className="btn-primary mt-6 w-full" disabled={loadingPlan === plan.id}>
-              {loadingPlan === plan.id ? 'Opening...' : 'Pay with Razorpay'}
+              {loadingPlan === plan.id ? 'Opening...' : isLoggedIn() ? 'Pay with Razorpay' : 'Create Account to Pay'}
             </button>
           </article>
         ))}

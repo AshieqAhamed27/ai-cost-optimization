@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import StatCard from '../components/StatCard';
-import { apiRequest, formatCurrency, getUser } from '../utils/api';
+import { apiRequest, formatCurrency, getPlanName, getUser, hasActivePlan } from '../utils/api';
 
 export default function Dashboard() {
   const user = getUser();
@@ -17,6 +17,7 @@ export default function Dashboard() {
   }, []);
 
   const stats = data.stats || {};
+  const planActive = hasActivePlan(user);
 
   return (
     <main className="container-page py-10">
@@ -27,16 +28,31 @@ export default function Dashboard() {
             Good to see you, {user?.name || 'Founder'}
           </h1>
           <p className="mt-3 max-w-2xl text-sm font-semibold leading-relaxed text-zinc-500">
-            Create AI cost audits, estimate savings, and convert reports into paid services.
+            Manage paid AI cost audit reports, savings estimates, and client-ready recommendations.
           </p>
         </div>
         <div className="flex flex-col gap-3 sm:flex-row">
-          <Link to="/audits/new" className="btn-primary">New Audit</Link>
-          <Link to="/pricing" className="btn-secondary">Upgrade</Link>
+          <Link to={planActive ? '/audits/new' : '/pricing'} className="btn-primary">{planActive ? 'New Audit' : 'Choose Plan'}</Link>
+          <Link to="/pricing" className="btn-secondary">{planActive ? getPlanName(user.activePlan) : 'Pricing'}</Link>
         </div>
       </section>
 
       {error && <p className="mb-6 rounded-2xl border border-red-300/20 bg-red-300/10 p-4 text-sm font-bold text-red-100">{error}</p>}
+
+      {!planActive && (
+        <section className="panel mb-8 border-yellow-300/25 bg-yellow-300/[0.07]">
+          <p className="label text-yellow-200">Revenue gate</p>
+          <div className="mt-3 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div>
+              <h2 className="text-2xl font-black text-white">Choose a paid plan to unlock report creation.</h2>
+              <p className="mt-2 max-w-2xl text-sm font-semibold leading-relaxed text-zinc-400">
+                Accounts can review pricing and manage their workspace, but client reports are created only after payment.
+              </p>
+            </div>
+            <Link to="/pricing" className="btn-primary shrink-0">Buy Audit Plan</Link>
+          </div>
+        </section>
+      )}
 
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <StatCard label="Audits" value={loading ? '...' : stats.totalAudits || 0} detail="Reports created in your workspace" />
@@ -51,7 +67,7 @@ export default function Dashboard() {
             <p className="label text-sky-300">Audit reports</p>
             <h2 className="mt-2 text-2xl font-black text-white">Recent audits</h2>
           </div>
-          <Link to="/audits/new" className="btn-secondary">Create report</Link>
+          <Link to={planActive ? '/audits/new' : '/pricing'} className="btn-secondary">{planActive ? 'Create report' : 'Unlock reports'}</Link>
         </div>
 
         <div className="mt-6 grid gap-3">

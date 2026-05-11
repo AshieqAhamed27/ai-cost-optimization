@@ -1,6 +1,6 @@
 const express = require('express');
 const Audit = require('../models/Audit');
-const { requireAuth } = require('../middleware/auth');
+const { requireAuth, requireActivePlan } = require('../middleware/auth');
 const { calculateAudit } = require('../utils/costEngine');
 
 const router = express.Router();
@@ -36,7 +36,7 @@ router.get('/', async (req, res, next) => {
   }
 });
 
-router.post('/', async (req, res, next) => {
+router.post('/', requireActivePlan, async (req, res, next) => {
   try {
     const { companyName, businessType, teamSize, tools, notes } = req.body;
 

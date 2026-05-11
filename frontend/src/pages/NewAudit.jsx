@@ -1,10 +1,12 @@
 import React, { useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import ToolEditor, { createBlankTool } from '../components/ToolEditor';
-import { apiRequest, formatCurrency } from '../utils/api';
+import { apiRequest, formatCurrency, getUser, hasActivePlan } from '../utils/api';
 
 export default function NewAudit() {
   const navigate = useNavigate();
+  const user = getUser();
+  const planActive = hasActivePlan(user);
   const [form, setForm] = useState({
     companyName: '',
     businessType: '',
@@ -31,6 +33,11 @@ export default function NewAudit() {
     event.preventDefault();
     setError('');
 
+    if (!planActive) {
+      setError('Choose a paid audit plan before creating client reports.');
+      return;
+    }
+
     const filledTools = tools.filter((tool) => tool.name.trim());
     if (!filledTools.length) {
       setError('Add at least one AI tool before creating a report.');
@@ -50,6 +57,24 @@ export default function NewAudit() {
       setLoading(false);
     }
   };
+
+  if (!planActive) {
+    return (
+      <main className="container-page py-10">
+        <section className="panel border-yellow-300/25 bg-yellow-300/[0.07]">
+          <p className="label text-yellow-200">Plan required</p>
+          <h1 className="mt-3 text-4xl font-black text-white md:text-5xl">Unlock client report creation.</h1>
+          <p className="mt-3 max-w-2xl text-sm font-semibold leading-relaxed text-zinc-400">
+            AI cost reports are a paid product. Choose a plan to create reports, calculate savings, and deliver recommendations.
+          </p>
+          <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+            <Link to="/pricing" className="btn-primary">Buy Audit Plan</Link>
+            <Link to="/dashboard" className="btn-secondary">Back to Dashboard</Link>
+          </div>
+        </section>
+      </main>
+    );
+  }
 
   return (
     <main className="container-page py-10">

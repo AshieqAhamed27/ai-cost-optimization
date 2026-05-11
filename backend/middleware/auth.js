@@ -24,5 +24,14 @@ const requireAuth = async (req, res, next) => {
   }
 };
 
-module.exports = { requireAuth };
+const requireActivePlan = (req, res, next) => {
+  if (req.user?.planStatus === 'active' && req.user?.activePlan && req.user.activePlan !== 'free') {
+    return next();
+  }
 
+  return res.status(402).json({
+    message: 'Choose a paid audit plan before creating client reports'
+  });
+};
+
+module.exports = { requireAuth, requireActivePlan };
