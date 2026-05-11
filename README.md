@@ -74,7 +74,7 @@ Use these exact keys:
 | `MONGO_URI` | Full MongoDB connection string, for example `mongodb+srv://<user>:<password>@<cluster>.<id>.mongodb.net/<database>?retryWrites=true&w=majority` |
 | `JWT_SECRET` | A long random secret |
 | `FRONTEND_URL` | Your frontend URL, for example `https://your-site.vercel.app` |
-| `CORS_ORIGINS` | Comma-separated frontend URLs |
+| `CORS_ORIGINS` | Comma-separated frontend URLs, for example `https://ai-cost-optimization.vercel.app` |
 | `RAZORPAY_KEY_ID` | Your Razorpay key ID |
 | `RAZORPAY_KEY_SECRET` | Your Razorpay key secret |
 | `PAYMENT_SIMULATION` | `true` for testing, `false` for live payments |
@@ -118,6 +118,12 @@ https://your-backend.onrender.com/api
 ```
 
 If Render shows `querySrv ENOTFOUND _mongodb._tcp...`, the `MONGO_URI` value is incomplete or mistyped. Copy the full connection string from MongoDB Atlas **Connect > Drivers**, and make sure the host includes `.mongodb.net`.
+
+If the browser shows a CORS error from the Vercel frontend, set this on the Render backend service:
+
+```text
+CORS_ORIGINS=https://ai-cost-optimization.vercel.app
+```
 
 4. Create frontend `.env`:
 

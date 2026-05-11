@@ -50,6 +50,10 @@ const localFrontendOrigins = [
   'http://127.0.0.1:4174'
 ];
 
+const productionFrontendOrigins = [
+  'https://ai-cost-optimization.vercel.app'
+];
+
 const configuredOrigins = (process.env.CORS_ORIGINS || process.env.FRONTEND_URL || '')
   .split(',')
   .map((origin) => origin.trim())
@@ -75,7 +79,11 @@ const addLocalhostAlias = (origins) => {
   return expanded;
 };
 
-const allowedOrigins = addLocalhostAlias(configuredOrigins.length ? configuredOrigins : localFrontendOrigins);
+const allowedOrigins = addLocalhostAlias([
+  ...localFrontendOrigins,
+  ...productionFrontendOrigins,
+  ...configuredOrigins
+]);
 let mongoUri;
 
 try {
