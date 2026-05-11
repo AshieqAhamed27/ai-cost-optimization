@@ -91,6 +91,10 @@ export default function Pricing() {
       };
 
       const checkout = new window.Razorpay(options);
+      checkout.on('payment.failed', (response) => {
+        setError(response?.error?.description || 'Payment failed. Please try again.');
+        setLoadingPlan('');
+      });
       checkout.open();
     } catch (err) {
       setError(err.message);

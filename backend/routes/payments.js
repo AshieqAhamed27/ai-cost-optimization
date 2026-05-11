@@ -10,6 +10,16 @@ const router = express.Router();
 
 const isPaymentSimulationEnabled = () => process.env.PAYMENT_SIMULATION === 'true';
 
+const createReceiptId = () =>
+  `audit_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+
+const getGatewayErrorMessage = (error) =>
+  error?.error?.description ||
+  error?.error?.reason ||
+  error?.description ||
+  error?.message ||
+  'Payment gateway request failed';
+
 const getRazorpay = () => {
   if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET) return null;
   return new Razorpay({
@@ -59,15 +69,22 @@ router.post('/razorpay/order', requireAuth, async (req, res, next) => {
       });
     }
 
-    const order = await razorpay.orders.create({
-      amount: plan.amount * 100,
-      currency: 'INR',
-      receipt: `audit_${req.user._id}_${Date.now()}`,
-      notes: {
-        userId: String(req.user._id),
-        planId: plan.id
-      }
-    });
+    let order;
+    try {
+      order = await razorpay.orders.create({
+        amount: plan.amount * 100,
+        currency: 'INR',
+        receipt: createReceiptId(),
+        notes: {
+          userId: String(req.user._id),
+          planId: plan.id
+        }
+      });
+    } catch (error) {
+      return res.status(error.statusCode || 502).json({
+        message: getGatewayErrorMessage(error)
+      });
+    }
 
     await Payment.create({
       user: req.user._id,
