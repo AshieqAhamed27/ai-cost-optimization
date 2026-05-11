@@ -13,16 +13,45 @@ const { errorHandler } = require('./middleware/errorHandler');
 const app = express();
 const port = process.env.PORT || 5001;
 
-const allowedOrigins = (process.env.CORS_ORIGINS || process.env.FRONTEND_URL || 'http://localhost:5174')
+const localFrontendOrigins = [
+  'http://localhost:5174',
+  'http://127.0.0.1:5174',
+  'http://localhost:4174',
+  'http://127.0.0.1:4174'
+];
+
+const configuredOrigins = (process.env.CORS_ORIGINS || process.env.FRONTEND_URL || '')
   .split(',')
   .map((origin) => origin.trim())
   .filter(Boolean);
 
+const addLocalhostAlias = (origins) => {
+  const expanded = new Set();
+
+  origins.forEach((origin) => {
+    try {
+      const url = new URL(origin);
+      expanded.add(url.origin);
+
+      if (url.hostname === 'localhost' || url.hostname === '127.0.0.1') {
+        url.hostname = url.hostname === 'localhost' ? '127.0.0.1' : 'localhost';
+        expanded.add(url.origin);
+      }
+    } catch {
+      expanded.add(origin);
+    }
+  });
+
+  return expanded;
+};
+
+const allowedOrigins = addLocalhostAlias(configuredOrigins.length ? configuredOrigins : localFrontendOrigins);
+
 app.use(helmet());
 app.use(cors({
   origin(origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) return callback(null, true);
-    return callback(new Error('Not allowed by CORS'));
+    if (!origin || allowedOrigins.has(origin)) return callback(null, true);
+    return callback(null, false);
   },
   credentials: true
 }));
@@ -57,4 +86,3 @@ mongoose
     console.error('MongoDB connection failed:', error.message);
     process.exit(1);
   });
-
