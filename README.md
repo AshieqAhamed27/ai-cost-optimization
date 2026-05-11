@@ -100,6 +100,17 @@ Build Command: npm install && npm run build
 Publish Directory: dist
 ```
 
+For the frontend Vercel project:
+
+```text
+Root Directory: frontend
+Framework Preset: Vite
+Build Command: npm run build
+Output Directory: dist
+```
+
+The frontend includes `frontend/vercel.json` so direct URLs like `/signup`, `/login`, and `/dashboard` load the React app instead of returning a Vercel 404.
+
 Set `VITE_API_URL` to your deployed backend URL with `/api` at the end, for example:
 
 ```text
