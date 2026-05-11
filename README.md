@@ -60,9 +60,10 @@ CORS_ORIGINS=http://localhost:5174,http://127.0.0.1:5174
 RAZORPAY_KEY_ID=your_razorpay_key_id
 RAZORPAY_KEY_SECRET=your_razorpay_secret
 PAYMENT_SIMULATION=false
+ALLOW_PAYMENT_SIMULATION=false
 ```
 
-Use `PAYMENT_SIMULATION=false` for the real product. Only turn it on in a private local test environment.
+Use `PAYMENT_SIMULATION=false` and `ALLOW_PAYMENT_SIMULATION=false` for the real product.
 
 ### Deployment environment variables
 
@@ -80,6 +81,7 @@ Use these exact keys:
 | `RAZORPAY_KEY_ID` | Your Razorpay key ID |
 | `RAZORPAY_KEY_SECRET` | Your Razorpay key secret |
 | `PAYMENT_SIMULATION` | `false` for live payments |
+| `ALLOW_PAYMENT_SIMULATION` | `false` for live payments |
 | `VITE_API_URL` | Your backend API URL ending in `/api` |
 
 ### Render deployment settings

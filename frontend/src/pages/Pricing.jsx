@@ -45,16 +45,7 @@ export default function Pricing() {
       });
 
       if (data.simulation) {
-        const verified = await apiRequest('/payments/razorpay/verify', {
-          method: 'POST',
-          body: {
-            planId,
-            razorpay_order_id: data.order.id
-          }
-        });
-        setSession({ user: verified.user });
-        navigate('/dashboard');
-        return;
+        throw new Error('Payment gateway is in simulation mode. Disable simulation to accept real payments.');
       }
 
       const loaded = await loadRazorpayScript();

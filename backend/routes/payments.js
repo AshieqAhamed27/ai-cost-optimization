@@ -8,7 +8,9 @@ const { plans, getPlan } = require('../utils/plans');
 
 const router = express.Router();
 
-const isPaymentSimulationEnabled = () => process.env.PAYMENT_SIMULATION === 'true';
+const isPaymentSimulationEnabled = () =>
+  process.env.PAYMENT_SIMULATION === 'true' &&
+  process.env.ALLOW_PAYMENT_SIMULATION === 'true';
 
 const createReceiptId = () =>
   `audit_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
