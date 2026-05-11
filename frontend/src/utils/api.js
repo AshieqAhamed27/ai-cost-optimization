@@ -1,4 +1,14 @@
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
+const LOCAL_API_URL = 'http://localhost:5001/api';
+const PRODUCTION_API_URL = 'https://ai-cost-optimization.onrender.com/api';
+const configuredApiUrl = import.meta.env.VITE_API_URL?.trim();
+const isLocalApiUrl = configuredApiUrl?.includes('localhost') || configuredApiUrl?.includes('127.0.0.1');
+
+const API_URL =
+  configuredApiUrl && (import.meta.env.DEV || !isLocalApiUrl)
+    ? configuredApiUrl
+    : import.meta.env.DEV
+      ? LOCAL_API_URL
+      : PRODUCTION_API_URL;
 
 export const getToken = () => localStorage.getItem('ai_cost_token') || '';
 
@@ -48,4 +58,3 @@ export async function apiRequest(path, options = {}) {
 
 export const formatCurrency = (value) =>
   `Rs ${Math.round(Number(value || 0)).toLocaleString('en-IN')}`;
-
