@@ -1,0 +1,41 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply min-h-screen bg-slate-950 font-sans text-white antialiased;
+    background:
+      radial-gradient(circle at top left, rgba(56, 189, 248, 0.18), transparent 34rem),
+      radial-gradient(circle at top right, rgba(250, 204, 21, 0.12), transparent 30rem),
+      linear-gradient(135deg, #020617, #0f172a 52%, #020617);
+  }
+}
+
+@layer components {
+  .container-page {
+    @apply mx-auto w-[min(1180px,calc(100%-1.25rem))] sm:w-[min(1180px,calc(100%-2rem))];
+  }
+
+  .panel {
+    @apply rounded-[1.5rem] border border-white/10 bg-white/[0.04] p-5 shadow-2xl shadow-black/20 sm:p-7;
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center rounded-2xl bg-yellow-300 px-5 py-3 text-sm font-black uppercase tracking-widest text-slate-950 transition hover:-translate-y-0.5 hover:bg-yellow-200;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center rounded-2xl border border-white/10 bg-white/[0.06] px-5 py-3 text-sm font-black uppercase tracking-widest text-white transition hover:-translate-y-0.5 hover:bg-white/10;
+  }
+
+  .input {
+    @apply w-full rounded-2xl border border-white/10 bg-black/25 px-4 py-3 text-sm font-bold text-white outline-none transition placeholder:text-zinc-600 focus:border-yellow-300/50;
+  }
+
+  .label {
+    @apply text-[11px] font-black uppercase tracking-widest text-zinc-500;
+  }
+}
