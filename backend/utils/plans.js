@@ -3,23 +3,22 @@ const plans = {
     id: 'mini_audit',
     name: 'Mini Audit',
     amount: 999,
-    description: 'For freelancers and solo founders who want a simple AI tool spend check.'
+    description: 'One focused review for a small workspace.'
   },
   business_audit: {
     id: 'business_audit',
     name: 'Business Audit',
     amount: 4999,
-    description: 'For agencies and small teams that need a full AI cost saving report.'
+    description: 'A full cost report for teams with multiple AI tools.'
   },
   monthly_monitor: {
     id: 'monthly_monitor',
     name: 'Monthly Monitor',
     amount: 9999,
-    description: 'Monthly AI cost review and savings tracker for active teams.'
+    description: 'Ongoing spend tracking and savings follow-up.'
   }
 };
 
 const getPlan = (planId) => plans[planId] || null;
 
 module.exports = { plans, getPlan };
-

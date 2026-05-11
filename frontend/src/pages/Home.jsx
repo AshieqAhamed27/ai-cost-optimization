@@ -1,6 +1,5 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { formatCurrency } from '../utils/api';
 
 const problems = [
   ['Too many tools', 'Teams pay for many AI tools that solve the same job.'],
@@ -10,9 +9,6 @@ const problems = [
 ];
 
 export default function Home() {
-  const demoSpend = 13200;
-  const demoSavings = 3604;
-
   return (
     <main className="container-page py-10 md:py-16">
       <section className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(320px,0.55fr)] lg:items-end">
@@ -27,19 +23,20 @@ export default function Home() {
             Run AI tool audits, find unused subscriptions, estimate savings, create reports, and collect payment through Razorpay.
           </p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <Link to="/signup" className="btn-primary">Start Free</Link>
+            <Link to="/signup" className="btn-primary">Create Account</Link>
             <Link to="/pricing" className="btn-secondary">See Pricing</Link>
           </div>
         </div>
 
         <aside className="panel border-emerald-300/20 bg-emerald-300/[0.07]">
-          <p className="label text-emerald-200">Demo audit result</p>
-          <p className="mt-4 text-5xl font-black text-white">{formatCurrency(demoSavings)}</p>
-          <p className="mt-2 text-sm font-semibold text-zinc-300">
-            Possible monthly savings from {formatCurrency(demoSpend)} AI spend.
-          </p>
-          <div className="mt-5 rounded-2xl border border-white/10 bg-black/20 p-4">
-            <p className="text-sm font-bold text-zinc-300">Offer first: Mini Audit, Business Audit, Monthly Monitor.</p>
+          <p className="label text-emerald-200">Audit workflow</p>
+          <h2 className="mt-4 text-3xl font-black text-white">Turn client spend into a paid report.</h2>
+          <div className="mt-5 grid gap-3">
+            {['Collect billing inputs', 'Calculate savings', 'Deliver recommendations', 'Track paid plans'].map((item) => (
+              <div key={item} className="rounded-2xl border border-white/10 bg-black/20 p-4">
+                <p className="text-sm font-bold text-zinc-300">{item}</p>
+              </div>
+            ))}
           </div>
         </aside>
       </section>
@@ -68,4 +65,3 @@ export default function Home() {
     </main>
   );
 }
-

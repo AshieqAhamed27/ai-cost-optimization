@@ -12,6 +12,10 @@ export default function Navbar() {
     navigate('/');
   };
 
+  const planLabel = user?.activePlan === 'free'
+    ? 'starter'
+    : user?.activePlan || 'starter';
+
   const navClass = ({ isActive }) =>
     `rounded-xl px-3 py-2 text-sm font-bold transition ${
       isActive ? 'bg-white/10 text-white' : 'text-zinc-400 hover:bg-white/[0.06] hover:text-white'
@@ -42,12 +46,12 @@ export default function Navbar() {
           {!loggedIn ? (
             <>
               <NavLink to="/login" className={navClass}>Login</NavLink>
-              <Link to="/signup" className="btn-primary">Start Free</Link>
+              <Link to="/signup" className="btn-primary">Create Account</Link>
             </>
           ) : (
             <>
               <span className="rounded-xl border border-emerald-300/20 bg-emerald-300/10 px-3 py-2 text-xs font-black uppercase tracking-widest text-emerald-200">
-                {user?.activePlan || 'free'}
+                {planLabel}
               </span>
               <button type="button" onClick={handleLogout} className="btn-secondary px-4 py-2">
                 Logout
@@ -59,4 +63,3 @@ export default function Navbar() {
     </header>
   );
 }
-

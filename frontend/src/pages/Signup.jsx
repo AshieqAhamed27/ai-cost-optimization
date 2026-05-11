@@ -46,7 +46,7 @@ export default function Signup() {
             <span className="label">Password</span>
             <input className="input" type="password" value={form.password} onChange={(event) => setForm({ ...form, password: event.target.value })} required minLength={6} />
           </label>
-          <button className="btn-primary w-full sm:col-span-2" disabled={loading}>{loading ? 'Creating...' : 'Create Free Account'}</button>
+          <button className="btn-primary w-full sm:col-span-2" disabled={loading}>{loading ? 'Creating...' : 'Create Account'}</button>
           <p className="text-center text-sm font-semibold text-zinc-500 sm:col-span-2">
             Already have account? <Link className="text-yellow-200" to="/login">Login</Link>
           </p>

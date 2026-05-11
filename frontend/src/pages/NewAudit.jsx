@@ -1,17 +1,17 @@
 import React, { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import ToolEditor, { defaultTools } from '../components/ToolEditor';
+import ToolEditor, { createBlankTool } from '../components/ToolEditor';
 import { apiRequest, formatCurrency } from '../utils/api';
 
 export default function NewAudit() {
   const navigate = useNavigate();
   const [form, setForm] = useState({
-    companyName: 'Demo Agency',
-    businessType: 'Marketing agency',
-    teamSize: 5,
+    companyName: '',
+    businessType: '',
+    teamSize: 1,
     notes: ''
   });
-  const [tools, setTools] = useState(defaultTools);
+  const [tools, setTools] = useState([createBlankTool()]);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -30,11 +30,18 @@ export default function NewAudit() {
   const submit = async (event) => {
     event.preventDefault();
     setError('');
+
+    const filledTools = tools.filter((tool) => tool.name.trim());
+    if (!filledTools.length) {
+      setError('Add at least one AI tool before creating a report.');
+      return;
+    }
+
     setLoading(true);
     try {
       const data = await apiRequest('/audits', {
         method: 'POST',
-        body: { ...form, tools }
+        body: { ...form, tools: filledTools }
       });
       navigate(`/audits/${data.audit._id}`);
     } catch (err) {
@@ -50,7 +57,7 @@ export default function NewAudit() {
         <p className="label text-yellow-300">New audit</p>
         <h1 className="mt-3 text-4xl font-black text-white md:text-5xl">Create AI cost report</h1>
         <p className="mt-3 max-w-2xl text-sm font-semibold leading-relaxed text-zinc-500">
-          Demo values are added for understanding. Replace them with a real client's AI tools and monthly costs.
+          Enter the client's real AI tools, seats, usage level, and monthly spend to generate a report.
         </p>
       </section>
 
@@ -107,4 +114,3 @@ export default function NewAudit() {
     </main>
   );
 }
-

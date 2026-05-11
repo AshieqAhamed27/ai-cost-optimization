@@ -57,10 +57,10 @@ FRONTEND_URL=http://localhost:5174
 CORS_ORIGINS=http://localhost:5174,http://127.0.0.1:5174
 RAZORPAY_KEY_ID=your_razorpay_key_id
 RAZORPAY_KEY_SECRET=your_razorpay_secret
-PAYMENT_SIMULATION=true
+PAYMENT_SIMULATION=false
 ```
 
-Use `PAYMENT_SIMULATION=true` while testing. Change it to `false` only after Razorpay keys are correct.
+Use `PAYMENT_SIMULATION=false` for the real product. Only turn it on in a private local test environment.
 
 ### Deployment environment variables
 
@@ -77,7 +77,7 @@ Use these exact keys:
 | `CORS_ORIGINS` | Comma-separated frontend URLs, for example `https://ai-cost-optimization.vercel.app` |
 | `RAZORPAY_KEY_ID` | Your Razorpay key ID |
 | `RAZORPAY_KEY_SECRET` | Your Razorpay key secret |
-| `PAYMENT_SIMULATION` | `true` for testing, `false` for live payments |
+| `PAYMENT_SIMULATION` | `false` for live payments |
 | `VITE_API_URL` | Your backend API URL ending in `/api` |
 
 ### Render deployment settings

@@ -3,9 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { apiRequest, formatCurrency, getUser, isLoggedIn, setSession } from '../utils/api';
 
 const fallbackPlans = [
-  { id: 'mini_audit', name: 'Mini Audit', amount: 999, description: 'For freelancers and solo founders.' },
-  { id: 'business_audit', name: 'Business Audit', amount: 4999, description: 'For agencies and small teams.' },
-  { id: 'monthly_monitor', name: 'Monthly Monitor', amount: 9999, description: 'Monthly AI cost review.' }
+  { id: 'mini_audit', name: 'Mini Audit', amount: 999, description: 'One focused review for a small workspace.' },
+  { id: 'business_audit', name: 'Business Audit', amount: 4999, description: 'A full cost report for teams with multiple AI tools.' },
+  { id: 'monthly_monitor', name: 'Monthly Monitor', amount: 9999, description: 'Ongoing spend tracking and savings follow-up.' }
 ];
 
 const loadRazorpayScript = () => new Promise((resolve) => {
@@ -49,8 +49,7 @@ export default function Pricing() {
           method: 'POST',
           body: {
             planId,
-            razorpay_order_id: data.order.id,
-            simulation: true
+            razorpay_order_id: data.order.id
           }
         });
         setSession({ user: verified.user });
@@ -105,10 +104,10 @@ export default function Pricing() {
       <section className="mb-10 text-center">
         <p className="label text-yellow-300">Pricing</p>
         <h1 className="mx-auto mt-3 max-w-3xl text-4xl font-black text-white md:text-6xl">
-          Sell AI cost audits like a real service business.
+          Choose the audit plan that matches the client engagement.
         </h1>
         <p className="mx-auto mt-4 max-w-2xl text-sm font-semibold leading-relaxed text-zinc-500">
-          Razorpay checkout is connected. Use test keys first, then switch to live keys when ready.
+          Secure checkout is handled through Razorpay. After payment, the account is ready to create and manage reports.
         </p>
       </section>
 
@@ -124,7 +123,7 @@ export default function Pricing() {
             <ul className="mt-5 grid gap-3 text-sm font-bold text-zinc-300">
               <li className="rounded-2xl border border-white/10 bg-black/20 p-3">AI spend report</li>
               <li className="rounded-2xl border border-white/10 bg-black/20 p-3">Savings recommendations</li>
-              <li className="rounded-2xl border border-white/10 bg-black/20 p-3">Founder-friendly action plan</li>
+              <li className="rounded-2xl border border-white/10 bg-black/20 p-3">Client-ready action plan</li>
             </ul>
             <button type="button" onClick={() => startCheckout(plan.id)} className="btn-primary mt-6 w-full" disabled={loadingPlan === plan.id}>
               {loadingPlan === plan.id ? 'Opening...' : 'Pay with Razorpay'}
@@ -135,4 +134,3 @@ export default function Pricing() {
     </main>
   );
 }
-

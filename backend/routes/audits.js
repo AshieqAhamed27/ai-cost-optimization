@@ -44,6 +44,10 @@ router.post('/', async (req, res, next) => {
       return res.status(400).json({ message: 'Company name and business type are required' });
     }
 
+    if (!Array.isArray(tools) || !tools.some((tool) => String(tool?.name || '').trim())) {
+      return res.status(400).json({ message: 'Add at least one AI tool to create an audit' });
+    }
+
     const result = calculateAudit({ tools, teamSize });
     const audit = await Audit.create({
       user: req.user._id,
@@ -95,4 +99,3 @@ router.patch('/:id/status', async (req, res, next) => {
 });
 
 module.exports = router;
-

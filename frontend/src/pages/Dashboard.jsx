@@ -58,7 +58,7 @@ export default function Dashboard() {
           {!loading && data.audits.length === 0 && (
             <div className="rounded-2xl border border-white/10 bg-black/20 p-6 text-center">
               <p className="text-lg font-black text-white">No audits yet.</p>
-              <p className="mt-2 text-sm font-semibold text-zinc-500">Create a demo audit and use it to sell your first service.</p>
+              <p className="mt-2 text-sm font-semibold text-zinc-500">Create your first client audit and turn real spend data into a report.</p>
             </div>
           )}
           {data.audits.map((audit) => (
@@ -80,4 +80,3 @@ export default function Dashboard() {
     </main>
   );
 }
-
