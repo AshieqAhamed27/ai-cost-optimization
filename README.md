@@ -71,7 +71,7 @@ Use these exact keys:
 | Key | Value |
 | --- | --- |
 | `PORT` | `5001` |
-| `MONGO_URI` | Your MongoDB connection string |
+| `MONGO_URI` | Full MongoDB connection string, for example `mongodb+srv://<user>:<password>@<cluster>.<id>.mongodb.net/<database>?retryWrites=true&w=majority` |
 | `JWT_SECRET` | A long random secret |
 | `FRONTEND_URL` | Your frontend URL, for example `https://your-site.vercel.app` |
 | `CORS_ORIGINS` | Comma-separated frontend URLs |
@@ -105,6 +105,8 @@ Set `VITE_API_URL` to your deployed backend URL with `/api` at the end, for exam
 ```text
 https://your-backend.onrender.com/api
 ```
+
+If Render shows `querySrv ENOTFOUND _mongodb._tcp...`, the `MONGO_URI` value is incomplete or mistyped. Copy the full connection string from MongoDB Atlas **Connect > Drivers**, and make sure the host includes `.mongodb.net`.
 
 4. Create frontend `.env`:
 

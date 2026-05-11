@@ -13,6 +13,36 @@ const { errorHandler } = require('./middleware/errorHandler');
 const app = express();
 const port = process.env.PORT || 5001;
 
+const getMongoUri = () => {
+  const mongoUri = process.env.MONGO_URI?.trim();
+
+  if (!mongoUri) {
+    throw new Error('MONGO_URI is missing. Add your MongoDB connection string in the deployment environment variables.');
+  }
+
+  if (!mongoUri.startsWith('mongodb://') && !mongoUri.startsWith('mongodb+srv://')) {
+    throw new Error('MONGO_URI must start with mongodb:// or mongodb+srv://.');
+  }
+
+  if (mongoUri.startsWith('mongodb+srv://')) {
+    try {
+      const { hostname } = new URL(mongoUri);
+      const hostnameParts = hostname.split('.').filter(Boolean);
+
+      if (hostname.endsWith('.') || hostnameParts.length < 3) {
+        throw new Error(
+          `MONGO_URI host looks incomplete: "${hostname}". Copy the full MongoDB Atlas host, including ".mongodb.net".`
+        );
+      }
+    } catch (error) {
+      if (error.message.includes('MONGO_URI host looks incomplete')) throw error;
+      throw new Error('MONGO_URI is not a valid MongoDB connection string. Check the value copied from MongoDB Atlas.');
+    }
+  }
+
+  return mongoUri;
+};
+
 const localFrontendOrigins = [
   'http://localhost:5174',
   'http://127.0.0.1:5174',
@@ -46,6 +76,14 @@ const addLocalhostAlias = (origins) => {
 };
 
 const allowedOrigins = addLocalhostAlias(configuredOrigins.length ? configuredOrigins : localFrontendOrigins);
+let mongoUri;
+
+try {
+  mongoUri = getMongoUri();
+} catch (error) {
+  console.error('Environment configuration failed:', error.message);
+  process.exit(1);
+}
 
 app.use(helmet());
 app.use(cors({
@@ -77,12 +115,15 @@ app.use('/api/payments', paymentRoutes);
 app.use(errorHandler);
 
 mongoose
-  .connect(process.env.MONGO_URI)
+  .connect(mongoUri)
   .then(() => {
     console.log('Connected to MongoDB');
     app.listen(port, () => console.log(`API running on port ${port}`));
   })
   .catch((error) => {
     console.error('MongoDB connection failed:', error.message);
+    if (/querySrv ENOTFOUND/i.test(error.message)) {
+      console.error('Check MONGO_URI in Render. The Atlas host should look like cluster-name.xxxxx.mongodb.net and must not be truncated.');
+    }
     process.exit(1);
   });
