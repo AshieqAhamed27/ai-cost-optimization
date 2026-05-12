@@ -1,10 +1,11 @@
 import React from 'react';
 import PricingCards from '../components/PricingCards';
+import TrialCallout from '../components/TrialCallout';
 
 const steps = [
-  ['Create your account', 'Use a business email so reports and payment status stay attached to the right workspace.'],
-  ['Pay securely', 'Razorpay creates the checkout order and the backend verifies the payment signature.'],
-  ['Create reports', 'After payment, report creation unlocks in the dashboard for your active plan.']
+  ['Start free trial', 'Use a business email and create audit reports for 7 days with no card required.'],
+  ['Prove the value', 'Review real AI software spend and see whether the report can identify avoidable monthly costs.'],
+  ['Upgrade securely', 'After the trial, Razorpay checkout activates a paid plan and keeps report creation unlocked.']
 ];
 
 export default function Pricing() {
@@ -13,11 +14,15 @@ export default function Pricing() {
       <section className="mb-10 text-center">
         <p className="label text-yellow-300">Pricing</p>
         <h1 className="mx-auto mt-3 max-w-3xl text-4xl font-black text-white md:text-6xl">
-          Choose a paid audit plan and start delivering client reports.
+          Start with a 7-day trial, then choose the plan that fits.
         </h1>
         <p className="mx-auto mt-4 max-w-2xl text-sm font-semibold leading-relaxed text-zinc-400">
-          Payment is required before client report creation. Plans are designed for consultants, agencies, and companies that want a clear AI spend review.
+          Try the audit workflow before paying. When the trial ends, a paid plan keeps client report creation active.
         </p>
+      </section>
+
+      <section className="mb-8">
+        <TrialCallout />
       </section>
 
       <PricingCards />

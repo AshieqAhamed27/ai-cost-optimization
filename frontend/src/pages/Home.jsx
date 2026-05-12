@@ -1,12 +1,14 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import PricingCards from '../components/PricingCards';
+import TrialCallout from '../components/TrialCallout';
 import { formatCurrency } from '../utils/api';
 
 const metrics = [
+  ['Free trial', '7 days'],
   ['Entry plan', formatCurrency(999)],
   ['Checkout', 'Razorpay verified'],
-  ['Reports', 'Locked until paid']
+  ['Reports', 'Trial plus paid']
 ];
 
 const services = [
@@ -29,7 +31,7 @@ const services = [
 ];
 
 const workflow = [
-  ['Paid account', 'Customers create an account and buy an audit plan before report generation unlocks.'],
+  ['Trial account', 'Customers start with 7 days of report creation before choosing a paid plan.'],
   ['Company intake', 'Add company details, AI tools, monthly spend, seats, and usage levels.'],
   ['Automated audit', 'The platform calculates waste signals, estimated savings, and yearly cost opportunity.'],
   ['Client delivery', 'Use the report to recommend cancellations, downgrades, consolidation, or monitoring.']
@@ -82,10 +84,10 @@ export default function Home() {
               AI Cost Audit helps companies and consultants review AI software spend, find wasted budget, accept payment, and create client-ready savings reports from one workflow.
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <a href="#plans" className="btn-primary">Buy Audit Plan</a>
-              <Link to="/signup" className="btn-secondary">Create Business Account</Link>
+              <Link to="/signup" className="btn-primary">Start 7-Day Free Trial</Link>
+              <a href="#plans" className="btn-secondary">View Paid Plans</a>
             </div>
-            <div className="mt-8 grid gap-3 sm:grid-cols-3">
+            <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
               {metrics.map(([label, value]) => (
                 <div key={label} className="border-l border-white/10 pl-4">
                   <p className="label">{label}</p>
@@ -108,7 +110,7 @@ export default function Home() {
       <section className="border-y border-white/10 bg-black/15 py-8">
         <div className="container-page grid gap-4 md:grid-cols-3">
           {[
-            ['Revenue first', 'Report creation is tied to verified payment status.'],
+            ['Trial first', 'New accounts can test report creation for 7 days before paying.'],
             ['Business ready', 'Built around clients, companies, plans, reports, and spend data.'],
             ['Operational service', 'Clear workflow from checkout to audit delivery.']
           ].map(([title, text]) => (
@@ -193,21 +195,23 @@ export default function Home() {
 
       <section id="plans" className="border-y border-white/10 bg-slate-900/45 py-12 md:py-16">
         <div className="container-page">
-          <div className="mb-8 grid gap-6 lg:grid-cols-[minmax(0,0.82fr)_minmax(280px,0.4fr)] lg:items-end">
+          <TrialCallout />
+
+          <div className="mb-8 mt-8 grid gap-6 lg:grid-cols-[minmax(0,0.82fr)_minmax(280px,0.4fr)] lg:items-end">
             <div>
               <p className="label text-emerald-200">Plans And Checkout</p>
               <h2 className="mt-3 text-3xl font-black text-white md:text-5xl">
-                Let customers choose a paid plan before they enter the dashboard.
+                Start free, then choose a paid plan when the trial proves value.
               </h2>
               <p className="mt-4 text-sm font-semibold leading-relaxed text-zinc-400">
-                Choose a plan here, complete secure Razorpay checkout, and unlock the report workflow after payment verification.
+                Trial users can create reports for 7 days. After that, secure Razorpay checkout keeps the report workflow active.
               </p>
             </div>
             <div className="rounded-lg border border-emerald-300/20 bg-emerald-300/[0.06] p-5">
               <p className="label text-emerald-200">Revenue Control</p>
-              <p className="mt-3 text-2xl font-black text-white">Paid plan required</p>
+              <p className="mt-3 text-2xl font-black text-white">Trial converts to paid</p>
               <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-500">
-                Unpaid accounts can sign in, but new audit reports stay locked until payment is active.
+                The trial removes purchase friction, then report creation requires payment after 7 days.
               </p>
             </div>
           </div>
@@ -247,7 +251,7 @@ export default function Home() {
               Built for teams that want AI cost optimization to become a paid service.
             </h2>
             <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-              <a href="#plans" className="btn-primary">Start With Payment</a>
+              <Link to="/signup" className="btn-primary">Start Free Trial</Link>
               <Link to="/pricing" className="btn-secondary">Compare Plans</Link>
             </div>
           </div>

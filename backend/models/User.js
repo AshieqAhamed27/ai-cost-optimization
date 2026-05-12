@@ -29,16 +29,17 @@ const userSchema = new mongoose.Schema({
   },
   activePlan: {
     type: String,
-    enum: ['free', 'mini_audit', 'business_audit', 'monthly_monitor'],
+    enum: ['free', 'trial', 'mini_audit', 'business_audit', 'monthly_monitor'],
     default: 'free'
   },
   planStatus: {
     type: String,
-    enum: ['free', 'active', 'expired'],
+    enum: ['free', 'trial', 'active', 'expired'],
     default: 'free'
   },
+  trialStartedAt: Date,
+  trialEndsAt: Date,
   paidAt: Date
 }, { timestamps: true });
 
 module.exports = mongoose.model('User', userSchema);
-

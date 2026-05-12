@@ -33,13 +33,28 @@ export const logout = () => {
 export const isLoggedIn = () => Boolean(getToken());
 
 export const planNames = {
+  trial: '7-Day Trial',
   mini_audit: 'Mini Audit',
   business_audit: 'Business Audit',
   monthly_monitor: 'Monthly Monitor'
 };
 
+export const isTrialActive = (user = getUser()) =>
+  user?.planStatus === 'trial' &&
+  user?.activePlan === 'trial' &&
+  user?.trialEndsAt &&
+  new Date(user.trialEndsAt).getTime() > Date.now();
+
 export const hasActivePlan = (user = getUser()) =>
-  user?.planStatus === 'active' && user?.activePlan && user.activePlan !== 'free';
+  (user?.planStatus === 'active' && user?.activePlan && user.activePlan !== 'free') ||
+  isTrialActive(user);
+
+export const getTrialDaysLeft = (user = getUser()) => {
+  if (!isTrialActive(user)) return 0;
+
+  const msLeft = new Date(user.trialEndsAt).getTime() - Date.now();
+  return Math.max(1, Math.ceil(msLeft / (24 * 60 * 60 * 1000)));
+};
 
 export const getPlanName = (planId) => planNames[planId] || 'Choose Plan';
 

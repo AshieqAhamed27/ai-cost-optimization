@@ -1,6 +1,12 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
+const isTrialActive = (user) =>
+  user?.planStatus === 'trial' &&
+  user?.activePlan === 'trial' &&
+  user?.trialEndsAt &&
+  new Date(user.trialEndsAt).getTime() > Date.now();
+
 const requireAuth = async (req, res, next) => {
   try {
     const header = req.headers.authorization || '';
@@ -17,6 +23,15 @@ const requireAuth = async (req, res, next) => {
       return res.status(401).json({ message: 'User not found' });
     }
 
+    if (user.planStatus === 'trial' && !isTrialActive(user)) {
+      await User.findByIdAndUpdate(user._id, {
+        activePlan: 'free',
+        planStatus: 'expired'
+      });
+      user.activePlan = 'free';
+      user.planStatus = 'expired';
+    }
+
     req.user = user;
     next();
   } catch {
@@ -29,9 +44,19 @@ const requireActivePlan = (req, res, next) => {
     return next();
   }
 
+  if (isTrialActive(req.user)) {
+    return next();
+  }
+
+  if (req.user?.planStatus === 'expired') {
+    return res.status(402).json({
+      message: 'Your 7-day free trial has ended. Choose a paid audit plan to keep creating reports.'
+    });
+  }
+
   return res.status(402).json({
-    message: 'Choose a paid audit plan before creating client reports'
+    message: 'Start a 7-day free trial or choose a paid audit plan before creating client reports'
   });
 };
 
-module.exports = { requireAuth, requireActivePlan };
+module.exports = { requireAuth, requireActivePlan, isTrialActive };

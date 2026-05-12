@@ -8,11 +8,11 @@ const controls = [
   },
   {
     title: 'Payment verification',
-    text: 'The backend verifies Razorpay payment signatures before activating a paid plan.'
+    text: 'The backend verifies Razorpay payment signatures before activating a paid plan after the free trial.'
   },
   {
     title: 'Protected report access',
-    text: 'Audit reports are tied to authenticated user accounts, and report creation requires an active paid plan.'
+    text: 'Audit reports are tied to authenticated user accounts, and report creation requires an active trial or paid plan.'
   },
   {
     title: 'Password protection',

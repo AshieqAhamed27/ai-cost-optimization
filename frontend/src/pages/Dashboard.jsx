@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import StatCard from '../components/StatCard';
-import { apiRequest, formatCurrency, getPlanName, getUser, hasActivePlan } from '../utils/api';
+import { apiRequest, formatCurrency, getPlanName, getTrialDaysLeft, getUser, hasActivePlan, isTrialActive } from '../utils/api';
 
 export default function Dashboard() {
   const user = getUser();
@@ -18,6 +18,7 @@ export default function Dashboard() {
 
   const stats = data.stats || {};
   const planActive = hasActivePlan(user);
+  const trialActive = isTrialActive(user);
 
   return (
     <main className="container-page py-10">
@@ -28,7 +29,7 @@ export default function Dashboard() {
             Good to see you, {user?.name || 'Founder'}
           </h1>
           <p className="mt-3 max-w-2xl text-sm font-semibold leading-relaxed text-zinc-500">
-            Manage paid AI cost audit reports, savings estimates, and client-ready recommendations.
+            Manage AI cost audit reports, savings estimates, and client-ready recommendations.
           </p>
         </div>
         <div className="flex flex-col gap-3 sm:flex-row">
@@ -39,17 +40,32 @@ export default function Dashboard() {
 
       {error && <p className="mb-6 rounded-2xl border border-red-300/20 bg-red-300/10 p-4 text-sm font-bold text-red-100">{error}</p>}
 
-      {!planActive && (
-        <section className="panel mb-8 border-yellow-300/25 bg-yellow-300/[0.07]">
-          <p className="label text-yellow-200">Revenue gate</p>
+      {trialActive && (
+        <section className="panel mb-8 border-emerald-300/25 bg-emerald-300/[0.07]">
+          <p className="label text-emerald-200">Free trial active</p>
           <div className="mt-3 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div>
-              <h2 className="text-2xl font-black text-white">Choose a paid plan to unlock report creation.</h2>
+              <h2 className="text-2xl font-black text-white">{getTrialDaysLeft(user)} days left to test report creation.</h2>
               <p className="mt-2 max-w-2xl text-sm font-semibold leading-relaxed text-zinc-400">
-                Accounts can review pricing and manage their workspace, but client reports are created only after payment.
+                Use the trial to create reports and prove the value. Upgrade before it ends to keep the workflow unlocked.
               </p>
             </div>
-            <Link to="/pricing" className="btn-primary shrink-0">Buy Audit Plan</Link>
+            <Link to="/pricing" className="btn-primary shrink-0">Upgrade Plan</Link>
+          </div>
+        </section>
+      )}
+
+      {!planActive && (
+        <section className="panel mb-8 border-yellow-300/25 bg-yellow-300/[0.07]">
+          <p className="label text-yellow-200">Access required</p>
+          <div className="mt-3 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div>
+              <h2 className="text-2xl font-black text-white">Start a trial or choose a paid plan to unlock report creation.</h2>
+              <p className="mt-2 max-w-2xl text-sm font-semibold leading-relaxed text-zinc-400">
+                New accounts can test the audit workflow for 7 days. After the trial, client reports require payment.
+              </p>
+            </div>
+            <Link to="/pricing" className="btn-primary shrink-0">Start Trial or Pay</Link>
           </div>
         </section>
       )}

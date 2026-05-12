@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
-import { getPlanName, getUser, hasActivePlan, isLoggedIn, logout } from '../utils/api';
+import { getPlanName, getTrialDaysLeft, getUser, hasActivePlan, isLoggedIn, isTrialActive, logout } from '../utils/api';
 
 export default function Navbar() {
   const navigate = useNavigate();
@@ -12,7 +12,11 @@ export default function Navbar() {
     navigate('/');
   };
 
-  const planLabel = hasActivePlan(user) ? getPlanName(user.activePlan) : 'Choose Plan';
+  const planLabel = isTrialActive(user)
+    ? `Trial: ${getTrialDaysLeft(user)} days left`
+    : hasActivePlan(user)
+      ? getPlanName(user.activePlan)
+      : 'Choose Plan';
 
   const navClass = ({ isActive }) =>
     `rounded-xl px-3 py-2 text-sm font-bold transition ${
@@ -46,7 +50,7 @@ export default function Navbar() {
           {!loggedIn ? (
             <>
               <NavLink to="/login" className={navClass}>Login</NavLink>
-              <Link to="/pricing" className="btn-primary">Buy Audit Plan</Link>
+              <Link to="/signup" className="btn-primary">Start Free Trial</Link>
             </>
           ) : (
             <>

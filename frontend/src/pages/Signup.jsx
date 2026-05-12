@@ -15,7 +15,7 @@ export default function Signup() {
     try {
       const data = await apiRequest('/auth/signup', { method: 'POST', body: form });
       setSession(data);
-      navigate('/pricing');
+      navigate('/dashboard');
     } catch (err) {
       setError(err.message);
     } finally {
@@ -26,10 +26,10 @@ export default function Signup() {
   return (
     <main className="container-page grid min-h-[70vh] place-items-center py-10">
       <form onSubmit={submit} className="panel w-full max-w-lg">
-        <p className="label text-yellow-300">Create account</p>
-        <h1 className="mt-3 text-3xl font-black text-white">Create your business account</h1>
+        <p className="label text-yellow-300">7-day free trial</p>
+        <h1 className="mt-3 text-3xl font-black text-white">Start your business trial</h1>
         <p className="mt-3 text-sm font-semibold leading-relaxed text-zinc-500">
-          Your account protects paid plans, audit reports, and company spend data.
+          Create reports for 7 days before paying. No card is required to start.
         </p>
         {error && <p className="mt-4 rounded-2xl border border-red-300/20 bg-red-300/10 p-3 text-sm font-bold text-red-100">{error}</p>}
         <div className="mt-6 grid gap-4 sm:grid-cols-2">
@@ -49,7 +49,7 @@ export default function Signup() {
             <span className="label">Password</span>
             <input className="input" type="password" value={form.password} onChange={(event) => setForm({ ...form, password: event.target.value })} required minLength={8} />
           </label>
-          <button className="btn-primary w-full sm:col-span-2" disabled={loading}>{loading ? 'Creating...' : 'Create Account and Choose Plan'}</button>
+          <button className="btn-primary w-full sm:col-span-2" disabled={loading}>{loading ? 'Starting...' : 'Start Free Trial'}</button>
           <p className="text-center text-sm font-semibold text-zinc-500 sm:col-span-2">
             Already have account? <Link className="text-yellow-200" to="/login">Login</Link>
           </p>

@@ -12,7 +12,7 @@ AI Cost Audit helps businesses:
 - create audit reports
 - collect payment through Razorpay
 
-Report creation is gated behind an active paid plan so the product can collect revenue before client work is delivered.
+Report creation is available during the 7-day free trial and then gated behind an active paid plan so the product can convert trial users into revenue.
 
 The website also includes company, security, privacy, terms, and refund pages so buyers can understand why they should pay and how the service handles trust before checkout.
 
@@ -178,6 +178,7 @@ For audits, ask only for:
 
 ## Suggested packages
 
+- 7-day free trial: no card required
 - Mini Audit: Rs 999
 - Business Audit: Rs 4,999
 - Monthly Monitor: Rs 9,999/month

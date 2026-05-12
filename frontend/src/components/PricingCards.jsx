@@ -189,7 +189,7 @@ export default function PricingCards({ compact = false }) {
                 disabled={loadingPlan === plan.id}
                 aria-label={`Pay for ${plan.name}`}
               >
-                {loadingPlan === plan.id ? 'Opening...' : isLoggedIn() ? 'Pay with Razorpay' : 'Create Account to Pay'}
+                {loadingPlan === plan.id ? 'Opening...' : isLoggedIn() ? 'Pay with Razorpay' : 'Start Trial or Pay'}
               </button>
               <p className="mt-3 text-center text-xs font-bold text-zinc-500">
                 No card details are stored by AI Cost Audit.

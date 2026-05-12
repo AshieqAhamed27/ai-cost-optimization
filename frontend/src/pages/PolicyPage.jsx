@@ -8,7 +8,7 @@ const policies = {
     intro: 'AI Cost Audit collects only the account, payment status, and AI spend details needed to create and manage audits.',
     sections: [
       ['Information we collect', 'Name, email, company name, plan status, payment references, audit inputs, and generated report information.'],
-      ['How we use information', 'We use this data to authenticate accounts, process paid plan access, create audit reports, and improve the service workflow.'],
+      ['How we use information', 'We use this data to authenticate accounts, manage trial and paid plan access, create audit reports, and improve the service workflow.'],
       ['Payment data', 'Card and bank payment details are handled by Razorpay. AI Cost Audit stores payment references and status, not card numbers.'],
       ['Sensitive data', 'Customers should not enter API keys, private credentials, legal secrets, employee personal data, or confidential model prompts into audit notes.'],
       ['Data access', 'Audit reports are tied to authenticated accounts. Users should keep their account password private and use a strong password.']
@@ -22,7 +22,7 @@ const policies = {
       ['Service scope', 'AI Cost Audit provides software-assisted AI spend reviews, savings estimates, and recommendations based on user-entered data.'],
       ['Customer responsibility', 'Customers are responsible for entering accurate tool names, costs, seats, and usage levels.'],
       ['No guaranteed savings', 'Reports provide recommendations and estimates. Actual savings depend on vendor contracts, usage, negotiation, and customer decisions.'],
-      ['Account access', 'Report creation requires an authenticated account and an active paid plan.'],
+      ['Account access', 'Report creation requires an authenticated account with an active 7-day trial or paid plan.'],
       ['Acceptable use', 'Do not submit illegal content, stolen data, credentials, payment card numbers, or information you are not authorized to process.']
     ]
   },
