@@ -61,6 +61,8 @@ FRONTEND_URL=http://localhost:5174
 CORS_ORIGINS=http://localhost:5174,http://127.0.0.1:5174
 RAZORPAY_KEY_ID=your_razorpay_key_id
 RAZORPAY_KEY_SECRET=your_razorpay_secret
+OPENAI_API_KEY=optional_openai_api_key_for_audit_agent
+OPENAI_MODEL=gpt-5
 PAYMENT_SIMULATION=false
 ALLOW_PAYMENT_SIMULATION=false
 ```
@@ -82,6 +84,8 @@ Use these exact keys:
 | `CORS_ORIGINS` | Comma-separated frontend URLs, for example `https://ai-cost-optimization.vercel.app` |
 | `RAZORPAY_KEY_ID` | Your Razorpay key ID |
 | `RAZORPAY_KEY_SECRET` | Your Razorpay key secret |
+| `OPENAI_API_KEY` | Optional server-side OpenAI API key for the AI Audit Agent |
+| `OPENAI_MODEL` | Optional model name for the agent, for example `gpt-5` |
 | `PAYMENT_SIMULATION` | `false` for live payments |
 | `ALLOW_PAYMENT_SIMULATION` | `false` for live payments |
 | `VITE_API_URL` | Your backend API URL ending in `/api` |
@@ -175,6 +179,16 @@ For audits, ask only for:
 - invoices
 - billing exports
 - usage exports
+
+## AI Audit Agent
+
+The backend includes an AI Audit Agent endpoint:
+
+```text
+POST /api/agent/audit-advice
+```
+
+It is available to trial and paid users. If `OPENAI_API_KEY` is configured, the endpoint calls OpenAI's Responses API from the server. If no key is configured or the provider request fails, it falls back to built-in rule-based audit guidance so the product still works.
 
 ## Suggested packages
 

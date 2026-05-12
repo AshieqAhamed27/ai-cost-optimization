@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import AuditAgent from '../components/AuditAgent';
 import ToolEditor, { createBlankTool } from '../components/ToolEditor';
 import { apiRequest, formatCurrency, getUser, hasActivePlan } from '../utils/api';
 
@@ -115,26 +116,30 @@ export default function NewAudit() {
           </div>
         </section>
 
-        <aside className="panel h-fit border-emerald-300/20 bg-emerald-300/[0.07]">
-          <p className="label text-emerald-200">Live preview</p>
-          <div className="mt-5 grid gap-3">
-            {[
-              ['Monthly AI and infra spend', preview.monthlySpend],
-              ['Possible monthly savings', preview.savings],
-              ['Spend after cleanup', preview.afterCleanup],
-              ['Possible yearly savings', preview.yearlySavings]
-            ].map(([label, value]) => (
-              <div key={label} className="rounded-2xl border border-white/10 bg-black/20 p-4">
-                <p className="label">{label}</p>
-                <p className="mt-2 text-2xl font-black text-white">{formatCurrency(value)}</p>
-              </div>
-            ))}
-          </div>
-          {error && <p className="mt-4 rounded-2xl border border-red-300/20 bg-red-300/10 p-3 text-sm font-bold text-red-100">{error}</p>}
-          <button type="submit" disabled={loading} className="btn-primary mt-5 w-full">
-            {loading ? 'Creating...' : 'Create Audit Report'}
-          </button>
-        </aside>
+        <div className="grid h-fit gap-6">
+          <aside className="panel border-emerald-300/20 bg-emerald-300/[0.07]">
+            <p className="label text-emerald-200">Live preview</p>
+            <div className="mt-5 grid gap-3">
+              {[
+                ['Monthly AI and infra spend', preview.monthlySpend],
+                ['Possible monthly savings', preview.savings],
+                ['Spend after cleanup', preview.afterCleanup],
+                ['Possible yearly savings', preview.yearlySavings]
+              ].map(([label, value]) => (
+                <div key={label} className="rounded-2xl border border-white/10 bg-black/20 p-4">
+                  <p className="label">{label}</p>
+                  <p className="mt-2 text-2xl font-black text-white">{formatCurrency(value)}</p>
+                </div>
+              ))}
+            </div>
+            {error && <p className="mt-4 rounded-2xl border border-red-300/20 bg-red-300/10 p-3 text-sm font-bold text-red-100">{error}</p>}
+            <button type="submit" disabled={loading} className="btn-primary mt-5 w-full">
+              {loading ? 'Creating...' : 'Create Audit Report'}
+            </button>
+          </aside>
+
+          <AuditAgent form={form} tools={tools} preview={preview} />
+        </div>
       </form>
     </main>
   );

@@ -7,6 +7,7 @@ require('dotenv').config();
 
 const authRoutes = require('./routes/auth');
 const auditRoutes = require('./routes/audits');
+const agentRoutes = require('./routes/agent');
 const paymentRoutes = require('./routes/payments');
 const { errorHandler } = require('./middleware/errorHandler');
 
@@ -145,6 +146,14 @@ const paymentLimiter = rateLimit({
   message: { message: 'Too many payment attempts. Please wait a few minutes and try again.' }
 });
 
+const agentLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 35,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { message: 'Too many agent requests. Please wait a few minutes and try again.' }
+});
+
 app.use(apiLimiter);
 
 app.get('/api/health', (req, res) => {
@@ -157,6 +166,7 @@ app.get('/api/health', (req, res) => {
 
 app.use('/api/auth', authLimiter, authRoutes);
 app.use('/api/audits', auditRoutes);
+app.use('/api/agent', agentLimiter, agentRoutes);
 app.use('/api/payments', paymentLimiter, paymentRoutes);
 app.use(errorHandler);
 
