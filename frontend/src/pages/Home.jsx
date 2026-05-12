@@ -1,67 +1,70 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import PricingCards from '../components/PricingCards';
 import { formatCurrency } from '../utils/api';
+
+const metrics = [
+  ['Entry plan', formatCurrency(999)],
+  ['Checkout', 'Razorpay verified'],
+  ['Reports', 'Locked until paid']
+];
 
 const services = [
   {
-    title: 'AI spend audit',
-    text: 'Review every AI subscription, chatbot, automation tool, and seat your team is paying for.'
+    title: 'AI subscription audit',
+    text: 'Review ChatGPT, copilots, automation apps, image tools, API platforms, and any other AI software the business pays for.'
   },
   {
-    title: 'Waste detection',
-    text: 'Find unused seats, duplicate tools, low-usage products, wrong plans, and fast-growing API costs.'
+    title: 'Waste and risk analysis',
+    text: 'Identify unused seats, duplicate tools, low-usage products, wrong plan tiers, and spending patterns that can scale too quickly.'
   },
   {
-    title: 'Savings report',
-    text: 'Generate a client-ready report with monthly spend, possible savings, and a clear action plan.'
+    title: 'Savings recommendation report',
+    text: 'Turn the numbers into a clear action plan with monthly cost, yearly opportunity, and practical next steps for decision makers.'
   },
   {
-    title: 'Monthly monitoring',
-    text: 'Track spending over time so AI costs stay controlled as the team adopts more tools.'
+    title: 'Ongoing cost monitoring',
+    text: 'Use monthly follow-up to keep AI spend controlled as more people, tools, and workflows enter the company.'
   }
 ];
 
 const workflow = [
-  ['1. Choose a paid plan', 'Payment unlocks report creation so every audit starts as revenue.'],
-  ['2. Add real client data', 'Enter company details, tool names, monthly cost, seats, and usage level.'],
-  ['3. Review savings', 'The system calculates possible monthly and yearly savings from the submitted spend.'],
-  ['4. Deliver the report', 'Use the recommendations to help the client cancel, downgrade, or consolidate tools.']
+  ['Paid account', 'Customers create an account and buy an audit plan before report generation unlocks.'],
+  ['Company intake', 'Add company details, AI tools, monthly spend, seats, and usage levels.'],
+  ['Automated audit', 'The platform calculates waste signals, estimated savings, and yearly cost opportunity.'],
+  ['Client delivery', 'Use the report to recommend cancellations, downgrades, consolidation, or monitoring.']
 ];
 
-const inclusions = [
-  'Tool and subscription inventory',
-  'Monthly spend and yearly opportunity',
-  'Low-usage and unused tool review',
-  'Seat waste estimate',
-  'Duplicate tool risk review',
-  'Client-ready recommendations'
+const audiences = [
+  'AI consultants selling cost audits',
+  'Agencies managing client software spend',
+  'Founders reviewing monthly AI bills',
+  'Operations teams standardizing tool usage',
+  'Finance teams watching SaaS expansion',
+  'IT teams consolidating duplicate products'
 ];
 
 export default function Home() {
   return (
     <main>
-      <section className="container-page py-12 md:py-16">
-        <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(340px,0.78fr)] lg:items-center">
+      <section className="container-page py-10 md:py-14">
+        <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(360px,0.82fr)] lg:items-center">
           <div>
-            <p className="mb-5 inline-flex rounded-full border border-sky-300/20 bg-sky-300/10 px-4 py-2 text-[10px] font-black uppercase tracking-[0.22em] text-sky-200">
-              AI cost optimization service
+            <p className="mb-5 inline-flex rounded-lg border border-sky-300/20 bg-sky-300/10 px-4 py-2 text-[10px] font-black uppercase tracking-[0.22em] text-sky-200">
+              B2B AI cost audit platform
             </p>
             <h1 className="max-w-5xl text-5xl font-black leading-[0.98] text-white md:text-7xl">
-              Find wasted AI spend and turn it into measurable savings.
+              AI spend audits your business can sell, deliver, and repeat.
             </h1>
             <p className="mt-6 max-w-3xl text-lg font-semibold leading-relaxed text-zinc-400">
-              AI Cost Audit helps businesses review AI tools, calculate savings, and receive a practical report before costs grow out of control.
+              AI Cost Audit helps companies and consultants review AI software spend, find wasted budget, accept payment, and create client-ready savings reports from one workflow.
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <Link to="/pricing" className="btn-primary">View Paid Plans</Link>
-              <Link to="/signup" className="btn-secondary">Create Account</Link>
+              <a href="#plans" className="btn-primary">Buy Audit Plan</a>
+              <Link to="/signup" className="btn-secondary">Create Business Account</Link>
             </div>
             <div className="mt-8 grid gap-3 sm:grid-cols-3">
-              {[
-                ['Plans from', formatCurrency(999)],
-                ['Report flow', 'Paid first'],
-                ['Checkout', 'Razorpay']
-              ].map(([label, value]) => (
+              {metrics.map(([label, value]) => (
                 <div key={label} className="border-l border-white/10 pl-4">
                   <p className="label">{label}</p>
                   <p className="mt-1 text-xl font-black text-white">{value}</p>
@@ -70,7 +73,7 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="overflow-hidden rounded-3xl border border-white/10 bg-white/[0.04] shadow-2xl shadow-black/30">
+          <div className="overflow-hidden rounded-lg border border-white/10 bg-white/[0.04] shadow-2xl shadow-black/30">
             <img
               src="/report-preview.svg"
               alt="AI cost audit report preview"
@@ -80,38 +83,76 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="border-y border-white/10 bg-black/15 py-12">
-        <div className="container-page">
-          <div className="max-w-3xl">
-            <p className="label text-yellow-300">What We Provide</p>
-            <h2 className="mt-3 text-3xl font-black text-white md:text-5xl">
-              A complete AI cost audit service for teams using paid AI tools.
-            </h2>
-            <p className="mt-4 text-sm font-semibold leading-relaxed text-zinc-400">
-              The product is built for founders, agencies, consultants, and businesses that need a clear view of AI software spend and a practical plan to reduce waste.
-            </p>
-          </div>
-
-          <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-            {services.map((service) => (
-              <article key={service.title} className="panel transition hover:-translate-y-1 hover:border-white/20">
-                <h3 className="text-xl font-black text-white">{service.title}</h3>
-                <p className="mt-3 text-sm font-semibold leading-relaxed text-zinc-500">{service.text}</p>
-              </article>
-            ))}
-          </div>
+      <section className="border-y border-white/10 bg-black/15 py-8">
+        <div className="container-page grid gap-4 md:grid-cols-3">
+          {[
+            ['Revenue first', 'Report creation is tied to verified payment status.'],
+            ['Business ready', 'Built around clients, companies, plans, reports, and spend data.'],
+            ['Operational service', 'Clear workflow from checkout to audit delivery.']
+          ].map(([title, text]) => (
+            <div key={title} className="rounded-lg border border-white/10 bg-white/[0.03] p-5">
+              <h2 className="text-lg font-black text-white">{title}</h2>
+              <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-500">{text}</p>
+            </div>
+          ))}
         </div>
       </section>
 
       <section className="container-page py-12 md:py-16">
-        <div className="grid gap-8 lg:grid-cols-[minmax(0,0.72fr)_minmax(0,1fr)]">
+        <div className="max-w-3xl">
+          <p className="label text-yellow-300">What The Product Provides</p>
+          <h2 className="mt-3 text-3xl font-black text-white md:text-5xl">
+            A complete AI cost optimization service with checkout and reports.
+          </h2>
+          <p className="mt-4 text-sm font-semibold leading-relaxed text-zinc-400">
+            The product gives a business a concrete reason to pay: audit their AI tools, calculate avoidable spend, and receive recommendations that can reduce monthly software costs.
+          </p>
+        </div>
+
+        <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          {services.map((service) => (
+            <article key={service.title} className="panel transition hover:-translate-y-1 hover:border-white/20">
+              <h3 className="text-xl font-black text-white">{service.title}</h3>
+              <p className="mt-3 text-sm font-semibold leading-relaxed text-zinc-500">{service.text}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section id="plans" className="border-y border-white/10 bg-slate-900/45 py-12 md:py-16">
+        <div className="container-page">
+          <div className="mb-8 grid gap-6 lg:grid-cols-[minmax(0,0.82fr)_minmax(280px,0.4fr)] lg:items-end">
+            <div>
+              <p className="label text-emerald-200">Plans And Checkout</p>
+              <h2 className="mt-3 text-3xl font-black text-white md:text-5xl">
+                Let customers choose a paid plan before they enter the dashboard.
+              </h2>
+              <p className="mt-4 text-sm font-semibold leading-relaxed text-zinc-400">
+                Choose a plan here, complete secure Razorpay checkout, and unlock the report workflow after payment verification.
+              </p>
+            </div>
+            <div className="rounded-lg border border-emerald-300/20 bg-emerald-300/[0.06] p-5">
+              <p className="label text-emerald-200">Revenue Control</p>
+              <p className="mt-3 text-2xl font-black text-white">Paid plan required</p>
+              <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-500">
+                Unpaid accounts can sign in, but new audit reports stay locked until payment is active.
+              </p>
+            </div>
+          </div>
+
+          <PricingCards compact />
+        </div>
+      </section>
+
+      <section className="container-page py-12 md:py-16">
+        <div className="grid gap-8 lg:grid-cols-[minmax(0,0.68fr)_minmax(0,1fr)]">
           <div>
-            <p className="label text-emerald-200">How It Works</p>
+            <p className="label text-sky-200">Delivery Workflow</p>
             <h2 className="mt-3 text-3xl font-black text-white md:text-5xl">
-              A paid workflow from checkout to client-ready report.
+              From payment to client-ready audit report.
             </h2>
             <p className="mt-4 text-sm font-semibold leading-relaxed text-zinc-400">
-              Report creation stays locked until payment is active, so the product supports real revenue instead of unpaid report generation.
+              AI Cost Audit supports the full operating model: sell the audit, collect payment, capture spend data, and deliver recommendations.
             </p>
           </div>
 
@@ -127,20 +168,20 @@ export default function Home() {
       </section>
 
       <section className="container-page pb-14 md:pb-20">
-        <div className="grid gap-8 rounded-3xl border border-yellow-300/20 bg-yellow-300/[0.06] p-6 md:p-8 lg:grid-cols-[minmax(0,0.72fr)_minmax(0,1fr)]">
+        <div className="grid gap-8 rounded-lg border border-yellow-300/20 bg-yellow-300/[0.06] p-6 md:p-8 lg:grid-cols-[minmax(0,0.72fr)_minmax(0,1fr)]">
           <div>
-            <p className="label text-yellow-200">Included In Each Audit</p>
+            <p className="label text-yellow-200">Who Can Use It</p>
             <h2 className="mt-3 text-3xl font-black text-white md:text-4xl">
-              Clear numbers, specific waste signals, and recommendations a client can act on.
+              Built for teams that want AI cost optimization to become a paid service.
             </h2>
             <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-              <Link to="/pricing" className="btn-primary">Buy Audit Plan</Link>
-              <Link to="/signup" className="btn-secondary">Create Account</Link>
+              <a href="#plans" className="btn-primary">Start With Payment</a>
+              <Link to="/pricing" className="btn-secondary">Compare Plans</Link>
             </div>
           </div>
 
           <div className="grid gap-3 sm:grid-cols-2">
-            {inclusions.map((item) => (
+            {audiences.map((item) => (
               <div key={item} className="rounded-lg border border-white/10 bg-black/20 px-4 py-3">
                 <p className="text-sm font-bold text-zinc-300">{item}</p>
               </div>

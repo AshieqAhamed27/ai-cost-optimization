@@ -20,15 +20,15 @@ export default function Navbar() {
     }`;
 
   return (
-    <header className="sticky top-3 z-50 mx-auto mt-3 w-[min(1180px,calc(100%-1.25rem))] rounded-[1.5rem] border border-white/10 bg-slate-950/85 px-3 py-3 shadow-2xl shadow-black/30 backdrop-blur-xl sm:w-[min(1180px,calc(100%-2rem))]">
+    <header className="sticky top-3 z-50 mx-auto mt-3 w-[min(1180px,calc(100%-1.25rem))] rounded-lg border border-white/10 bg-slate-950/90 px-3 py-3 shadow-2xl shadow-black/30 backdrop-blur-xl sm:w-[min(1180px,calc(100%-2rem))]">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <Link to="/" className="flex items-center gap-3">
-          <span className="grid h-11 w-11 place-items-center rounded-2xl bg-gradient-to-br from-sky-300 to-yellow-300 text-sm font-black text-slate-950">
+          <span className="grid h-11 w-11 place-items-center rounded-lg bg-gradient-to-br from-sky-300 to-yellow-300 text-sm font-black text-slate-950">
             AI
           </span>
           <span>
             <span className="block text-base font-black text-white">AI Cost Audit</span>
-            <span className="block text-xs font-bold text-zinc-500">Reduce wasted AI spend</span>
+            <span className="block text-xs font-bold text-zinc-500">Paid AI cost audits</span>
           </span>
         </Link>
 
@@ -44,7 +44,7 @@ export default function Navbar() {
           {!loggedIn ? (
             <>
               <NavLink to="/login" className={navClass}>Login</NavLink>
-              <Link to="/signup" className="btn-primary">Create Account</Link>
+              <Link to="/pricing" className="btn-primary">Buy Audit Plan</Link>
             </>
           ) : (
             <>
