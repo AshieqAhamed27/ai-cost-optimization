@@ -3,9 +3,9 @@ import PricingCards from '../components/PricingCards';
 import TrialCallout from '../components/TrialCallout';
 
 const steps = [
-  ['Start free trial', 'Use a business email and create audit reports for 7 days with no card required.'],
-  ['Prove the value', 'Review real AI API and infrastructure spend and see whether the report can identify avoidable monthly costs.'],
-  ['Upgrade securely', 'After the trial, Razorpay checkout activates a paid plan and keeps report creation unlocked.']
+  ['Start free early access', 'Use a business email and create audit reports with no card required.'],
+  ['Use real spend data', 'Review real AI API and infrastructure spend and see whether the report can identify avoidable monthly costs.'],
+  ['Payment ready for later', 'Razorpay checkout stays in the product for future paid plans, but early users are free now.']
 ];
 
 export default function Pricing() {
@@ -14,10 +14,10 @@ export default function Pricing() {
       <section className="mb-10 text-center">
         <p className="label text-yellow-300">Pricing</p>
         <h1 className="mx-auto mt-3 max-w-3xl text-4xl font-black text-white md:text-6xl">
-          Start with a 7-day trial, then audit real AI usage costs.
+          Free for early users now. Paid plans are ready for later.
         </h1>
         <p className="mx-auto mt-4 max-w-2xl text-sm font-semibold leading-relaxed text-zinc-400">
-          Use the audit workflow before paying. When the trial ends, a paid plan keeps AI usage reports and cost reviews active.
+          Use the audit workflow with real AI spend data. Payment remains built in, but early access does not require checkout.
         </p>
       </section>
 

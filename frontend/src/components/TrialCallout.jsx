@@ -1,16 +1,17 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { apiRequest, getTrialDaysLeft, getUser, hasActivePlan, isLoggedIn, isTrialActive, setSession } from '../utils/api';
+import { apiRequest, getPlanName, getUser, hasActivePlan, isEarlyAccessActive, isLoggedIn, isTrialActive, setSession } from '../utils/api';
 
 export default function TrialCallout({ compact = false }) {
   const navigate = useNavigate();
   const user = getUser();
+  const earlyAccessActive = isEarlyAccessActive(user);
   const trialActive = isTrialActive(user);
   const accessActive = hasActivePlan(user);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const startTrial = async () => {
+  const startEarlyAccess = async () => {
     if (!isLoggedIn()) {
       navigate('/signup');
       return;
@@ -25,7 +26,7 @@ export default function TrialCallout({ compact = false }) {
     setError('');
 
     try {
-      const data = await apiRequest('/auth/trial/start', { method: 'POST' });
+      const data = await apiRequest('/auth/early-access/start', { method: 'POST' });
       setSession({ user: data.user });
       navigate('/dashboard');
     } catch (err) {
@@ -35,33 +36,35 @@ export default function TrialCallout({ compact = false }) {
     }
   };
 
-  const buttonLabel = trialActive
-    ? `Continue Trial (${getTrialDaysLeft(user)} days left)`
+  const buttonLabel = earlyAccessActive
+    ? 'Go to Dashboard'
+    : trialActive
+    ? 'Continue Free Access'
     : accessActive
       ? 'Go to Dashboard'
       : loading
         ? 'Starting...'
-        : 'Start 7-Day Free Trial';
+        : 'Start Free Early Access';
 
   return (
     <section className={`rounded-lg border border-emerald-300/20 bg-emerald-300/[0.06] ${compact ? 'p-5' : 'p-6 md:p-7'}`}>
       <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
         <div>
-          <p className="label text-emerald-200">7-Day Free Trial</p>
+          <p className="label text-emerald-200">{accessActive ? getPlanName(user?.activePlan) : 'Free Early Access'}</p>
           <h2 className={`${compact ? 'mt-2 text-2xl' : 'mt-3 text-3xl md:text-4xl'} font-black text-white`}>
-            Use the audit workflow before paying.
+            Early users can use the audit workflow for free.
           </h2>
           <p className="mt-3 max-w-3xl text-sm font-semibold leading-relaxed text-zinc-400">
-            Create reports, review the savings workflow, and understand the business value for 7 days. No card is required to start the trial.
+            Create reports, review the savings workflow, and shape the product before paid plans are turned on. No card is required.
           </p>
         </div>
 
         <div className="grid gap-3">
-          <button type="button" onClick={startTrial} disabled={loading} className="btn-primary w-full lg:w-auto">
+          <button type="button" onClick={startEarlyAccess} disabled={loading} className="btn-primary w-full lg:w-auto">
             {buttonLabel}
           </button>
           <p className="text-center text-xs font-bold text-zinc-500">
-            Payment is needed after the trial to keep creating reports.
+            Payment is built in for later, but early users are free now.
           </p>
         </div>
       </div>

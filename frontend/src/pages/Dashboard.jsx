@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import StatCard from '../components/StatCard';
-import { apiRequest, formatCurrency, getPlanName, getTrialDaysLeft, getUser, hasActivePlan, isTrialActive } from '../utils/api';
+import { apiRequest, formatCurrency, getPlanName, getUser, hasActivePlan, isEarlyAccessActive, isTrialActive } from '../utils/api';
 
 export default function Dashboard() {
   const user = getUser();
@@ -18,6 +18,7 @@ export default function Dashboard() {
 
   const stats = data.stats || {};
   const planActive = hasActivePlan(user);
+  const earlyAccessActive = isEarlyAccessActive(user);
   const trialActive = isTrialActive(user);
 
   return (
@@ -33,24 +34,39 @@ export default function Dashboard() {
           </p>
         </div>
         <div className="flex flex-col gap-3 sm:flex-row">
-          <Link to={planActive ? '/audits/new' : '/pricing'} className="btn-primary">{planActive ? 'New Audit' : 'Choose Plan'}</Link>
+          <Link to={planActive ? '/audits/new' : '/pricing'} className="btn-primary">{planActive ? 'New Audit' : 'Start Free'}</Link>
           <Link to="/pricing" className="btn-secondary">{planActive ? getPlanName(user.activePlan) : 'Pricing'}</Link>
         </div>
       </section>
 
       {error && <p className="mb-6 rounded-2xl border border-red-300/20 bg-red-300/10 p-4 text-sm font-bold text-red-100">{error}</p>}
 
-      {trialActive && (
+      {earlyAccessActive && (
         <section className="panel mb-8 border-emerald-300/25 bg-emerald-300/[0.07]">
-          <p className="label text-emerald-200">Free trial active</p>
+          <p className="label text-emerald-200">Early access active</p>
           <div className="mt-3 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div>
-              <h2 className="text-2xl font-black text-white">{getTrialDaysLeft(user)} days left to create reports.</h2>
+              <h2 className="text-2xl font-black text-white">Reports are free for early users right now.</h2>
               <p className="mt-2 max-w-2xl text-sm font-semibold leading-relaxed text-zinc-400">
-                Use the trial to create reports and confirm the value. Upgrade before it ends to keep the workflow unlocked.
+                Use the product with real AI spend data. Payments remain built in for future paid plans, but they are not required for early access.
               </p>
             </div>
-            <Link to="/pricing" className="btn-primary shrink-0">Upgrade Plan</Link>
+            <Link to="/audits/new" className="btn-primary shrink-0">Create Report</Link>
+          </div>
+        </section>
+      )}
+
+      {!earlyAccessActive && trialActive && (
+        <section className="panel mb-8 border-emerald-300/25 bg-emerald-300/[0.07]">
+          <p className="label text-emerald-200">Free access active</p>
+          <div className="mt-3 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div>
+              <h2 className="text-2xl font-black text-white">You can create reports during free access.</h2>
+              <p className="mt-2 max-w-2xl text-sm font-semibold leading-relaxed text-zinc-400">
+                Early access is available now, and paid plans can be enabled later without changing your workflow.
+              </p>
+            </div>
+            <Link to="/audits/new" className="btn-primary shrink-0">Create Report</Link>
           </div>
         </section>
       )}
@@ -60,12 +76,12 @@ export default function Dashboard() {
           <p className="label text-yellow-200">Access required</p>
           <div className="mt-3 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div>
-              <h2 className="text-2xl font-black text-white">Start a trial or choose a paid plan to unlock report creation.</h2>
+              <h2 className="text-2xl font-black text-white">Start free early access to unlock report creation.</h2>
               <p className="mt-2 max-w-2xl text-sm font-semibold leading-relaxed text-zinc-400">
-                New accounts can use the audit workflow for 7 days. After the trial, client reports require payment.
+                Early users can use the audit workflow for free. Payment stays in the product for future paid plans.
               </p>
             </div>
-            <Link to="/pricing" className="btn-primary shrink-0">Start Trial or Pay</Link>
+            <Link to="/pricing" className="btn-primary shrink-0">Start Free</Link>
           </div>
         </section>
       )}

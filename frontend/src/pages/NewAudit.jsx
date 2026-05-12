@@ -35,7 +35,7 @@ export default function NewAudit() {
     setError('');
 
     if (!planActive) {
-      setError('Start a 7-day free trial or choose a paid plan before creating client reports.');
+      setError('Start free early access before creating client reports.');
       return;
     }
 
@@ -63,13 +63,13 @@ export default function NewAudit() {
     return (
       <main className="container-page py-10">
         <section className="panel border-yellow-300/25 bg-yellow-300/[0.07]">
-          <p className="label text-yellow-200">Trial or plan required</p>
+          <p className="label text-yellow-200">Early access required</p>
           <h1 className="mt-3 text-4xl font-black text-white md:text-5xl">Unlock client report creation.</h1>
           <p className="mt-3 max-w-2xl text-sm font-semibold leading-relaxed text-zinc-400">
-            Start a 7-day trial to create reports before paying, or choose a paid plan to keep the workflow active.
+            Start free early access to create reports now. Payment remains built in for future paid plans, but early users are free.
           </p>
           <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-            <Link to="/pricing" className="btn-primary">Start Trial or Pay</Link>
+            <Link to="/pricing" className="btn-primary">Start Free Access</Link>
             <Link to="/dashboard" className="btn-secondary">Back to Dashboard</Link>
           </div>
         </section>

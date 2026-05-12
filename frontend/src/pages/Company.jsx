@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 const companyPillars = [
   ['Sharp focus', 'We focus on AI API and infrastructure cost waste for startups building real AI product features.'],
   ['Engineering-ready reports', 'Recommendations name the model, token, cache, vector, logging, and infrastructure changes to review.'],
-  ['Revenue workflow', 'Trial, checkout, account status, and report access are connected so the audit can become a paid service.']
+  ['Revenue workflow', 'Early access, checkout, account status, and report access are connected so the audit can become a paid service when ready.']
 ];
 
 const outcomes = [
@@ -35,7 +35,7 @@ export default function Company() {
             This is not another AI tool. It is an audit service for teams already shipping AI features and paying for model calls, embeddings, vector storage, cloud inference, logs, and usage-heavy workflows.
           </p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <Link to="/pricing" className="btn-primary">Start Audit Trial</Link>
+            <Link to="/pricing" className="btn-primary">Start Free Access</Link>
             <Link to="/security" className="btn-secondary">Review Trust Controls</Link>
           </div>
         </div>
@@ -55,7 +55,7 @@ export default function Company() {
       <section className="container-page py-12 md:py-16">
         <div className="grid gap-8 lg:grid-cols-[minmax(0,0.7fr)_minmax(0,1fr)]">
           <div>
-            <p className="label text-sky-200">Why Customers Pay</p>
+            <p className="label text-sky-200">Why Customers Will Pay</p>
             <h2 className="mt-3 text-3xl font-black text-white md:text-5xl">
               The customer pays because AI usage cost can quietly break product margin.
             </h2>

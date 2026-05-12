@@ -1,6 +1,6 @@
 # SpendGuard Audit
 
-SpendGuard Audit is a full-stack paid audit company website and application for startups that want to reduce unnecessary AI API and infrastructure costs.
+SpendGuard Audit is a full-stack audit company website and application for startups that want to reduce unnecessary AI API and infrastructure costs.
 
 ## What the product does
 
@@ -10,11 +10,11 @@ SpendGuard Audit helps businesses:
 - find waste from wrong model choices, oversized prompts, repeated calls, missing caching, and poor retention rules
 - estimate monthly and yearly savings
 - create AI usage audit reports
-- collect payment through Razorpay
+- give early users free access while keeping Razorpay payment infrastructure ready for later
 
-Report creation is available during the 7-day free trial and then gated behind an active paid plan so the product can convert trial users into revenue.
+Report creation is free for early users right now. Razorpay payment routes, plan pricing, and verification logic remain in the codebase so paid plans can be enabled later without rebuilding checkout.
 
-The website also includes company, security, privacy, terms, and refund pages so buyers can understand why they should pay and how the service handles trust before checkout.
+The website also includes company, security, privacy, terms, and refund pages so users can understand the service and how future payment handling works.
 
 ## Tech stack
 
@@ -83,6 +83,7 @@ Use these exact keys:
 | `OPENAI_API_KEY` | Optional server-side OpenAI API key for the AI audit features |
 | `OPENAI_MODEL` | Optional model name for the agent, for example `gpt-5` |
 | `VITE_API_URL` | Your backend API URL ending in `/api` |
+| `VITE_ENABLE_PAYMENTS` | Set to `true` only when you want the frontend to open Razorpay checkout |
 
 ### Render deployment settings
 
@@ -135,6 +136,7 @@ Copy `frontend/.env.example` to `frontend/.env`.
 
 ```text
 VITE_API_URL=http://localhost:5001/api
+VITE_ENABLE_PAYMENTS=false
 ```
 
 ## Run locally
@@ -187,11 +189,11 @@ POST /api/agent/report-pack/:auditId
 
 `/report-pack/:auditId` turns a saved audit into an executive summary, savings narrative, 30-day action plan, implementation checklist, and client follow-up email.
 
-Both endpoints are available to trial and paid users. If `OPENAI_API_KEY` is configured, the backend calls OpenAI's Responses API from the server. If no key is configured or the provider request fails, the app falls back to built-in rule-based audit guidance so the product still works.
+Both endpoints are available to early access and paid users. If `OPENAI_API_KEY` is configured, the backend calls OpenAI's Responses API from the server. If no key is configured or the provider request fails, the app falls back to built-in rule-based audit guidance so the product still works.
 
 ## Suggested packages
 
-- 7-day free trial: no card required
+- Early access: free for launch users
 - Mini Audit: Rs 999
 - Business Audit: Rs 4,999
 - Monthly Monitor: Rs 9,999/month

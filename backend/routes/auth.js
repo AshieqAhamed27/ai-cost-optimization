@@ -5,17 +5,9 @@ const User = require('../models/User');
 const { requireAuth } = require('../middleware/auth');
 
 const router = express.Router();
-const TRIAL_DAYS = 7;
 
 const signToken = (user) =>
   jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
-
-const createTrialWindow = () => {
-  const trialStartedAt = new Date();
-  const trialEndsAt = new Date(trialStartedAt.getTime() + TRIAL_DAYS * 24 * 60 * 60 * 1000);
-
-  return { trialStartedAt, trialEndsAt };
-};
 
 const cleanText = (value, maxLength = 120) =>
   String(value || '').trim().slice(0, maxLength);
@@ -35,6 +27,17 @@ const publicUser = (user) => ({
   trialStartedAt: user.trialStartedAt,
   trialEndsAt: user.trialEndsAt
 });
+
+const activateEarlyAccess = async (user) => {
+  if (user.planStatus === 'active' && user.activePlan && user.activePlan !== 'free') {
+    return user;
+  }
+
+  user.activePlan = 'early_access';
+  user.planStatus = 'active';
+  await user.save();
+  return user;
+};
 
 router.post('/signup', async (req, res, next) => {
   try {
@@ -57,15 +60,13 @@ router.post('/signup', async (req, res, next) => {
     }
 
     const passwordHash = await bcrypt.hash(password, 12);
-    const trial = createTrialWindow();
     const user = await User.create({
       name,
       email,
       companyName,
       passwordHash,
-      activePlan: 'trial',
-      planStatus: 'trial',
-      ...trial
+      activePlan: 'early_access',
+      planStatus: 'active'
     });
 
     res.status(201).json({
@@ -101,6 +102,25 @@ router.post('/login', async (req, res, next) => {
   }
 });
 
+router.post('/early-access/start', requireAuth, async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user._id);
+
+    if (!user) {
+      return res.status(401).json({ message: 'User not found' });
+    }
+
+    const updatedUser = await activateEarlyAccess(user);
+
+    res.json({
+      message: 'Early access activated',
+      user: publicUser(updatedUser)
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
 router.post('/trial/start', requireAuth, async (req, res, next) => {
   try {
     const user = await User.findById(req.user._id);
@@ -109,35 +129,11 @@ router.post('/trial/start', requireAuth, async (req, res, next) => {
       return res.status(401).json({ message: 'User not found' });
     }
 
-    if (user.planStatus === 'active' && user.activePlan !== 'free') {
-      return res.status(400).json({ message: 'A paid plan is already active on this account' });
-    }
-
-    if (user.trialStartedAt || user.trialEndsAt) {
-      const trialStillActive =
-        user.planStatus === 'trial' &&
-        user.trialEndsAt &&
-        new Date(user.trialEndsAt).getTime() > Date.now();
-
-      if (trialStillActive) {
-        return res.json({ user: publicUser(user) });
-      }
-
-      return res.status(409).json({
-        message: 'The free trial has already been used. Choose a paid audit plan to continue.'
-      });
-    }
-
-    const trial = createTrialWindow();
-    user.activePlan = 'trial';
-    user.planStatus = 'trial';
-    user.trialStartedAt = trial.trialStartedAt;
-    user.trialEndsAt = trial.trialEndsAt;
-    await user.save();
+    const updatedUser = await activateEarlyAccess(user);
 
     res.json({
-      message: '7-day free trial started',
-      user: publicUser(user)
+      message: 'Early access activated',
+      user: publicUser(updatedUser)
     });
   } catch (error) {
     next(error);

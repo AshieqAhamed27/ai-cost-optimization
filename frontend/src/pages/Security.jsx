@@ -4,15 +4,15 @@ import { Link } from 'react-router-dom';
 const controls = [
   {
     title: 'Secure payment handling',
-    text: 'Payments are created and verified through Razorpay. SpendGuard Audit does not collect or store card numbers.'
+    text: 'When payments are enabled, orders are created and verified through Razorpay. SpendGuard Audit does not collect or store card numbers.'
   },
   {
     title: 'Payment verification',
-    text: 'The backend verifies Razorpay payment signatures before activating a paid plan after the free trial.'
+    text: 'The backend verifies Razorpay payment signatures before activating a paid plan when payments are enabled.'
   },
   {
     title: 'Protected report access',
-    text: 'Audit reports are tied to authenticated user accounts, and report creation requires an active trial or paid plan.'
+    text: 'Audit reports are tied to authenticated user accounts, and report creation requires active early access or a paid plan.'
   },
   {
     title: 'Password protection',
@@ -30,7 +30,7 @@ const controls = [
 
 const dataPractices = [
   ['What you enter', 'Company name, business type, AI cost line names, monthly costs, usage levels, categories, and notes.'],
-  ['What we use it for', 'Creating AI API and infrastructure cost audits, savings estimates, report recommendations, and account/payment status.'],
+  ['What we use it for', 'Creating AI API and infrastructure cost audits, savings estimates, report recommendations, and account or future payment status.'],
   ['What we avoid', 'We do not ask for card numbers, bank details, API keys, private model prompts, or internal passwords.']
 ];
 
@@ -41,13 +41,13 @@ export default function Security() {
         <div className="max-w-4xl">
           <p className="label text-emerald-200">Security And Trust</p>
           <h1 className="mt-3 text-4xl font-black leading-tight text-white md:text-6xl">
-            Built to earn trust before a business pays for an audit.
+            Built to earn trust before paid plans are enabled.
           </h1>
           <p className="mt-5 max-w-3xl text-lg font-semibold leading-relaxed text-zinc-400">
-            Security is part of the product promise: customers should know how payment, account access, and report data are protected before they decide to buy.
+            Security is part of the product promise: customers should know how account access, future payment, and report data are protected.
           </p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <Link to="/pricing" className="btn-primary">Buy Securely</Link>
+            <Link to="/pricing" className="btn-primary">Start Free Access</Link>
             <Link to="/privacy" className="btn-secondary">Read Privacy Policy</Link>
           </div>
         </div>

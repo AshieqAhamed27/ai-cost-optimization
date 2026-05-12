@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 const footerLinks = [
   ['Company', '/company'],
   ['Security', '/security'],
-  ['Plans and Payment', '/pricing'],
+  ['Early Access and Plans', '/pricing'],
   ['Create Account', '/signup'],
   ['Login', '/login']
 ];
@@ -65,8 +65,8 @@ export default function Footer() {
           <div>
             <p className="label text-zinc-400">Business Model</p>
             <div className="mt-4 grid gap-3 text-sm font-bold text-zinc-400">
-              <p>Secure checkout by Razorpay</p>
-              <p>Paid plans unlock audit reports</p>
+              <p>Free early access now</p>
+              <p>Razorpay checkout ready for later</p>
               <p>Built for repeat monthly monitoring</p>
             </div>
           </div>

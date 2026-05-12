@@ -41,6 +41,7 @@ const planDetails = {
   }
 };
 
+const paymentsEnabled = import.meta.env.VITE_ENABLE_PAYMENTS === 'true';
 let razorpayScriptPromise;
 
 const loadRazorpayScript = () => {
@@ -86,6 +87,28 @@ export default function PricingCards({ compact = false }) {
   }, []);
 
   const startCheckout = async (planId) => {
+    if (!paymentsEnabled) {
+      if (!isLoggedIn()) {
+        navigate('/signup');
+        return;
+      }
+
+      setLoadingPlan(planId);
+      setError('');
+
+      try {
+        const data = await apiRequest('/auth/early-access/start', { method: 'POST' });
+        setSession({ user: data.user });
+        navigate('/dashboard');
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoadingPlan('');
+      }
+
+      return;
+    }
+
     if (!isLoggedIn()) {
       navigate('/signup');
       return;
@@ -164,7 +187,7 @@ export default function PricingCards({ compact = false }) {
             <div className="flex items-center justify-between gap-3">
               <p className="label text-zinc-400">{plan.badge}</p>
               <span className="rounded-lg border border-white/10 bg-black/25 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-zinc-300">
-                Razorpay
+                {paymentsEnabled ? 'Razorpay' : 'Coming later'}
               </span>
             </div>
             <h3 className="mt-4 text-2xl font-black text-white">{plan.name}</h3>
@@ -183,12 +206,18 @@ export default function PricingCards({ compact = false }) {
                 onClick={() => startCheckout(plan.id)}
                 className="btn-primary w-full"
                 disabled={loadingPlan === plan.id}
-                aria-label={`Pay for ${plan.name}`}
+                aria-label={paymentsEnabled ? `Pay for ${plan.name}` : 'Start free early access'}
               >
-                {loadingPlan === plan.id ? 'Opening...' : isLoggedIn() ? 'Pay with Razorpay' : 'Start Trial or Pay'}
+                {loadingPlan === plan.id
+                  ? paymentsEnabled ? 'Opening...' : 'Starting...'
+                  : paymentsEnabled
+                    ? isLoggedIn() ? 'Pay with Razorpay' : 'Create Account'
+                    : isLoggedIn() ? 'Use Free Access' : 'Start Free Access'}
               </button>
               <p className="mt-3 text-center text-xs font-bold text-zinc-500">
-                No card details are stored by SpendGuard Audit.
+                {paymentsEnabled
+                  ? 'No card details are stored by SpendGuard Audit.'
+                  : 'Payment is not required for early users.'}
               </p>
             </div>
           </article>

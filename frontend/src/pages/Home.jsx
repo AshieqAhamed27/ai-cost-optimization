@@ -7,8 +7,8 @@ import { formatCurrency } from '../utils/api';
 const metrics = [
   ['Who', 'AI startups'],
   ['Cost', 'API and infra'],
-  ['Trial', '7 days'],
-  ['Checkout', 'Razorpay']
+  ['Access', 'Free early users'],
+  ['Payment', 'Ready for later']
 ];
 
 const services = [
@@ -95,8 +95,8 @@ const technicalChecks = [
 
 const trustSignals = [
   ['No secret keys requested', 'Start with invoices, usage exports, screenshots, and cost line items.'],
-  ['Razorpay checkout', 'Payments are handled by Razorpay, and card details are not stored by SpendGuard Audit.'],
-  ['Trial access', 'Teams can use the workflow for 7 days before choosing a paid plan.'],
+  ['Payment ready', 'When payments are enabled, Razorpay handles checkout and card details are not stored by SpendGuard Audit.'],
+  ['Early access', 'Early users can use the workflow free while paid plans stay ready for later.'],
   ['Transparent scope', 'Reports provide estimates and recommendations, not guaranteed savings.']
 ];
 
@@ -150,7 +150,7 @@ export default function Home() {
               SpendGuard Audit reviews model usage, token volume, vector databases, cloud inference, observability, and workflow patterns to find avoidable spend before AI features hurt margin.
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <Link to="/signup" className="btn-primary">Start 7-Day Free Trial</Link>
+              <Link to="/signup" className="btn-primary">Start Free Early Access</Link>
               <a href="#calculator" className="btn-secondary">Estimate Savings</a>
             </div>
             <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -302,7 +302,7 @@ export default function Home() {
       <section className="border-y border-white/10 bg-black/15 py-12 md:py-16">
         <div className="container-page">
           <div className="max-w-3xl">
-            <p className="label text-emerald-200">Why Startups Pay</p>
+            <p className="label text-emerald-200">Why Teams Value It</p>
             <h2 className="mt-3 text-3xl font-black text-white md:text-5xl">
               The audit protects product margin, not just the monthly bill.
             </h2>
@@ -327,7 +327,7 @@ export default function Home() {
           <div>
             <p className="label text-sky-200">Technical Audit Checklist</p>
             <h2 className="mt-3 text-3xl font-black text-white md:text-5xl">
-              Show the engineering depth before asking for payment.
+              Show the engineering depth before turning on payment.
             </h2>
             <p className="mt-4 text-sm font-semibold leading-relaxed text-zinc-400">
               This is the credibility layer: the service names the specific systems and usage patterns it reviews.
@@ -350,19 +350,19 @@ export default function Home() {
 
           <div className="mb-8 mt-8 grid gap-6 lg:grid-cols-[minmax(0,0.82fr)_minmax(280px,0.4fr)] lg:items-end">
             <div>
-              <p className="label text-emerald-200">Plans And Checkout</p>
+              <p className="label text-emerald-200">Early Access And Future Plans</p>
               <h2 className="mt-3 text-3xl font-black text-white md:text-5xl">
-                Start free, then buy the audit plan that matches your usage.
+                Start free now, with paid plans ready for later.
               </h2>
               <p className="mt-4 text-sm font-semibold leading-relaxed text-zinc-400">
-                Trial users can create reports for 7 days. After that, secure Razorpay checkout keeps the audit workflow active.
+                Early users can create reports free right now. Razorpay checkout remains built in for when paid plans are enabled.
               </p>
             </div>
             <div className="rounded-lg border border-emerald-300/20 bg-emerald-300/[0.06] p-5">
-              <p className="label text-emerald-200">Revenue Control</p>
-              <p className="mt-3 text-2xl font-black text-white">Trial converts to paid</p>
+              <p className="label text-emerald-200">Launch Mode</p>
+              <p className="mt-3 text-2xl font-black text-white">Free for early users</p>
               <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-500">
-                The trial lets teams confirm value first, then report creation requires payment after 7 days.
+                Payment can be turned on later without removing the existing checkout flow.
               </p>
             </div>
           </div>
@@ -379,7 +379,7 @@ export default function Home() {
               From usage export to engineering-ready savings report.
             </h2>
             <p className="mt-4 text-sm font-semibold leading-relaxed text-zinc-400">
-              SpendGuard Audit supports the full operating model: sell the audit, collect payment, capture cost data, and deliver recommendations.
+              SpendGuard Audit supports the full operating model: capture cost data, deliver recommendations, and enable payment when the business is ready.
             </p>
           </div>
 
@@ -402,7 +402,7 @@ export default function Home() {
               Best for startups where AI usage cost is becoming a real operating problem.
             </h2>
             <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-              <Link to="/signup" className="btn-primary">Start Free Trial</Link>
+              <Link to="/signup" className="btn-primary">Start Free Access</Link>
               <Link to="/pricing" className="btn-secondary">Compare Plans</Link>
             </div>
           </div>

@@ -5,33 +5,33 @@ const policies = {
   privacy: {
     label: 'Privacy Policy',
     title: 'Privacy built around business audit data.',
-    intro: 'SpendGuard Audit collects only the account, payment status, and AI API or infrastructure spend details needed to create and manage audits.',
+    intro: 'SpendGuard Audit collects only the account, access status, future payment status, and AI API or infrastructure spend details needed to create and manage audits.',
     sections: [
-      ['Information we collect', 'Name, email, company name, plan status, payment references, audit inputs, and generated report information.'],
-      ['How we use information', 'We use this data to authenticate accounts, manage trial and paid plan access, create audit reports, and improve the service workflow.'],
-      ['Payment data', 'Card and bank payment details are handled by Razorpay. SpendGuard Audit stores payment references and status, not card numbers.'],
+      ['Information we collect', 'Name, email, company name, access status, payment references when payments are enabled, audit inputs, and generated report information.'],
+      ['How we use information', 'We use this data to authenticate accounts, manage early access or paid plan access, create audit reports, and improve the service workflow.'],
+      ['Payment data', 'Payments are not required for early users. When paid plans are enabled, card and bank payment details are handled by Razorpay, and SpendGuard Audit stores payment references and status, not card numbers.'],
       ['Sensitive data', 'Customers should not enter API keys, private credentials, legal secrets, employee personal data, or confidential model prompts into audit notes.'],
       ['Data access', 'Audit reports are tied to authenticated accounts. Users should keep their account password private and use a strong password.']
     ]
   },
   terms: {
     label: 'Terms',
-    title: 'Clear terms for a paid audit service.',
-    intro: 'These terms explain the basic service promise: users pay for access to AI API and infrastructure cost audit reports and related recommendations.',
+    title: 'Clear terms for an early access audit service.',
+    intro: 'These terms explain the basic service promise: early users can access AI API and infrastructure cost audit reports while paid plans remain available for a future launch.',
     sections: [
       ['Service scope', 'SpendGuard Audit provides AI usage and infrastructure cost reviews, savings estimates, and recommendations based on user-entered data.'],
       ['Customer responsibility', 'Customers are responsible for entering accurate cost line names, monthly costs, categories, and usage levels.'],
       ['No guaranteed savings', 'Reports provide recommendations and estimates. Actual savings depend on vendor contracts, usage, negotiation, and customer decisions.'],
-      ['Account access', 'Report creation requires an authenticated account with an active 7-day trial or paid plan.'],
+      ['Account access', 'Report creation requires an authenticated account with active early access or a paid plan.'],
       ['Acceptable use', 'Do not submit illegal content, stolen data, credentials, payment card numbers, or information you are not authorized to process.']
     ]
   },
   refunds: {
     label: 'Refund Policy',
     title: 'A simple refund policy builds buyer confidence.',
-    intro: 'This policy gives customers clarity before they pay and helps the business handle payment concerns professionally.',
+    intro: 'This policy gives customers clarity before paid plans are enabled and helps the business handle payment concerns professionally later.',
     sections: [
-      ['Before report creation', 'If a customer pays by mistake and has not created an audit report, support can review the payment for a refund.'],
+      ['Before report creation', 'When paid plans are enabled, if a customer pays by mistake and has not created an audit report, support can review the payment for a refund.'],
       ['After report creation', 'Once a report has been generated, refunds are reviewed case by case because the audit service has been delivered.'],
       ['Failed payments', 'If Razorpay shows a failed payment, the plan is not activated. Customers should retry checkout or contact support with the payment reference.'],
       ['Duplicate payments', 'Duplicate successful payments for the same account and plan should be reviewed and refunded where appropriate.'],
@@ -67,9 +67,9 @@ export default function PolicyPage({ type }) {
       <section className="mt-10 rounded-lg border border-emerald-300/20 bg-emerald-300/[0.06] p-6">
         <h2 className="text-2xl font-black text-white">Ready to start?</h2>
         <p className="mt-3 text-sm font-semibold leading-relaxed text-zinc-500">
-          Review the plan options and complete checkout only when the business value is clear.
+          Start free early access now. Paid plan checkout can be enabled later when the business value is clear.
         </p>
-        <Link to="/pricing" className="btn-primary mt-5">View Paid Plans</Link>
+        <Link to="/pricing" className="btn-primary mt-5">View Access</Link>
       </section>
     </main>
   );

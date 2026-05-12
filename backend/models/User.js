@@ -29,7 +29,7 @@ const userSchema = new mongoose.Schema({
   },
   activePlan: {
     type: String,
-    enum: ['free', 'trial', 'mini_audit', 'business_audit', 'monthly_monitor'],
+    enum: ['free', 'early_access', 'trial', 'mini_audit', 'business_audit', 'monthly_monitor'],
     default: 'free'
   },
   planStatus: {

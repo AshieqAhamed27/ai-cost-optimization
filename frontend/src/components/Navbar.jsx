@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
-import { getPlanName, getTrialDaysLeft, getUser, hasActivePlan, isLoggedIn, isTrialActive, logout } from '../utils/api';
+import { getPlanName, getUser, hasActivePlan, isEarlyAccessActive, isLoggedIn, isTrialActive, logout } from '../utils/api';
 
 export default function Navbar() {
   const navigate = useNavigate();
@@ -12,8 +12,10 @@ export default function Navbar() {
     navigate('/');
   };
 
-  const planLabel = isTrialActive(user)
-    ? `Trial: ${getTrialDaysLeft(user)} days left`
+  const planLabel = isEarlyAccessActive(user)
+    ? 'Early Access'
+    : isTrialActive(user)
+    ? 'Free Access'
     : hasActivePlan(user)
       ? getPlanName(user.activePlan)
       : 'Choose Plan';
@@ -50,7 +52,7 @@ export default function Navbar() {
           {!loggedIn ? (
             <>
               <NavLink to="/login" className={navClass}>Login</NavLink>
-              <Link to="/signup" className="btn-primary">Start Free Trial</Link>
+              <Link to="/signup" className="btn-primary">Start Free</Link>
             </>
           ) : (
             <>

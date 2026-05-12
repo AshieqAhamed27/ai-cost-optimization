@@ -33,7 +33,8 @@ export const logout = () => {
 export const isLoggedIn = () => Boolean(getToken());
 
 export const planNames = {
-  trial: '7-Day Trial',
+  early_access: 'Early Access',
+  trial: 'Free Access',
   mini_audit: 'Mini Audit',
   business_audit: 'Business Audit',
   monthly_monitor: 'Monthly Monitor'
@@ -44,6 +45,9 @@ export const isTrialActive = (user = getUser()) =>
   user?.activePlan === 'trial' &&
   user?.trialEndsAt &&
   new Date(user.trialEndsAt).getTime() > Date.now();
+
+export const isEarlyAccessActive = (user = getUser()) =>
+  user?.planStatus === 'active' && user?.activePlan === 'early_access';
 
 export const hasActivePlan = (user = getUser()) =>
   (user?.planStatus === 'active' && user?.activePlan && user.activePlan !== 'free') ||
