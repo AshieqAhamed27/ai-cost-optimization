@@ -49,10 +49,10 @@ export default function TrialCallout({ compact = false }) {
         <div>
           <p className="label text-emerald-200">7-Day Free Trial</p>
           <h2 className={`${compact ? 'mt-2 text-2xl' : 'mt-3 text-3xl md:text-4xl'} font-black text-white`}>
-            Try the audit workflow before paying.
+            Use the audit workflow before paying.
           </h2>
           <p className="mt-3 max-w-3xl text-sm font-semibold leading-relaxed text-zinc-400">
-            Create reports, test the savings workflow, and understand the business value for 7 days. No card is required to start the trial.
+            Create reports, review the savings workflow, and understand the business value for 7 days. No card is required to start the trial.
           </p>
         </div>
 

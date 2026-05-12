@@ -43,7 +43,7 @@ export default function ToolEditor({ tools, setTools }) {
           <div className="grid gap-3 lg:grid-cols-[minmax(0,1.2fr)_150px_130px_100px_130px_auto] lg:items-end">
             <label className="grid gap-2">
               <span className="label">Cost line</span>
-              <input className="input" value={tool.name} onChange={(event) => updateTool(index, 'name', event.target.value)} placeholder="Example: OpenAI API" required />
+              <input className="input" value={tool.name} onChange={(event) => updateTool(index, 'name', event.target.value)} placeholder="Provider, service, or workflow name" required />
             </label>
             <label className="grid gap-2">
               <span className="label">Category</span>

@@ -63,11 +63,7 @@ RAZORPAY_KEY_ID=your_razorpay_key_id
 RAZORPAY_KEY_SECRET=your_razorpay_secret
 OPENAI_API_KEY=optional_openai_api_key_for_ai_features
 OPENAI_MODEL=gpt-5
-PAYMENT_SIMULATION=false
-ALLOW_PAYMENT_SIMULATION=false
 ```
-
-Use `PAYMENT_SIMULATION=false` and `ALLOW_PAYMENT_SIMULATION=false` for the real product.
 
 ### Deployment environment variables
 
@@ -86,8 +82,6 @@ Use these exact keys:
 | `RAZORPAY_KEY_SECRET` | Your Razorpay key secret |
 | `OPENAI_API_KEY` | Optional server-side OpenAI API key for the AI audit features |
 | `OPENAI_MODEL` | Optional model name for the agent, for example `gpt-5` |
-| `PAYMENT_SIMULATION` | `false` for live payments |
-| `ALLOW_PAYMENT_SIMULATION` | `false` for live payments |
 | `VITE_API_URL` | Your backend API URL ending in `/api` |
 
 ### Render deployment settings

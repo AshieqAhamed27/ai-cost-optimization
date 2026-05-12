@@ -104,7 +104,7 @@ export default function NewAudit() {
             </label>
             <label className="grid gap-2">
               <span className="label">Notes</span>
-              <input className="input" value={form.notes} onChange={(event) => setForm({ ...form, notes: event.target.value })} placeholder="Example: repeated support-agent calls with long context" />
+              <input className="input" value={form.notes} onChange={(event) => setForm({ ...form, notes: event.target.value })} placeholder="Workflow, traffic pattern, or cost concern" />
             </label>
           </div>
 

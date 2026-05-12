@@ -100,10 +100,6 @@ export default function PricingCards({ compact = false }) {
         body: { planId }
       });
 
-      if (data.simulation) {
-        throw new Error('Payment gateway is in simulation mode. Disable simulation to accept real payments.');
-      }
-
       const loaded = await loadRazorpayScript();
       if (!loaded) throw new Error('Razorpay checkout failed to load. Please refresh and try again.');
 

@@ -45,9 +45,9 @@ export default function Dashboard() {
           <p className="label text-emerald-200">Free trial active</p>
           <div className="mt-3 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div>
-              <h2 className="text-2xl font-black text-white">{getTrialDaysLeft(user)} days left to test report creation.</h2>
+              <h2 className="text-2xl font-black text-white">{getTrialDaysLeft(user)} days left to create reports.</h2>
               <p className="mt-2 max-w-2xl text-sm font-semibold leading-relaxed text-zinc-400">
-                Use the trial to create reports and prove the value. Upgrade before it ends to keep the workflow unlocked.
+                Use the trial to create reports and confirm the value. Upgrade before it ends to keep the workflow unlocked.
               </p>
             </div>
             <Link to="/pricing" className="btn-primary shrink-0">Upgrade Plan</Link>
@@ -62,7 +62,7 @@ export default function Dashboard() {
             <div>
               <h2 className="text-2xl font-black text-white">Start a trial or choose a paid plan to unlock report creation.</h2>
               <p className="mt-2 max-w-2xl text-sm font-semibold leading-relaxed text-zinc-400">
-                New accounts can test the audit workflow for 7 days. After the trial, client reports require payment.
+                New accounts can use the audit workflow for 7 days. After the trial, client reports require payment.
               </p>
             </div>
             <Link to="/pricing" className="btn-primary shrink-0">Start Trial or Pay</Link>

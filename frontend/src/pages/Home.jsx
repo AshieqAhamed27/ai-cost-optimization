@@ -61,24 +61,24 @@ const payReasons = [
   }
 ];
 
-const examples = [
+const savingsLevers = [
   {
     title: 'Model routing',
     before: 'Every request uses a premium model, including summaries, labels, and simple classifications.',
     after: 'Route low-risk tasks to cheaper models and reserve premium calls for high-value steps.',
-    impact: 'Common target: 20-45% lower model-call cost on routed tasks.'
+    impact: 'Audit focus: reduce avoidable premium-model usage without reducing output quality.'
   },
   {
     title: 'Context trimming',
     before: 'Large conversation history and unused metadata are sent with every prompt.',
     after: 'Trim context, summarize older state, and send only the fields needed for the task.',
-    impact: 'Common target: 15-35% lower token volume on repeated workflows.'
+    impact: 'Audit focus: lower token volume on repeated workflows while preserving task context.'
   },
   {
     title: 'Vector and log retention',
     before: 'Embeddings, vector indexes, traces, and logs are retained without clear cleanup rules.',
     after: 'Add retention windows, sampling, archive rules, and index reviews.',
-    impact: 'Common target: 10-30% lower storage and observability cost.'
+    impact: 'Audit focus: stop silent storage and observability growth before it becomes margin drag.'
   }
 ];
 
@@ -96,16 +96,16 @@ const technicalChecks = [
 const trustSignals = [
   ['No secret keys requested', 'Start with invoices, usage exports, screenshots, and cost line items.'],
   ['Razorpay checkout', 'Payments are handled by Razorpay, and card details are not stored by SpendGuard Audit.'],
-  ['Trial access', 'Teams can test the workflow for 7 days before choosing a paid plan.'],
+  ['Trial access', 'Teams can use the workflow for 7 days before choosing a paid plan.'],
   ['Transparent scope', 'Reports provide estimates and recommendations, not guaranteed savings.']
 ];
 
 const initialCalculator = {
-  modelApi: 75000,
-  embeddings: 12000,
-  vectorDb: 18000,
-  cloudInference: 24000,
-  logging: 9000
+  modelApi: '',
+  embeddings: '',
+  vectorDb: '',
+  cloudInference: '',
+  logging: ''
 };
 
 export default function Home() {
@@ -217,7 +217,7 @@ export default function Home() {
               Estimate where AI product costs may be leaking.
             </h2>
             <p className="mt-4 text-sm font-semibold leading-relaxed text-zinc-400">
-              Use this as a first-pass estimate. A real audit checks exports, request patterns, logs, model usage, and infrastructure line items before making recommendations.
+              Enter your own monthly spend for a first-pass estimate. A real audit checks exports, request patterns, logs, model usage, and infrastructure line items before making recommendations.
             </p>
           </div>
 
@@ -272,15 +272,15 @@ export default function Home() {
         <div className="max-w-3xl">
           <p className="label text-sky-200">Before And After</p>
           <h2 className="mt-3 text-3xl font-black text-white md:text-5xl">
-            Concrete audit examples make the value easier to believe.
+            Concrete audit levers make the value easier to understand.
           </h2>
           <p className="mt-4 text-sm font-semibold leading-relaxed text-zinc-400">
-            These are example savings levers the audit checks. Final results depend on traffic, architecture, contracts, and engineering changes.
+            These are the waste patterns the audit checks. Final results depend on traffic, architecture, contracts, and engineering changes.
           </p>
         </div>
 
         <div className="mt-8 grid gap-4 md:grid-cols-3">
-          {examples.map((item) => (
+          {savingsLevers.map((item) => (
             <article key={item.title} className="panel">
               <h3 className="text-xl font-black text-white">{item.title}</h3>
               <div className="mt-4 grid gap-3">
@@ -362,7 +362,7 @@ export default function Home() {
               <p className="label text-emerald-200">Revenue Control</p>
               <p className="mt-3 text-2xl font-black text-white">Trial converts to paid</p>
               <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-500">
-                The trial proves value first, then report creation requires payment after 7 days.
+                The trial lets teams confirm value first, then report creation requires payment after 7 days.
               </p>
             </div>
           </div>

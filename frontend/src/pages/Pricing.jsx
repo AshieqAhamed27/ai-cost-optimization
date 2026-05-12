@@ -17,7 +17,7 @@ export default function Pricing() {
           Start with a 7-day trial, then audit real AI usage costs.
         </h1>
         <p className="mx-auto mt-4 max-w-2xl text-sm font-semibold leading-relaxed text-zinc-400">
-          Try the audit workflow before paying. When the trial ends, a paid plan keeps AI usage reports and cost reviews active.
+          Use the audit workflow before paying. When the trial ends, a paid plan keeps AI usage reports and cost reviews active.
         </p>
       </section>
 

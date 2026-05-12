@@ -82,13 +82,14 @@
           <p class="eyebrow">Savings calculator</p>
           <h2>Estimate monthly AI cost waste.</h2>
           <p class="muted">
-            Demo values are added to help you understand the service. Replace them with real client numbers during an audit.
+            Enter real monthly spend to estimate where AI product costs may be leaking.
           </p>
 
           <div class="form-grid">
             <label>
               <span>Business type</span>
               <select id="businessType">
+                <option value="">Select business type</option>
                 <option>Agency</option>
                 <option>Startup</option>
                 <option>Freelancer</option>
@@ -99,30 +100,30 @@
             </label>
             <label>
               <span>Team size</span>
-              <input id="teamSize" type="number" min="1" value="5" />
+              <input id="teamSize" type="number" min="1" />
             </label>
           </div>
 
           <div class="spend-list">
             <label>
               <span>LLM API spend</span>
-              <input class="spend-input" data-name="LLM API spend" type="number" min="0" value="2500" />
+              <input class="spend-input" data-name="LLM API spend" type="number" min="0" />
             </label>
             <label>
               <span>Embeddings and batch jobs</span>
-              <input class="spend-input" data-name="Embeddings" type="number" min="0" value="1500" />
+              <input class="spend-input" data-name="Embeddings" type="number" min="0" />
             </label>
             <label>
               <span>Vector database and storage</span>
-              <input class="spend-input" data-name="Vector database" type="number" min="0" value="2200" />
+              <input class="spend-input" data-name="Vector database" type="number" min="0" />
             </label>
             <label>
               <span>Cloud inference and workers</span>
-              <input class="spend-input" data-name="Cloud inference" type="number" min="0" value="3000" />
+              <input class="spend-input" data-name="Cloud inference" type="number" min="0" />
             </label>
             <label>
               <span>Logs, traces, and observability</span>
-              <input class="spend-input" data-name="Observability" type="number" min="0" value="4000" />
+              <input class="spend-input" data-name="Observability" type="number" min="0" />
             </label>
           </div>
         </div>
@@ -132,19 +133,19 @@
           <div class="result-grid">
             <div>
               <span>Monthly AI and infra spend</span>
-              <strong id="monthlySpend">Rs 13,200</strong>
+              <strong id="monthlySpend">Rs 0</strong>
             </div>
             <div>
               <span>Possible monthly savings</span>
-              <strong id="monthlySavings">Rs 3,604</strong>
+              <strong id="monthlySavings">Rs 0</strong>
             </div>
             <div>
               <span>Spend after cleanup</span>
-              <strong id="afterCleanup">Rs 9,596</strong>
+              <strong id="afterCleanup">Rs 0</strong>
             </div>
             <div>
               <span>Possible yearly savings</span>
-              <strong id="yearlySavings">Rs 43,248</strong>
+              <strong id="yearlySavings">Rs 0</strong>
             </div>
           </div>
           <p class="muted">
@@ -232,8 +233,8 @@
       </section>
 
       <section id="contact" class="cta-section">
-        <p class="eyebrow">First client goal</p>
-        <h2>Offer the first 3 audits at a low price and collect testimonials.</h2>
+        <p class="eyebrow">Start the audit</p>
+        <h2>Use real AI spend data to identify avoidable operating cost.</h2>
         <p>
           Message startups already paying for model APIs, vector databases, and cloud inference. Your first promise is simple:
           show them where AI usage money may be wasted.

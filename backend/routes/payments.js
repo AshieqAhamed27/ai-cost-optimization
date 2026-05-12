@@ -8,10 +8,6 @@ const { plans, getPlan } = require('../utils/plans');
 
 const router = express.Router();
 
-const isPaymentSimulationEnabled = () =>
-  process.env.PAYMENT_SIMULATION === 'true' &&
-  process.env.ALLOW_PAYMENT_SIMULATION === 'true';
-
 const createReceiptId = () =>
   `audit_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
 
@@ -48,29 +44,7 @@ router.post('/razorpay/order', requireAuth, async (req, res, next) => {
       return res.status(400).json({ message: 'Invalid plan selected' });
     }
 
-    const simulation = isPaymentSimulationEnabled();
     const razorpay = getRazorpay();
-
-    if (simulation) {
-      const payment = await Payment.create({
-        user: req.user._id,
-        planId: plan.id,
-        amount: plan.amount,
-        razorpayOrderId: `sim_order_${Date.now()}`,
-        status: 'created'
-      });
-
-      return res.json({
-        simulation: true,
-        keyId: process.env.RAZORPAY_KEY_ID || 'rzp_test_simulation',
-        order: {
-          id: payment.razorpayOrderId,
-          amount: plan.amount * 100,
-          currency: 'INR'
-        },
-        plan
-      });
-    }
 
     if (!razorpay) {
       return res.status(503).json({
@@ -104,7 +78,6 @@ router.post('/razorpay/order', requireAuth, async (req, res, next) => {
     });
 
     res.json({
-      simulation: false,
       keyId: process.env.RAZORPAY_KEY_ID,
       order,
       plan
@@ -128,26 +101,22 @@ router.post('/razorpay/verify', requireAuth, async (req, res, next) => {
       return res.status(400).json({ message: 'Invalid plan selected' });
     }
 
-    const allowSimulation = isPaymentSimulationEnabled();
+    if (!process.env.RAZORPAY_KEY_SECRET) {
+      return res.status(503).json({ message: 'Payment verification is not configured' });
+    }
 
-    if (!allowSimulation) {
-      if (!process.env.RAZORPAY_KEY_SECRET) {
-        return res.status(503).json({ message: 'Payment verification is not configured' });
-      }
+    if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
+      return res.status(400).json({ message: 'Payment verification details are required' });
+    }
 
-      if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
-        return res.status(400).json({ message: 'Payment verification details are required' });
-      }
+    const body = `${razorpay_order_id}|${razorpay_payment_id}`;
+    const expectedSignature = crypto
+      .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
+      .update(body)
+      .digest('hex');
 
-      const body = `${razorpay_order_id}|${razorpay_payment_id}`;
-      const expectedSignature = crypto
-        .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
-        .update(body)
-        .digest('hex');
-
-      if (!signaturesMatch(expectedSignature, razorpay_signature)) {
-        return res.status(400).json({ message: 'Payment verification failed' });
-      }
+    if (!signaturesMatch(expectedSignature, razorpay_signature)) {
+      return res.status(400).json({ message: 'Payment verification failed' });
     }
 
     const payment = await Payment.findOneAndUpdate(
@@ -158,8 +127,8 @@ router.post('/razorpay/verify', requireAuth, async (req, res, next) => {
         status: 'created'
       },
       {
-        razorpayPaymentId: razorpay_payment_id || 'simulation_payment',
-        razorpaySignature: razorpay_signature || 'simulation_signature',
+        razorpayPaymentId: razorpay_payment_id,
+        razorpaySignature: razorpay_signature,
         status: 'paid'
       },
       { new: true }
