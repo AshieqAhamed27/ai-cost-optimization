@@ -16,10 +16,10 @@ const legalLinks = [
 ];
 
 const serviceLinks = [
-  'Software subscription audit',
-  'Unused seat review',
-  'Duplicate tool analysis',
-  'Savings recommendation reports'
+  'AI API usage audit',
+  'Infrastructure cost review',
+  'Model routing recommendations',
+  'Before and after savings report'
 ];
 
 export default function Footer() {
@@ -34,11 +34,11 @@ export default function Footer() {
               </span>
               <span>
                 <span className="block text-base font-black text-white">SpendGuard Audit</span>
-                <span className="block text-xs font-bold text-zinc-500">Paid software spend audits</span>
+                <span className="block text-xs font-bold text-zinc-500">AI API and infrastructure audits</span>
               </span>
             </Link>
             <p className="mt-4 max-w-xl text-sm font-semibold leading-relaxed text-zinc-500">
-              We help companies, consultants, and agencies review subscription waste, collect payment, and deliver clear savings recommendations.
+              We help startups review AI API and infrastructure costs, find waste, and deliver clear savings recommendations.
             </p>
           </div>
 
@@ -85,7 +85,7 @@ export default function Footer() {
 
         <div className="mt-8 flex flex-col gap-3 border-t border-white/10 pt-6 text-xs font-bold uppercase tracking-widest text-zinc-600 sm:flex-row sm:items-center sm:justify-between">
           <p>Copyright 2026 SpendGuard Audit. All rights reserved.</p>
-          <p>Built for businesses that want controlled software spend.</p>
+          <p>Built for startups that want controlled AI usage costs.</p>
         </div>
       </div>
     </footer>

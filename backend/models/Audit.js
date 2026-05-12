@@ -21,7 +21,7 @@ const toolSchema = new mongoose.Schema({
   },
   category: {
     type: String,
-    default: 'Software subscription'
+    default: 'Model API'
   }
 }, { _id: false });
 

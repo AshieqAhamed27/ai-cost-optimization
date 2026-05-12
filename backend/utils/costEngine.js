@@ -11,7 +11,7 @@ const calculateAudit = ({ tools = [], teamSize = 1 }) => {
       monthlyCost: Math.max(0, toNumber(tool.monthlyCost)),
       seats: Math.max(1, Math.round(toNumber(tool.seats) || 1)),
       usage: ['high', 'medium', 'low', 'unused'].includes(tool.usage) ? tool.usage : 'medium',
-      category: tool.category || 'Software subscription'
+      category: tool.category || 'Model API'
     }));
 
   const monthlySpend = cleanTools.reduce((sum, tool) => sum + tool.monthlyCost, 0);
@@ -29,32 +29,32 @@ const calculateAudit = ({ tools = [], teamSize = 1 }) => {
 
   if (lowUsageSpend > 0) {
     recommendations.push({
-      title: 'Review low usage and unused tools',
-      detail: 'Cancel, pause, or downgrade tools marked as low usage or unused.',
+      title: 'Review low-usage AI cost lines',
+      detail: 'Pause, downgrade, cap, or remove cost lines marked as low usage or unused.',
       impact: 'High'
     });
   }
 
   if (monthlySpend > 10000) {
     recommendations.push({
-      title: 'Create a software purchase approval rule',
-      detail: 'Before buying a new subscription, define the owner, expected use, monthly budget, and success metric.',
+      title: 'Add model routing and request budgets',
+      detail: 'Route simple tasks to cheaper models, set monthly usage budgets, and reserve premium model calls for high-value steps.',
       impact: 'Medium'
     });
   }
 
   if (toNumber(teamSize) > 3) {
     recommendations.push({
-      title: 'Check paid seats every month',
-      detail: 'Remove inactive team seats and keep shared tools under one controlled owner where possible.',
+      title: 'Add per-feature cost attribution',
+      detail: 'Track spend by customer, workspace, feature, or workflow so expensive usage can be fixed before it hurts margin.',
       impact: 'Medium'
     });
   }
 
   if (!recommendations.length) {
     recommendations.push({
-      title: 'Start monthly spend tracking',
-      detail: 'Keep a monthly software spend sheet so tool costs do not grow silently.',
+      title: 'Start monthly AI usage tracking',
+      detail: 'Track model API, embeddings, vector database, cloud inference, and observability spend every month.',
       impact: 'Medium'
     });
   }

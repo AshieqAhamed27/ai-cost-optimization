@@ -7,19 +7,19 @@ export const defaultPlans = [
     id: 'mini_audit',
     name: 'Mini Audit',
     amount: 999,
-    description: 'A focused software spend review for a small team or single workspace.'
+    description: 'A focused AI API and usage review for a small product or workflow.'
   },
   {
     id: 'business_audit',
     name: 'Business Audit',
     amount: 4999,
-    description: 'A full business cost report for teams using multiple software products.'
+    description: 'A full AI usage and infrastructure cost report for startups with active product traffic.'
   },
   {
     id: 'monthly_monitor',
     name: 'Monthly Monitor',
     amount: 9999,
-    description: 'Ongoing monthly software spend tracking, report updates, and savings follow-up.'
+    description: 'Ongoing monthly AI cost monitoring, report updates, and savings follow-up.'
   }
 ];
 
@@ -27,17 +27,17 @@ const planDetails = {
   mini_audit: {
     badge: 'Starter',
     accent: 'border-white/10 bg-white/[0.04]',
-    features: ['One company workspace', 'Up to 8 subscriptions reviewed', 'Savings estimate and action list']
+    features: ['One AI workflow reviewed', 'Model and token usage check', 'Savings estimate and action list']
   },
   business_audit: {
     badge: 'Most Popular',
     accent: 'border-yellow-300/40 bg-yellow-300/[0.08]',
-    features: ['Multi-tool cost audit', 'Unused seat and duplicate app review', 'Client-ready business report']
+    features: ['API and infrastructure audit', 'Before/after savings report', 'Engineering-ready action plan']
   },
   monthly_monitor: {
     badge: 'Growth',
     accent: 'border-sky-300/30 bg-sky-300/[0.06]',
-    features: ['Monthly spend monitoring', 'Savings progress follow-up', 'Priority report workflow']
+    features: ['Monthly AI cost monitoring', 'Savings progress follow-up', 'Priority report workflow']
   }
 };
 
@@ -66,7 +66,7 @@ const withPlanDetails = (plan) => ({
   ...(planDetails[plan.id] || {
     badge: 'Plan',
     accent: 'border-white/10 bg-white/[0.04]',
-    features: ['Software spend report', 'Savings recommendations', 'Client-ready action plan']
+    features: ['AI cost report', 'Savings recommendations', 'Engineering-ready action plan']
   })
 });
 

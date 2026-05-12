@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       name="description"
-      content="SpendGuard Audit helps businesses reduce wasted software subscriptions, unused seats, duplicate tools, and wrong plan costs."
+      content="SpendGuard Audit helps startups reduce unnecessary AI API and infrastructure costs."
     />
     <title>SpendGuard Audit</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -19,7 +19,7 @@
         <span class="brand-mark">SG</span>
         <span>
           <strong>SpendGuard Audit</strong>
-          <small>Reduce wasted software spend</small>
+          <small>Reduce AI API and infrastructure costs</small>
         </span>
       </a>
       <nav class="nav-links" aria-label="Main navigation">
@@ -34,10 +34,10 @@
       <section class="hero">
         <div class="hero-copy">
           <p class="eyebrow">Separate service business</p>
-          <h1>Reduce wasted software costs before they eat your profit.</h1>
+          <h1>Reduce unnecessary AI API and infrastructure costs before they eat your margin.</h1>
           <p class="hero-text">
-            SpendGuard Audit helps startups, agencies, founders, and teams understand what they spend on software subscriptions,
-            what is wasted, and how much they can save every month.
+            SpendGuard Audit helps startups, founders, and engineering teams understand what they spend on model calls,
+            embeddings, vector databases, cloud inference, and observability.
           </p>
           <div class="hero-actions">
             <a class="button primary" id="heroWhatsApp" href="#" target="_blank" rel="noopener noreferrer">Request Cost Audit</a>
@@ -47,12 +47,12 @@
 
         <aside class="hero-card">
           <p class="card-label">What clients get</p>
-          <h2>A simple software spend report.</h2>
+          <h2>A simple AI usage cost report.</h2>
           <ul class="check-list">
-            <li>Software subscription inventory</li>
-            <li>Monthly software spend summary</li>
-            <li>Unused and duplicate tool list</li>
-            <li>Cancel, downgrade, replace, or keep plan</li>
+            <li>AI API and infrastructure inventory</li>
+            <li>Monthly usage cost summary</li>
+            <li>Waste pattern review</li>
+            <li>Route, cache, trim, retain, or monitor</li>
             <li>Estimated monthly savings</li>
           </ul>
         </aside>
@@ -61,26 +61,26 @@
       <section class="problem-grid" aria-label="Problems solved">
         <article>
           <h3>Too many tools</h3>
-          <p>Teams subscribe to multiple software tools that solve the same problem.</p>
+          <p>Teams use premium models for tasks that cheaper models could handle.</p>
         </article>
         <article>
           <h3>Wrong plan</h3>
-          <p>Many tools are on a high plan even when basic usage is enough.</p>
+          <p>Prompts send too much context and metadata on repeated calls.</p>
         </article>
         <article>
           <h3>Unused seats</h3>
-          <p>Businesses pay for team seats that no one actively uses.</p>
+          <p>Embeddings, vectors, logs, and traces are retained without cleanup rules.</p>
         </article>
         <article>
           <h3>No ROI tracking</h3>
-          <p>Software tools feel useful, but nobody checks if they save time or money.</p>
+          <p>AI features grow usage without per-customer or per-feature cost attribution.</p>
         </article>
       </section>
 
       <section id="calculator" class="split-section">
         <div class="panel">
           <p class="eyebrow">Savings calculator</p>
-          <h2>Estimate monthly software waste.</h2>
+          <h2>Estimate monthly AI cost waste.</h2>
           <p class="muted">
             Demo values are added to help you understand the service. Replace them with real client numbers during an audit.
           </p>
@@ -105,24 +105,24 @@
 
           <div class="spend-list">
             <label>
-              <span>Team chat, communication, or collaboration tools</span>
-              <input class="spend-input" data-name="Collaboration tools" type="number" min="0" value="2500" />
+              <span>LLM API spend</span>
+              <input class="spend-input" data-name="LLM API spend" type="number" min="0" value="2500" />
             </label>
             <label>
-              <span>Design, video, or content tools</span>
-              <input class="spend-input" data-name="Creative tools" type="number" min="0" value="1500" />
+              <span>Embeddings and batch jobs</span>
+              <input class="spend-input" data-name="Embeddings" type="number" min="0" value="1500" />
             </label>
             <label>
-              <span>Zapier, Make, CRM, or automation tools</span>
-              <input class="spend-input" data-name="Automation tools" type="number" min="0" value="2200" />
+              <span>Vector database and storage</span>
+              <input class="spend-input" data-name="Vector database" type="number" min="0" value="2200" />
             </label>
             <label>
-              <span>Website chatbot, support bot, or sales bot</span>
-              <input class="spend-input" data-name="Chatbot tools" type="number" min="0" value="3000" />
+              <span>Cloud inference and workers</span>
+              <input class="spend-input" data-name="Cloud inference" type="number" min="0" value="3000" />
             </label>
             <label>
-              <span>Cloud, developer, analytics, or product tools</span>
-              <input class="spend-input" data-name="Cloud and developer tools" type="number" min="0" value="4000" />
+              <span>Logs, traces, and observability</span>
+              <input class="spend-input" data-name="Observability" type="number" min="0" value="4000" />
             </label>
           </div>
         </div>
@@ -131,7 +131,7 @@
           <p class="eyebrow">Estimated result</p>
           <div class="result-grid">
             <div>
-              <span>Monthly software spend</span>
+              <span>Monthly AI and infra spend</span>
               <strong id="monthlySpend">Rs 13,200</strong>
             </div>
             <div>
@@ -176,7 +176,7 @@
           <article>
             <span>02</span>
             <h3>Find waste</h3>
-            <p>Check unused tools, duplicate tools, wrong plans, extra seats, and unclear ROI.</p>
+            <p>Check expensive model defaults, oversized context, repeated calls, noisy logs, and unclear cost attribution.</p>
           </article>
           <article>
             <span>03</span>
@@ -200,9 +200,9 @@
             <h3>Mini Audit</h3>
             <strong>Rs 999</strong>
             <ul>
-              <li>Software tool list review</li>
-              <li>Monthly spend summary</li>
-              <li>Cancel or downgrade suggestions</li>
+              <li>Model API spend review</li>
+              <li>Monthly AI usage summary</li>
+              <li>Routing and prompt suggestions</li>
               <li>Simple savings report</li>
             </ul>
           </article>
@@ -211,18 +211,18 @@
             <h3>Business Audit</h3>
             <strong>Rs 4,999</strong>
             <ul>
-              <li>Tool-by-tool spend map</li>
-              <li>Duplicate tool detection</li>
-              <li>Seat and plan waste check</li>
-              <li>30-day software cost saving action plan</li>
+              <li>Cost-line spend map</li>
+              <li>Model routing review</li>
+              <li>Vector and log retention check</li>
+              <li>30-day AI cost saving action plan</li>
             </ul>
           </article>
           <article>
-            <p class="plan-fit">Teams using paid software every month</p>
+            <p class="plan-fit">Teams running AI features every month</p>
             <h3>Monthly Monitor</h3>
             <strong>Rs 9,999/mo</strong>
             <ul>
-              <li>Monthly software cost review</li>
+              <li>Monthly AI cost review</li>
               <li>Savings tracker</li>
               <li>New tool approval checklist</li>
               <li>Founder-friendly report</li>
@@ -235,8 +235,8 @@
         <p class="eyebrow">First client goal</p>
         <h2>Offer the first 3 audits at a low price and collect testimonials.</h2>
         <p>
-          Message agencies, startups, and freelancers who already use many paid tools. Your first promise is simple:
-          show them where subscription money may be wasted.
+          Message startups already paying for model APIs, vector databases, and cloud inference. Your first promise is simple:
+          show them where AI usage money may be wasted.
         </p>
         <a class="button primary" id="footerWhatsApp" href="#" target="_blank" rel="noopener noreferrer">Start With WhatsApp</a>
       </section>
@@ -244,7 +244,7 @@
 
     <footer class="footer">
       <p>SpendGuard Audit</p>
-      <p>Simple software spend audits for businesses. No passwords or secret API keys required.</p>
+      <p>Simple AI API and infrastructure cost audits for startups. No passwords or secret API keys required.</p>
     </footer>
 
     <script src="./script.js"></script>

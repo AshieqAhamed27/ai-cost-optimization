@@ -3,19 +3,19 @@ const plans = {
     id: 'mini_audit',
     name: 'Mini Audit',
     amount: 999,
-    description: 'A focused software spend review for a small team or single workspace.'
+    description: 'A focused AI API and usage review for a small product or workflow.'
   },
   business_audit: {
     id: 'business_audit',
     name: 'Business Audit',
     amount: 4999,
-    description: 'A full business cost report for teams using multiple software products.'
+    description: 'A full AI usage and infrastructure cost report for startups with active product traffic.'
   },
   monthly_monitor: {
     id: 'monthly_monitor',
     name: 'Monthly Monitor',
     amount: 9999,
-    description: 'Ongoing monthly software spend tracking, report updates, and savings follow-up.'
+    description: 'Ongoing monthly AI cost monitoring, report updates, and savings follow-up.'
   }
 };
 

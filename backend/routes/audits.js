@@ -45,7 +45,7 @@ router.post('/', requireActivePlan, async (req, res, next) => {
     }
 
     if (!Array.isArray(tools) || !tools.some((tool) => String(tool?.name || '').trim())) {
-      return res.status(400).json({ message: 'Add at least one software tool to create an audit' });
+      return res.status(400).json({ message: 'Add at least one AI cost line to create an audit' });
     }
 
     const result = calculateAudit({ tools, teamSize });

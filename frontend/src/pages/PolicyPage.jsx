@@ -5,7 +5,7 @@ const policies = {
   privacy: {
     label: 'Privacy Policy',
     title: 'Privacy built around business audit data.',
-    intro: 'SpendGuard Audit collects only the account, payment status, and software spend details needed to create and manage audits.',
+    intro: 'SpendGuard Audit collects only the account, payment status, and AI API or infrastructure spend details needed to create and manage audits.',
     sections: [
       ['Information we collect', 'Name, email, company name, plan status, payment references, audit inputs, and generated report information.'],
       ['How we use information', 'We use this data to authenticate accounts, manage trial and paid plan access, create audit reports, and improve the service workflow.'],
@@ -17,10 +17,10 @@ const policies = {
   terms: {
     label: 'Terms',
     title: 'Clear terms for a paid audit service.',
-    intro: 'These terms explain the basic service promise: users pay for access to software spend audit reports and related recommendations.',
+    intro: 'These terms explain the basic service promise: users pay for access to AI API and infrastructure cost audit reports and related recommendations.',
     sections: [
-      ['Service scope', 'SpendGuard Audit provides software subscription spend reviews, savings estimates, and recommendations based on user-entered data.'],
-      ['Customer responsibility', 'Customers are responsible for entering accurate tool names, costs, seats, and usage levels.'],
+      ['Service scope', 'SpendGuard Audit provides AI usage and infrastructure cost reviews, savings estimates, and recommendations based on user-entered data.'],
+      ['Customer responsibility', 'Customers are responsible for entering accurate cost line names, monthly costs, categories, and usage levels.'],
       ['No guaranteed savings', 'Reports provide recommendations and estimates. Actual savings depend on vendor contracts, usage, negotiation, and customer decisions.'],
       ['Account access', 'Report creation requires an authenticated account with an active 7-day trial or paid plan.'],
       ['Acceptable use', 'Do not submit illegal content, stolen data, credentials, payment card numbers, or information you are not authorized to process.']

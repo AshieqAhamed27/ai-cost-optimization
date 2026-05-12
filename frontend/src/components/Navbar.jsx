@@ -32,7 +32,7 @@ export default function Navbar() {
           </span>
           <span>
             <span className="block text-base font-black text-white">SpendGuard Audit</span>
-            <span className="block text-xs font-bold text-zinc-500">Software spend audits</span>
+            <span className="block text-xs font-bold text-zinc-500">AI API cost audits</span>
           </span>
         </Link>
 

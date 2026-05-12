@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="960" height="720" viewBox="0 0 960 720" role="img" aria-labelledby="title desc">
-  <title id="title">Software spend audit report preview</title>
-  <desc id="desc">A stylized subscription audit report dashboard showing spend, savings, tool review, and recommendations.</desc>
+  <title id="title">AI API and infrastructure cost audit report preview</title>
+  <desc id="desc">A stylized AI cost audit report dashboard showing API spend, infrastructure savings, cost line review, and recommendations.</desc>
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0" stop-color="#0f172a"/>

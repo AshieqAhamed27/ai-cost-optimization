@@ -29,7 +29,7 @@ export default function Dashboard() {
             Good to see you, {user?.name || 'Founder'}
           </h1>
           <p className="mt-3 max-w-2xl text-sm font-semibold leading-relaxed text-zinc-500">
-            Manage software spend audit reports, savings estimates, and client-ready recommendations.
+            Manage AI usage cost reports, savings estimates, and engineering-ready recommendations.
           </p>
         </div>
         <div className="flex flex-col gap-3 sm:flex-row">
@@ -72,7 +72,7 @@ export default function Dashboard() {
 
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <StatCard label="Audits" value={loading ? '...' : stats.totalAudits || 0} detail="Reports created in your workspace" />
-        <StatCard label="Monthly spend checked" value={loading ? '...' : formatCurrency(stats.monthlySpend)} detail="Software subscription spend reviewed" />
+        <StatCard label="Monthly spend checked" value={loading ? '...' : formatCurrency(stats.monthlySpend)} detail="AI API and infrastructure spend reviewed" />
         <StatCard label="Possible monthly savings" value={loading ? '...' : formatCurrency(stats.possibleMonthlySavings)} detail="Estimated waste you can help clients reduce" />
         <StatCard label="Possible yearly savings" value={loading ? '...' : formatCurrency(stats.yearlySavings)} detail="Annualized opportunity from audit reports" />
       </section>

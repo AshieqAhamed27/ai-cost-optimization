@@ -29,8 +29,8 @@ const controls = [
 ];
 
 const dataPractices = [
-  ['What you enter', 'Company name, business type, software tool names, monthly costs, seat counts, usage levels, and notes.'],
-  ['What we use it for', 'Creating software spend audits, savings estimates, report recommendations, and account/payment status.'],
+  ['What you enter', 'Company name, business type, AI cost line names, monthly costs, usage levels, categories, and notes.'],
+  ['What we use it for', 'Creating AI API and infrastructure cost audits, savings estimates, report recommendations, and account/payment status.'],
   ['What we avoid', 'We do not ask for card numbers, bank details, API keys, private model prompts, or internal passwords.']
 ];
 

@@ -34,7 +34,7 @@ export default function AuditReport() {
 
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         {[
-          ['Monthly software spend', audit.monthlySpend],
+          ['Monthly AI and infra spend', audit.monthlySpend],
           ['Possible monthly savings', audit.possibleMonthlySavings],
           ['Spend after cleanup', audit.spendAfterCleanup],
           ['Possible yearly savings', audit.yearlySavings]
@@ -48,14 +48,14 @@ export default function AuditReport() {
 
       <section className="mt-8 grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(320px,0.55fr)]">
         <div className="panel">
-          <p className="label text-sky-300">Tools checked</p>
+          <p className="label text-sky-300">Cost lines checked</p>
           <div className="mt-5 grid gap-3">
             {audit.tools.map((tool, index) => (
               <div key={`${tool.name}-${index}`} className="rounded-2xl border border-white/10 bg-black/20 p-4">
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                   <div>
                     <p className="font-black text-white">{tool.name}</p>
-                    <p className="text-xs font-bold uppercase tracking-widest text-zinc-600">{tool.usage} usage | {tool.seats} seats</p>
+                    <p className="text-xs font-bold uppercase tracking-widest text-zinc-600">{tool.category || 'Cost line'} | {tool.usage} usage | {tool.seats} units</p>
                   </div>
                   <p className="text-lg font-black text-white">{formatCurrency(tool.monthlyCost)}</p>
                 </div>

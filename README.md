@@ -1,15 +1,15 @@
 # SpendGuard Audit
 
-SpendGuard Audit is a full-stack paid audit company website and application for businesses that want to control recurring software subscription spend.
+SpendGuard Audit is a full-stack paid audit company website and application for startups that want to reduce unnecessary AI API and infrastructure costs.
 
 ## What the product does
 
 SpendGuard Audit helps businesses:
 
-- track software subscription and seat spend
-- find unused seats, duplicate tools, and wrong plan tiers
+- track model API, embedding, vector database, cloud inference, and observability spend
+- find waste from wrong model choices, oversized prompts, repeated calls, missing caching, and poor retention rules
 - estimate monthly and yearly savings
-- create audit reports
+- create AI usage audit reports
 - collect payment through Razorpay
 
 Report creation is available during the 7-day free trial and then gated behind an active paid plan so the product can convert trial users into revenue.
@@ -169,12 +169,12 @@ Do not ask clients for passwords or secret API keys.
 
 For audits, ask only for:
 
-- tool names
-- plan names
+- cost line names
+- provider or service names
 - billing screenshots
 - invoices
 - billing exports
-- seat counts
+- usage exports
 
 ## Suggested packages
 

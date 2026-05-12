@@ -5,8 +5,18 @@ export const createBlankTool = () => ({
   monthlyCost: '',
   seats: 1,
   usage: 'medium',
-  category: 'Software subscription'
+  category: 'Model API'
 });
+
+const categories = [
+  'Model API',
+  'Embeddings',
+  'Vector database',
+  'Cloud inference',
+  'Observability',
+  'Background jobs',
+  'Other infrastructure'
+];
 
 export default function ToolEditor({ tools, setTools }) {
   const updateTool = (index, field, value) => {
@@ -30,10 +40,18 @@ export default function ToolEditor({ tools, setTools }) {
     <div className="grid gap-3">
       {tools.map((tool, index) => (
         <article key={`${tool.name}-${index}`} className="rounded-2xl border border-white/10 bg-black/20 p-4">
-          <div className="grid gap-3 lg:grid-cols-[minmax(0,1.2fr)_130px_100px_130px_auto] lg:items-end">
+          <div className="grid gap-3 lg:grid-cols-[minmax(0,1.2fr)_150px_130px_100px_130px_auto] lg:items-end">
             <label className="grid gap-2">
-              <span className="label">Tool name</span>
-              <input className="input" value={tool.name} onChange={(event) => updateTool(index, 'name', event.target.value)} placeholder="Example: Slack Business" required />
+              <span className="label">Cost line</span>
+              <input className="input" value={tool.name} onChange={(event) => updateTool(index, 'name', event.target.value)} placeholder="Example: OpenAI API" required />
+            </label>
+            <label className="grid gap-2">
+              <span className="label">Category</span>
+              <select className="input" value={tool.category} onChange={(event) => updateTool(index, 'category', event.target.value)}>
+                {categories.map((category) => (
+                  <option key={category} value={category}>{category}</option>
+                ))}
+              </select>
             </label>
             <label className="grid gap-2">
               <span className="label">Monthly Rs</span>
@@ -59,7 +77,7 @@ export default function ToolEditor({ tools, setTools }) {
         </article>
       ))}
       <button type="button" onClick={addTool} className="btn-secondary w-full">
-        Add Software Tool
+        Add Cost Line
       </button>
     </div>
   );

@@ -2,24 +2,24 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 
 const companyPillars = [
-  ['Cost clarity', 'We turn scattered software subscriptions, seats, invoices, and usage notes into a structured spend picture.'],
-  ['Revenue workflow', 'Plans, checkout, account status, and report access are connected so every audit starts as paid work.'],
-  ['Actionable delivery', 'Each report focuses on what a business can cancel, downgrade, consolidate, or monitor.']
+  ['Sharp focus', 'We focus on AI API and infrastructure cost waste for startups building real AI product features.'],
+  ['Engineering-ready reports', 'Recommendations name the model, token, cache, vector, logging, and infrastructure changes to review.'],
+  ['Revenue workflow', 'Trial, checkout, account status, and report access are connected so the audit can become a paid service.']
 ];
 
 const outcomes = [
-  'A clear inventory of paid software tools',
-  'Monthly spend and possible yearly savings',
-  'Low-usage and unused-seat findings',
-  'Duplicate tool and plan-risk notes',
-  'Client-ready recommendations',
-  'A repeatable monitoring offer for ongoing revenue'
+  'Model provider spend review',
+  'Token and context-size waste findings',
+  'Embedding and vector database checks',
+  'Cloud inference and background job review',
+  'Observability and log retention notes',
+  'Before/after savings recommendations'
 ];
 
 const buyers = [
-  ['Consultants', 'Sell software cost audits to clients without building the reporting workflow yourself.'],
-  ['Agencies', 'Help clients understand which tools are worth keeping and which should be reduced.'],
-  ['Businesses', 'Review internal subscription spend before recurring costs become hard to control.']
+  ['Founders', 'Understand why AI product costs are rising before they damage gross margin.'],
+  ['Engineering teams', 'Prioritize cost fixes without turning the audit into a vague finance exercise.'],
+  ['Consultants', 'Sell a practical AI usage audit service to startups that already have model and infrastructure bills.']
 ];
 
 export default function Company() {
@@ -29,13 +29,13 @@ export default function Company() {
         <div className="max-w-4xl">
           <p className="label text-yellow-300">Company</p>
           <h1 className="mt-3 text-4xl font-black leading-tight text-white md:text-6xl">
-            SpendGuard Audit is a business service for reducing software subscription waste.
+            SpendGuard Audit helps startups reduce unnecessary AI API and infrastructure costs.
           </h1>
           <p className="mt-5 max-w-3xl text-lg font-semibold leading-relaxed text-zinc-400">
-            This is not another dashboard. It is a paid audit company that helps teams find wasted recurring software spend, document savings opportunities, and turn cost control into a repeatable business process.
+            This is not another AI tool. It is an audit service for teams already shipping AI features and paying for model calls, embeddings, vector storage, cloud inference, logs, and usage-heavy workflows.
           </p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <Link to="/pricing" className="btn-primary">Buy Audit Plan</Link>
+            <Link to="/pricing" className="btn-primary">Start Audit Trial</Link>
             <Link to="/security" className="btn-secondary">Review Trust Controls</Link>
           </div>
         </div>
@@ -57,10 +57,10 @@ export default function Company() {
           <div>
             <p className="label text-sky-200">Why Customers Pay</p>
             <h2 className="mt-3 text-3xl font-black text-white md:text-5xl">
-              The customer pays because the audit can point to avoidable monthly cost.
+              The customer pays because AI usage cost can quietly break product margin.
             </h2>
             <p className="mt-4 text-sm font-semibold leading-relaxed text-zinc-400">
-              A business does not need another dashboard for its own sake. It needs a practical report that helps reduce recurring spend and make better buying decisions.
+              A startup does not need a generic dashboard. It needs a practical report that points to waste in the AI stack and turns unclear usage into engineering decisions.
             </p>
           </div>
 
