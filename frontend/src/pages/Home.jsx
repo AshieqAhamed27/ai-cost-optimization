@@ -44,6 +44,28 @@ const audiences = [
   'IT teams consolidating duplicate products'
 ];
 
+const payReasons = [
+  {
+    title: 'Recover recurring waste',
+    text: 'The audit is priced so one cancelled duplicate tool, downgraded plan, or unused-seat cleanup can justify the purchase.'
+  },
+  {
+    title: 'Get a decision-ready report',
+    text: 'Customers pay for a clear business document, not a raw calculator. The report explains spend, savings, and action steps.'
+  },
+  {
+    title: 'Create a repeatable savings process',
+    text: 'Monthly monitoring turns one audit into an ongoing cost-control workflow as AI tool usage expands.'
+  }
+];
+
+const trustSignals = [
+  ['Razorpay checkout', 'Payments are handled by Razorpay, and card details are not stored by AI Cost Audit.'],
+  ['Verified access', 'Paid plans unlock report creation only after payment verification.'],
+  ['Account protection', 'Reports live inside authenticated accounts with API rate limits and security headers.'],
+  ['Transparent policies', 'Privacy, terms, refund, and security pages explain how the service works before payment.']
+];
+
 export default function Home() {
   return (
     <main>
@@ -116,6 +138,56 @@ export default function Home() {
               <p className="mt-3 text-sm font-semibold leading-relaxed text-zinc-500">{service.text}</p>
             </article>
           ))}
+        </div>
+      </section>
+
+      <section className="border-y border-white/10 bg-black/15 py-12 md:py-16">
+        <div className="container-page">
+          <div className="max-w-3xl">
+            <p className="label text-emerald-200">Why Businesses Pay</p>
+            <h2 className="mt-3 text-3xl font-black text-white md:text-5xl">
+              The offer is simple: pay for an audit that can reveal avoidable recurring costs.
+            </h2>
+            <p className="mt-4 text-sm font-semibold leading-relaxed text-zinc-400">
+              Buyers care about the return, the report, and whether the service feels trustworthy. The website now presents all three before checkout.
+            </p>
+          </div>
+
+          <div className="mt-8 grid gap-4 md:grid-cols-3">
+            {payReasons.map((reason) => (
+              <article key={reason.title} className="panel">
+                <h3 className="text-xl font-black text-white">{reason.title}</h3>
+                <p className="mt-3 text-sm font-semibold leading-relaxed text-zinc-500">{reason.text}</p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="container-page py-12 md:py-16">
+        <div className="grid gap-8 lg:grid-cols-[minmax(0,0.68fr)_minmax(0,1fr)]">
+          <div>
+            <p className="label text-sky-200">Trust Before Payment</p>
+            <h2 className="mt-3 text-3xl font-black text-white md:text-5xl">
+              Security, policies, and payment controls make the company feel real.
+            </h2>
+            <p className="mt-4 text-sm font-semibold leading-relaxed text-zinc-400">
+              Customers can review how checkout, account access, refunds, and audit data work before buying a plan.
+            </p>
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+              <Link to="/security" className="btn-secondary">Security Details</Link>
+              <Link to="/privacy" className="btn-secondary">Privacy Policy</Link>
+            </div>
+          </div>
+
+          <div className="grid gap-3 sm:grid-cols-2">
+            {trustSignals.map(([title, text]) => (
+              <article key={title} className="rounded-lg border border-white/10 bg-white/[0.04] p-5">
+                <h3 className="text-lg font-black text-white">{title}</h3>
+                <p className="mt-3 text-sm font-semibold leading-relaxed text-zinc-500">{text}</p>
+              </article>
+            ))}
+          </div>
         </div>
       </section>
 

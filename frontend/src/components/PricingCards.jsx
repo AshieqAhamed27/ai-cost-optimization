@@ -192,7 +192,7 @@ export default function PricingCards({ compact = false }) {
                 {loadingPlan === plan.id ? 'Opening...' : isLoggedIn() ? 'Pay with Razorpay' : 'Create Account to Pay'}
               </button>
               <p className="mt-3 text-center text-xs font-bold text-zinc-500">
-                Payment unlocks report creation.
+                No card details are stored by AI Cost Audit.
               </p>
             </div>
           </article>

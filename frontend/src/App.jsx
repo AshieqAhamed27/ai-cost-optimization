@@ -4,12 +4,15 @@ import Footer from './components/Footer';
 import Navbar from './components/Navbar';
 import ProtectedRoute from './components/ProtectedRoute';
 import Home from './pages/Home';
+import Company from './pages/Company';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Dashboard from './pages/Dashboard';
 import NewAudit from './pages/NewAudit';
 import AuditReport from './pages/AuditReport';
 import Pricing from './pages/Pricing';
+import Security from './pages/Security';
+import PolicyPage from './pages/PolicyPage';
 import NotFound from './pages/NotFound';
 
 export default function App() {
@@ -19,6 +22,11 @@ export default function App() {
       <div className="flex-1">
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/company" element={<Company />} />
+          <Route path="/security" element={<Security />} />
+          <Route path="/privacy" element={<PolicyPage type="privacy" />} />
+          <Route path="/terms" element={<PolicyPage type="terms" />} />
+          <Route path="/refunds" element={<PolicyPage type="refunds" />} />
           <Route path="/pricing" element={<Pricing />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />

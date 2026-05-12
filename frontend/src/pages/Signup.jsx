@@ -28,6 +28,9 @@ export default function Signup() {
       <form onSubmit={submit} className="panel w-full max-w-lg">
         <p className="label text-yellow-300">Create account</p>
         <h1 className="mt-3 text-3xl font-black text-white">Create your business account</h1>
+        <p className="mt-3 text-sm font-semibold leading-relaxed text-zinc-500">
+          Your account protects paid plans, audit reports, and company spend data.
+        </p>
         {error && <p className="mt-4 rounded-2xl border border-red-300/20 bg-red-300/10 p-3 text-sm font-bold text-red-100">{error}</p>}
         <div className="mt-6 grid gap-4 sm:grid-cols-2">
           <label className="grid gap-2">
@@ -44,7 +47,7 @@ export default function Signup() {
           </label>
           <label className="grid gap-2 sm:col-span-2">
             <span className="label">Password</span>
-            <input className="input" type="password" value={form.password} onChange={(event) => setForm({ ...form, password: event.target.value })} required minLength={6} />
+            <input className="input" type="password" value={form.password} onChange={(event) => setForm({ ...form, password: event.target.value })} required minLength={8} />
           </label>
           <button className="btn-primary w-full sm:col-span-2" disabled={loading}>{loading ? 'Creating...' : 'Create Account and Choose Plan'}</button>
           <p className="text-center text-sm font-semibold text-zinc-500 sm:col-span-2">

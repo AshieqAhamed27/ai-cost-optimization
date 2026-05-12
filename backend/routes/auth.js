@@ -9,6 +9,12 @@ const router = express.Router();
 const signToken = (user) =>
   jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
 
+const cleanText = (value, maxLength = 120) =>
+  String(value || '').trim().slice(0, maxLength);
+
+const normalizeEmail = (value) =>
+  String(value || '').toLowerCase().trim();
+
 const publicUser = (user) => ({
   id: user._id,
   name: user.name,
@@ -21,17 +27,20 @@ const publicUser = (user) => ({
 
 router.post('/signup', async (req, res, next) => {
   try {
-    const { name, email, password, companyName } = req.body;
+    const name = cleanText(req.body.name);
+    const email = normalizeEmail(req.body.email);
+    const password = String(req.body.password || '');
+    const companyName = cleanText(req.body.companyName);
 
     if (!name || !email || !password) {
       return res.status(400).json({ message: 'Name, email, and password are required' });
     }
 
-    if (String(password).length < 6) {
-      return res.status(400).json({ message: 'Password must be at least 6 characters' });
+    if (password.length < 8) {
+      return res.status(400).json({ message: 'Password must be at least 8 characters' });
     }
 
-    const existing = await User.findOne({ email: String(email).toLowerCase().trim() });
+    const existing = await User.findOne({ email });
     if (existing) {
       return res.status(409).json({ message: 'Email already registered' });
     }
@@ -55,14 +64,15 @@ router.post('/signup', async (req, res, next) => {
 
 router.post('/login', async (req, res, next) => {
   try {
-    const { email, password } = req.body;
-    const user = await User.findOne({ email: String(email || '').toLowerCase().trim() });
+    const email = normalizeEmail(req.body.email);
+    const password = String(req.body.password || '');
+    const user = await User.findOne({ email });
 
     if (!user) {
       return res.status(401).json({ message: 'Invalid email or password' });
     }
 
-    const ok = await bcrypt.compare(password || '', user.passwordHash);
+    const ok = await bcrypt.compare(password, user.passwordHash);
     if (!ok) {
       return res.status(401).json({ message: 'Invalid email or password' });
     }
@@ -81,4 +91,3 @@ router.get('/me', requireAuth, (req, res) => {
 });
 
 module.exports = router;
-

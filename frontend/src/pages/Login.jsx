@@ -28,6 +28,9 @@ export default function Login() {
       <form onSubmit={submit} className="panel w-full max-w-md">
         <p className="label text-yellow-300">Welcome back</p>
         <h1 className="mt-3 text-3xl font-black text-white">Login</h1>
+        <p className="mt-3 text-sm font-semibold leading-relaxed text-zinc-500">
+          Access your paid audit workspace and reports.
+        </p>
         {error && <p className="mt-4 rounded-2xl border border-red-300/20 bg-red-300/10 p-3 text-sm font-bold text-red-100">{error}</p>}
         <div className="mt-6 grid gap-4">
           <label className="grid gap-2">
@@ -47,4 +50,3 @@ export default function Login() {
     </main>
   );
 }
-

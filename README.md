@@ -1,10 +1,10 @@
-# AI Cost Optimization Audit SaaS
+# AI Cost Audit
 
-This is a separate full-stack application for an AI Cost Optimization business.
+AI Cost Audit is a full-stack paid audit company website and application for businesses that want to control AI software spend.
 
 ## What the product does
 
-AI Cost Optimization Audit helps businesses:
+AI Cost Audit helps businesses:
 
 - track AI tool and subscription spend
 - find unused or duplicate tools
@@ -13,6 +13,8 @@ AI Cost Optimization Audit helps businesses:
 - collect payment through Razorpay
 
 Report creation is gated behind an active paid plan so the product can collect revenue before client work is delivered.
+
+The website also includes company, security, privacy, terms, and refund pages so buyers can understand why they should pay and how the service handles trust before checkout.
 
 ## Tech stack
 
@@ -54,7 +56,7 @@ Copy `backend/.env.example` to `backend/.env` and fill:
 ```text
 PORT=5001
 MONGO_URI=your_mongodb_connection_string
-JWT_SECRET=your_long_random_secret
+JWT_SECRET=your_long_random_secret_at_least_24_characters
 FRONTEND_URL=http://localhost:5174
 CORS_ORIGINS=http://localhost:5174,http://127.0.0.1:5174
 RAZORPAY_KEY_ID=your_razorpay_key_id
@@ -75,7 +77,7 @@ Use these exact keys:
 | --- | --- |
 | `PORT` | `5001` |
 | `MONGO_URI` | Full MongoDB connection string, for example `mongodb+srv://<user>:<password>@<cluster>.<id>.mongodb.net/<database>?retryWrites=true&w=majority` |
-| `JWT_SECRET` | A long random secret |
+| `JWT_SECRET` | A long random secret with at least 24 characters |
 | `FRONTEND_URL` | Your frontend URL, for example `https://your-site.vercel.app` |
 | `CORS_ORIGINS` | Comma-separated frontend URLs, for example `https://ai-cost-optimization.vercel.app` |
 | `RAZORPAY_KEY_ID` | Your Razorpay key ID |

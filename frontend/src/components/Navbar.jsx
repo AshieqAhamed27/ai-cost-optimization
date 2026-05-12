@@ -34,6 +34,8 @@ export default function Navbar() {
 
         <nav className="flex flex-wrap items-center gap-2">
           <NavLink to="/" className={navClass}>Home</NavLink>
+          <NavLink to="/company" className={navClass}>Company</NavLink>
+          <NavLink to="/security" className={navClass}>Security</NavLink>
           <NavLink to="/pricing" className={navClass}>Pricing</NavLink>
           {loggedIn && (
             <>

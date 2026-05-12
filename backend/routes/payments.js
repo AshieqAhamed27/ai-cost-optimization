@@ -22,6 +22,13 @@ const getGatewayErrorMessage = (error) =>
   error?.message ||
   'Payment gateway request failed';
 
+const signaturesMatch = (expectedSignature, receivedSignature) => {
+  const expected = Buffer.from(expectedSignature || '', 'utf8');
+  const received = Buffer.from(String(receivedSignature || ''), 'utf8');
+
+  return expected.length === received.length && crypto.timingSafeEqual(expected, received);
+};
+
 const getRazorpay = () => {
   if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET) return null;
   return new Razorpay({
@@ -138,7 +145,7 @@ router.post('/razorpay/verify', requireAuth, async (req, res, next) => {
         .update(body)
         .digest('hex');
 
-      if (expectedSignature !== razorpay_signature) {
+      if (!signaturesMatch(expectedSignature, razorpay_signature)) {
         return res.status(400).json({ message: 'Payment verification failed' });
       }
     }

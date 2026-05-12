@@ -2,10 +2,17 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 
 const footerLinks = [
+  ['Company', '/company'],
+  ['Security', '/security'],
   ['Plans and Payment', '/pricing'],
   ['Create Account', '/signup'],
-  ['Login', '/login'],
-  ['Dashboard', '/dashboard']
+  ['Login', '/login']
+];
+
+const legalLinks = [
+  ['Privacy Policy', '/privacy'],
+  ['Terms', '/terms'],
+  ['Refund Policy', '/refunds']
 ];
 
 const serviceLinks = [
@@ -19,7 +26,7 @@ export default function Footer() {
   return (
     <footer className="mt-10 border-t border-white/10 bg-slate-950">
       <div className="container-page py-12">
-        <div className="grid gap-8 md:grid-cols-[minmax(0,1.1fr)_minmax(220px,0.55fr)_minmax(220px,0.65fr)_minmax(220px,0.55fr)]">
+        <div className="grid gap-8 md:grid-cols-[minmax(0,1.1fr)_minmax(220px,0.55fr)_minmax(220px,0.65fr)_minmax(220px,0.55fr)_minmax(220px,0.55fr)]">
           <div>
             <Link to="/" className="flex items-center gap-3">
               <span className="grid h-11 w-11 place-items-center rounded-lg bg-gradient-to-br from-sky-300 to-yellow-300 text-sm font-black text-slate-950">
@@ -62,6 +69,17 @@ export default function Footer() {
               <p>Paid plans unlock audit reports</p>
               <p>Built for repeat monthly monitoring</p>
             </div>
+          </div>
+
+          <div>
+            <p className="label text-zinc-400">Trust</p>
+            <nav className="mt-4 grid gap-3">
+              {legalLinks.map(([label, to]) => (
+                <Link key={label} to={to} className="text-sm font-bold text-zinc-400 transition hover:text-white">
+                  {label}
+                </Link>
+              ))}
+            </nav>
           </div>
         </div>
 

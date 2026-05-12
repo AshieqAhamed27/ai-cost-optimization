@@ -13,6 +13,23 @@ const { errorHandler } = require('./middleware/errorHandler');
 const app = express();
 const port = process.env.PORT || 5001;
 
+app.set('trust proxy', 1);
+app.disable('x-powered-by');
+
+const getRequiredEnv = (key) => {
+  const value = process.env[key]?.trim();
+
+  if (!value) {
+    throw new Error(`${key} is missing. Add it in the deployment environment variables.`);
+  }
+
+  if (key === 'JWT_SECRET' && value.length < 24) {
+    throw new Error('JWT_SECRET must be at least 24 characters for secure account sessions.');
+  }
+
+  return value;
+};
+
 const getMongoUri = () => {
   const mongoUri = process.env.MONGO_URI?.trim();
 
@@ -87,6 +104,7 @@ const allowedOrigins = addLocalhostAlias([
 let mongoUri;
 
 try {
+  getRequiredEnv('JWT_SECRET');
   mongoUri = getMongoUri();
 } catch (error) {
   console.error('Environment configuration failed:', error.message);
@@ -102,12 +120,32 @@ app.use(cors({
   credentials: true
 }));
 app.use(express.json({ limit: '1mb' }));
-app.use(rateLimit({
+
+const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   limit: 220,
   standardHeaders: true,
-  legacyHeaders: false
-}));
+  legacyHeaders: false,
+  message: { message: 'Too many requests. Please wait a few minutes and try again.' }
+});
+
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 25,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { message: 'Too many login or signup attempts. Please wait a few minutes and try again.' }
+});
+
+const paymentLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 45,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { message: 'Too many payment attempts. Please wait a few minutes and try again.' }
+});
+
+app.use(apiLimiter);
 
 app.get('/api/health', (req, res) => {
   res.json({
@@ -117,9 +155,9 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-app.use('/api/auth', authRoutes);
+app.use('/api/auth', authLimiter, authRoutes);
 app.use('/api/audits', auditRoutes);
-app.use('/api/payments', paymentRoutes);
+app.use('/api/payments', paymentLimiter, paymentRoutes);
 app.use(errorHandler);
 
 mongoose
