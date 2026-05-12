@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
+import ReportAgent from '../components/ReportAgent';
 import { apiRequest, formatCurrency } from '../utils/api';
 
 export default function AuditReport() {
@@ -77,6 +78,10 @@ export default function AuditReport() {
           </div>
         </aside>
       </section>
+
+      <div className="mt-8">
+        <ReportAgent audit={audit} />
+      </div>
     </main>
   );
 }

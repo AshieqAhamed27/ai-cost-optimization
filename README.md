@@ -61,7 +61,7 @@ FRONTEND_URL=http://localhost:5174
 CORS_ORIGINS=http://localhost:5174,http://127.0.0.1:5174
 RAZORPAY_KEY_ID=your_razorpay_key_id
 RAZORPAY_KEY_SECRET=your_razorpay_secret
-OPENAI_API_KEY=optional_openai_api_key_for_audit_agent
+OPENAI_API_KEY=optional_openai_api_key_for_ai_features
 OPENAI_MODEL=gpt-5
 PAYMENT_SIMULATION=false
 ALLOW_PAYMENT_SIMULATION=false
@@ -84,7 +84,7 @@ Use these exact keys:
 | `CORS_ORIGINS` | Comma-separated frontend URLs, for example `https://ai-cost-optimization.vercel.app` |
 | `RAZORPAY_KEY_ID` | Your Razorpay key ID |
 | `RAZORPAY_KEY_SECRET` | Your Razorpay key secret |
-| `OPENAI_API_KEY` | Optional server-side OpenAI API key for the AI Audit Agent |
+| `OPENAI_API_KEY` | Optional server-side OpenAI API key for the AI audit features |
 | `OPENAI_MODEL` | Optional model name for the agent, for example `gpt-5` |
 | `PAYMENT_SIMULATION` | `false` for live payments |
 | `ALLOW_PAYMENT_SIMULATION` | `false` for live payments |
@@ -180,15 +180,20 @@ For audits, ask only for:
 - billing exports
 - usage exports
 
-## AI Audit Agent
+## AI features
 
-The backend includes an AI Audit Agent endpoint:
+The backend includes AI endpoints that help users turn cost data into real work:
 
 ```text
 POST /api/agent/audit-advice
+POST /api/agent/report-pack/:auditId
 ```
 
-It is available to trial and paid users. If `OPENAI_API_KEY` is configured, the endpoint calls OpenAI's Responses API from the server. If no key is configured or the provider request fails, it falls back to built-in rule-based audit guidance so the product still works.
+`/audit-advice` reviews draft cost lines before a report is created and returns quick wins, risks, audit questions, and next steps.
+
+`/report-pack/:auditId` turns a saved audit into an executive summary, savings narrative, 30-day action plan, implementation checklist, and client follow-up email.
+
+Both endpoints are available to trial and paid users. If `OPENAI_API_KEY` is configured, the backend calls OpenAI's Responses API from the server. If no key is configured or the provider request fails, the app falls back to built-in rule-based audit guidance so the product still works.
 
 ## Suggested packages
 

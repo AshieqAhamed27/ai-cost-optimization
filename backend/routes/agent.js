@@ -1,5 +1,7 @@
 const express = require('express');
+const mongoose = require('mongoose');
 const { requireAuth, requireActivePlan } = require('../middleware/auth');
+const Audit = require('../models/Audit');
 const { calculateAudit } = require('../utils/costEngine');
 
 const router = express.Router();
@@ -101,6 +103,79 @@ const buildRuleAgent = ({ companyName, businessType, teamSize, notes, costLines,
   };
 };
 
+const buildRuleReportPack = (audit) => {
+  const costLines = normalizeCostLines(audit.tools || []);
+  const topLines = topCostLines(costLines);
+  const lowUsageLines = costLines.filter((line) => ['low', 'unused'].includes(line.usage));
+  const topLineNames = topLines.map((line) => line.name).join(', ') || 'the largest AI cost lines';
+  const lowUsageNames = lowUsageLines.map((line) => line.name).slice(0, 3).join(', ');
+
+  const executiveSummary = [
+    `${audit.companyName} is currently tracking ${money(audit.monthlySpend)} in monthly AI and infrastructure spend.`,
+    `The audit model estimates up to ${money(audit.possibleMonthlySavings)} in possible monthly savings before deeper usage-log validation.`,
+    `The first priority should be reviewing ${topLineNames}, then adding ownership, budgets, and usage controls around recurring model and infrastructure spend.`
+  ].join(' ');
+
+  const actionPlan = [
+    {
+      week: 'Week 1',
+      title: 'Create a clean usage baseline',
+      detail: 'Export the last 30 days of provider billing, token usage, model calls, vector database usage, logs, and background job costs. Tag each line by feature, customer, and owner.'
+    },
+    {
+      week: 'Week 2',
+      title: 'Reduce waste in the highest-cost workflows',
+      detail: `Review ${topLineNames} for long prompts, duplicate calls, retry loops, expensive default models, and unused seats or environments.`
+    },
+    {
+      week: 'Week 3',
+      title: 'Add control systems',
+      detail: 'Set monthly budget alerts, per-workspace usage limits, prompt size checks, cache rules, and retention windows for vectors, traces, generated files, and logs.'
+    },
+    {
+      week: 'Week 4',
+      title: 'Validate savings and make it repeatable',
+      detail: 'Compare the new spend baseline against the original audit, document the changes, and schedule a monthly review for high-growth cost lines.'
+    }
+  ];
+
+  const checklist = [
+    'Add per-feature and per-customer AI cost tags before scaling usage.',
+    'Route simple classification, extraction, and formatting tasks to cheaper models.',
+    'Cache repeated answers and summaries where freshness is not required.',
+    'Trim long context windows and summarize old state before repeated agent calls.',
+    'Set retention rules for vectors, logs, traces, generated files, and test data.',
+    'Create monthly budget alerts for every major AI and infrastructure provider.'
+  ];
+
+  if (lowUsageNames) {
+    checklist.unshift(`Review or pause low-usage cost lines: ${lowUsageNames}.`);
+  }
+
+  const clientEmail = [
+    `Subject: AI cost audit action plan for ${audit.companyName}`,
+    '',
+    `Hi ${audit.companyName} team,`,
+    '',
+    `I reviewed your current AI and infrastructure spend and found ${money(audit.monthlySpend)} in monthly cost lines with a possible optimization range of up to ${money(audit.possibleMonthlySavings)} per month after validation.`,
+    '',
+    `The first place to focus is ${topLineNames}. I recommend starting with usage tagging, prompt/context review, model routing, caching, and retention cleanup so we can reduce waste without weakening the product experience.`,
+    '',
+    'Suggested next step: share the last 30 days of billing exports and usage logs so we can confirm the highest-impact changes and prioritize the implementation plan.',
+    '',
+    'Best,'
+  ].join('\n');
+
+  return {
+    executiveSummary,
+    savingsNarrative: `The estimated savings opportunity is strongest where high monthly spend overlaps with low usage, repeated model calls, long context windows, unused seats, or infrastructure data that grows without retention limits. Treat ${money(audit.possibleMonthlySavings)} as a working estimate until confirmed against real provider exports.`,
+    actionPlan,
+    implementationChecklist: checklist.slice(0, 8),
+    clientEmail,
+    disclaimer: 'This action pack is generated from audit inputs and simple cost signals. Validate recommendations with billing exports, usage logs, architecture review, and security requirements before promising savings.'
+  };
+};
+
 const agentSchema = {
   type: 'object',
   additionalProperties: false,
@@ -125,6 +200,44 @@ const agentSchema = {
     risks: { type: 'array', maxItems: 4, items: { type: 'string' } },
     questions: { type: 'array', maxItems: 5, items: { type: 'string' } },
     nextSteps: { type: 'array', maxItems: 5, items: { type: 'string' } },
+    disclaimer: { type: 'string' }
+  }
+};
+
+const reportPackSchema = {
+  type: 'object',
+  additionalProperties: false,
+  required: [
+    'executiveSummary',
+    'savingsNarrative',
+    'actionPlan',
+    'implementationChecklist',
+    'clientEmail',
+    'disclaimer'
+  ],
+  properties: {
+    executiveSummary: { type: 'string' },
+    savingsNarrative: { type: 'string' },
+    actionPlan: {
+      type: 'array',
+      maxItems: 4,
+      items: {
+        type: 'object',
+        additionalProperties: false,
+        required: ['week', 'title', 'detail'],
+        properties: {
+          week: { type: 'string' },
+          title: { type: 'string' },
+          detail: { type: 'string' }
+        }
+      }
+    },
+    implementationChecklist: {
+      type: 'array',
+      maxItems: 8,
+      items: { type: 'string' }
+    },
+    clientEmail: { type: 'string' },
     disclaimer: { type: 'string' }
   }
 };
@@ -177,6 +290,57 @@ const callOpenAIAgent = async (payload) => {
   return JSON.parse(extractOutputText(data));
 };
 
+const callOpenAIReportPack = async (audit) => {
+  const payload = {
+    companyName: audit.companyName,
+    businessType: audit.businessType,
+    teamSize: audit.teamSize,
+    notes: audit.notes,
+    costLines: normalizeCostLines(audit.tools || []),
+    monthlySpend: audit.monthlySpend,
+    possibleMonthlySavings: audit.possibleMonthlySavings,
+    spendAfterCleanup: audit.spendAfterCleanup,
+    yearlySavings: audit.yearlySavings,
+    recommendations: audit.recommendations || []
+  };
+
+  const response = await fetch('https://api.openai.com/v1/responses', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      model: process.env.OPENAI_MODEL || 'gpt-5',
+      instructions: [
+        'You are SpendGuard Report Agent, an AI cost optimization operator for startups.',
+        'Turn an audit into a useful business deliverable: executive summary, savings narrative, 30-day action plan, implementation checklist, and client follow-up email.',
+        'Focus on real-world AI API, model routing, token usage, agent workflow, vector database, logs, cloud inference, and retention problems.',
+        'Do not invent customer stories, fake benchmarks, guaranteed savings, secret access needs, or claims that cannot be verified.',
+        'Return only structured JSON that follows the schema.'
+      ].join(' '),
+      input: JSON.stringify(payload),
+      max_output_tokens: 1300,
+      text: {
+        format: {
+          type: 'json_schema',
+          name: 'spendguard_report_pack',
+          strict: true,
+          schema: reportPackSchema
+        }
+      }
+    })
+  });
+
+  const data = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    throw new Error(data?.error?.message || 'AI report pack request failed');
+  }
+
+  return JSON.parse(extractOutputText(data));
+};
+
 router.use(requireAuth);
 
 router.post('/audit-advice', requireActivePlan, async (req, res, next) => {
@@ -224,6 +388,53 @@ router.post('/audit-advice', requireActivePlan, async (req, res, next) => {
         provider: 'rules',
         agent: fallbackAgent,
         audit
+      });
+    }
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.post('/report-pack/:auditId', requireActivePlan, async (req, res, next) => {
+  try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.auditId)) {
+      return res.status(404).json({ message: 'Audit not found' });
+    }
+
+    const audit = await Audit.findOne({
+      _id: req.params.auditId,
+      user: req.user._id
+    });
+
+    if (!audit) {
+      return res.status(404).json({ message: 'Audit not found' });
+    }
+
+    const fallbackPack = buildRuleReportPack(audit);
+
+    if (!process.env.OPENAI_API_KEY) {
+      return res.json({
+        provider: 'rules',
+        pack: fallbackPack
+      });
+    }
+
+    try {
+      const pack = await callOpenAIReportPack(audit);
+
+      return res.json({
+        provider: 'openai',
+        pack: {
+          ...fallbackPack,
+          ...pack,
+          disclaimer: pack.disclaimer || fallbackPack.disclaimer
+        }
+      });
+    } catch (error) {
+      console.error('AI report pack fallback used:', error.message);
+      return res.json({
+        provider: 'rules',
+        pack: fallbackPack
       });
     }
   } catch (error) {

@@ -104,12 +104,12 @@ export default function NewAudit() {
             </label>
             <label className="grid gap-2">
               <span className="label">Notes</span>
-              <input className="input" value={form.notes} onChange={(event) => setForm({ ...form, notes: event.target.value })} placeholder="Example: using too many content tools" />
+              <input className="input" value={form.notes} onChange={(event) => setForm({ ...form, notes: event.target.value })} placeholder="Example: repeated support-agent calls with long context" />
             </label>
           </div>
 
           <div className="mt-6">
-            <p className="label text-sky-300">Tools and spend</p>
+            <p className="label text-sky-300">AI cost lines</p>
             <div className="mt-4">
               <ToolEditor tools={tools} setTools={setTools} />
             </div>
