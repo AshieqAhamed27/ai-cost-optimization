@@ -13,8 +13,8 @@ const metrics = [
 
 const services = [
   {
-    title: 'AI subscription audit',
-    text: 'Review ChatGPT, copilots, automation apps, image tools, API platforms, and any other AI software the business pays for.'
+    title: 'Subscription waste audit',
+    text: 'Review the paid software, SaaS tools, seats, add-ons, and recurring subscriptions the business is already paying for.'
   },
   {
     title: 'Waste and risk analysis',
@@ -26,21 +26,21 @@ const services = [
   },
   {
     title: 'Ongoing cost monitoring',
-    text: 'Use monthly follow-up to keep AI spend controlled as more people, tools, and workflows enter the company.'
+    text: 'Use monthly follow-up to keep software spend controlled as more people, tools, and workflows enter the company.'
   }
 ];
 
 const workflow = [
   ['Trial account', 'Customers start with 7 days of report creation before choosing a paid plan.'],
-  ['Company intake', 'Add company details, AI tools, monthly spend, seats, and usage levels.'],
+  ['Company intake', 'Add company details, software subscriptions, monthly spend, seats, and usage levels.'],
   ['Automated audit', 'The platform calculates waste signals, estimated savings, and yearly cost opportunity.'],
   ['Client delivery', 'Use the report to recommend cancellations, downgrades, consolidation, or monitoring.']
 ];
 
 const audiences = [
-  'AI consultants selling cost audits',
+  'Consultants selling cost audits',
   'Agencies managing client software spend',
-  'Founders reviewing monthly AI bills',
+  'Founders reviewing monthly software bills',
   'Operations teams standardizing tool usage',
   'Finance teams watching SaaS expansion',
   'IT teams consolidating duplicate products'
@@ -57,12 +57,12 @@ const payReasons = [
   },
   {
     title: 'Create a repeatable savings process',
-    text: 'Monthly monitoring turns one audit into an ongoing cost-control workflow as AI tool usage expands.'
+    text: 'Monthly monitoring turns one audit into an ongoing cost-control workflow as software usage expands.'
   }
 ];
 
 const trustSignals = [
-  ['Razorpay checkout', 'Payments are handled by Razorpay, and card details are not stored by AI Cost Audit.'],
+  ['Razorpay checkout', 'Payments are handled by Razorpay, and card details are not stored by SpendGuard Audit.'],
   ['Verified access', 'Paid plans unlock report creation only after payment verification.'],
   ['Account protection', 'Reports live inside authenticated accounts with API rate limits and security headers.'],
   ['Transparent policies', 'Privacy, terms, refund, and security pages explain how the service works before payment.']
@@ -75,13 +75,13 @@ export default function Home() {
         <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(360px,0.82fr)] lg:items-center">
           <div>
             <p className="mb-5 inline-flex rounded-lg border border-sky-300/20 bg-sky-300/10 px-4 py-2 text-[10px] font-black uppercase tracking-[0.22em] text-sky-200">
-              B2B AI cost audit platform
+              B2B software spend audit company
             </p>
             <h1 className="max-w-5xl text-5xl font-black leading-[0.98] text-white md:text-7xl">
-              AI spend audits your business can sell, deliver, and repeat.
+              Stop paying for software your team does not use.
             </h1>
             <p className="mt-6 max-w-3xl text-lg font-semibold leading-relaxed text-zinc-400">
-              AI Cost Audit helps companies and consultants review AI software spend, find wasted budget, accept payment, and create client-ready savings reports from one workflow.
+              SpendGuard Audit helps companies and consultants find unused subscriptions, wasted seats, duplicate tools, and wrong plan tiers, then turn the findings into client-ready savings reports.
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <Link to="/signup" className="btn-primary">Start 7-Day Free Trial</Link>
@@ -100,7 +100,7 @@ export default function Home() {
           <div className="overflow-hidden rounded-lg border border-white/10 bg-white/[0.04] shadow-2xl shadow-black/30">
             <img
               src="/report-preview.svg"
-              alt="AI cost audit report preview"
+              alt="Software spend audit report preview"
               className="h-full w-full object-cover"
             />
           </div>
@@ -126,10 +126,10 @@ export default function Home() {
         <div className="max-w-3xl">
           <p className="label text-yellow-300">What The Product Provides</p>
           <h2 className="mt-3 text-3xl font-black text-white md:text-5xl">
-            A complete AI cost optimization service with checkout and reports.
+            A complete software cost-control service with checkout and reports.
           </h2>
           <p className="mt-4 text-sm font-semibold leading-relaxed text-zinc-400">
-            The product gives a business a concrete reason to pay: audit their AI tools, calculate avoidable spend, and receive recommendations that can reduce monthly software costs.
+            The product gives a business a concrete reason to pay: audit subscriptions, calculate avoidable spend, and receive recommendations that can reduce monthly software costs.
           </p>
         </div>
 
@@ -228,7 +228,7 @@ export default function Home() {
               From payment to client-ready audit report.
             </h2>
             <p className="mt-4 text-sm font-semibold leading-relaxed text-zinc-400">
-              AI Cost Audit supports the full operating model: sell the audit, collect payment, capture spend data, and deliver recommendations.
+              SpendGuard Audit supports the full operating model: sell the audit, collect payment, capture spend data, and deliver recommendations.
             </p>
           </div>
 
@@ -248,7 +248,7 @@ export default function Home() {
           <div>
             <p className="label text-yellow-200">Who Can Use It</p>
             <h2 className="mt-3 text-3xl font-black text-white md:text-4xl">
-              Built for teams that want AI cost optimization to become a paid service.
+              Built for teams that want software cost control to become a paid service.
             </h2>
             <div className="mt-6 flex flex-col gap-3 sm:flex-row">
               <Link to="/signup" className="btn-primary">Start Free Trial</Link>

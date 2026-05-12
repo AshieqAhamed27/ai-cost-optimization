@@ -34,7 +34,7 @@ export default function AuditReport() {
 
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         {[
-          ['Monthly AI spend', audit.monthlySpend],
+          ['Monthly software spend', audit.monthlySpend],
           ['Possible monthly savings', audit.possibleMonthlySavings],
           ['Spend after cleanup', audit.spendAfterCleanup],
           ['Possible yearly savings', audit.yearlySavings]

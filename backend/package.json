@@ -1,7 +1,7 @@
 {
   "name": "ai-cost-optimization-backend",
   "version": "1.0.0",
-  "description": "Backend API for AI Cost Optimization Audit",
+  "description": "Backend API for SpendGuard software spend audits",
   "main": "server.js",
   "scripts": {
     "build": "node --check server.js",

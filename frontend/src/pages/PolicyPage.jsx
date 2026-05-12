@@ -5,11 +5,11 @@ const policies = {
   privacy: {
     label: 'Privacy Policy',
     title: 'Privacy built around business audit data.',
-    intro: 'AI Cost Audit collects only the account, payment status, and AI spend details needed to create and manage audits.',
+    intro: 'SpendGuard Audit collects only the account, payment status, and software spend details needed to create and manage audits.',
     sections: [
       ['Information we collect', 'Name, email, company name, plan status, payment references, audit inputs, and generated report information.'],
       ['How we use information', 'We use this data to authenticate accounts, manage trial and paid plan access, create audit reports, and improve the service workflow.'],
-      ['Payment data', 'Card and bank payment details are handled by Razorpay. AI Cost Audit stores payment references and status, not card numbers.'],
+      ['Payment data', 'Card and bank payment details are handled by Razorpay. SpendGuard Audit stores payment references and status, not card numbers.'],
       ['Sensitive data', 'Customers should not enter API keys, private credentials, legal secrets, employee personal data, or confidential model prompts into audit notes.'],
       ['Data access', 'Audit reports are tied to authenticated accounts. Users should keep their account password private and use a strong password.']
     ]
@@ -17,9 +17,9 @@ const policies = {
   terms: {
     label: 'Terms',
     title: 'Clear terms for a paid audit service.',
-    intro: 'These terms explain the basic service promise: users pay for access to AI spend audit reports and related recommendations.',
+    intro: 'These terms explain the basic service promise: users pay for access to software spend audit reports and related recommendations.',
     sections: [
-      ['Service scope', 'AI Cost Audit provides software-assisted AI spend reviews, savings estimates, and recommendations based on user-entered data.'],
+      ['Service scope', 'SpendGuard Audit provides software subscription spend reviews, savings estimates, and recommendations based on user-entered data.'],
       ['Customer responsibility', 'Customers are responsible for entering accurate tool names, costs, seats, and usage levels.'],
       ['No guaranteed savings', 'Reports provide recommendations and estimates. Actual savings depend on vendor contracts, usage, negotiation, and customer decisions.'],
       ['Account access', 'Report creation requires an authenticated account with an active 7-day trial or paid plan.'],

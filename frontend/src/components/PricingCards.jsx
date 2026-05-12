@@ -7,19 +7,19 @@ export const defaultPlans = [
     id: 'mini_audit',
     name: 'Mini Audit',
     amount: 999,
-    description: 'A focused AI spend review for a small team or single workspace.'
+    description: 'A focused software spend review for a small team or single workspace.'
   },
   {
     id: 'business_audit',
     name: 'Business Audit',
     amount: 4999,
-    description: 'A full business cost report for teams using multiple AI products.'
+    description: 'A full business cost report for teams using multiple software products.'
   },
   {
     id: 'monthly_monitor',
     name: 'Monthly Monitor',
     amount: 9999,
-    description: 'Ongoing monthly AI spend tracking, report updates, and savings follow-up.'
+    description: 'Ongoing monthly software spend tracking, report updates, and savings follow-up.'
   }
 ];
 
@@ -27,7 +27,7 @@ const planDetails = {
   mini_audit: {
     badge: 'Starter',
     accent: 'border-white/10 bg-white/[0.04]',
-    features: ['One company workspace', 'Up to 8 AI tools reviewed', 'Savings estimate and action list']
+    features: ['One company workspace', 'Up to 8 subscriptions reviewed', 'Savings estimate and action list']
   },
   business_audit: {
     badge: 'Most Popular',
@@ -66,7 +66,7 @@ const withPlanDetails = (plan) => ({
   ...(planDetails[plan.id] || {
     badge: 'Plan',
     accent: 'border-white/10 bg-white/[0.04]',
-    features: ['AI spend report', 'Savings recommendations', 'Client-ready action plan']
+    features: ['Software spend report', 'Savings recommendations', 'Client-ready action plan']
   })
 });
 
@@ -112,7 +112,7 @@ export default function PricingCards({ compact = false }) {
         key: data.keyId,
         amount: data.order.amount,
         currency: data.order.currency,
-        name: 'AI Cost Audit',
+        name: 'SpendGuard Audit',
         description: data.plan.name,
         order_id: data.order.id,
         prefill: {
@@ -192,7 +192,7 @@ export default function PricingCards({ compact = false }) {
                 {loadingPlan === plan.id ? 'Opening...' : isLoggedIn() ? 'Pay with Razorpay' : 'Start Trial or Pay'}
               </button>
               <p className="mt-3 text-center text-xs font-bold text-zinc-500">
-                No card details are stored by AI Cost Audit.
+                No card details are stored by SpendGuard Audit.
               </p>
             </div>
           </article>

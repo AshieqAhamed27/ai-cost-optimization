@@ -21,7 +21,7 @@ const toolSchema = new mongoose.Schema({
   },
   category: {
     type: String,
-    default: 'AI tool'
+    default: 'Software subscription'
   }
 }, { _id: false });
 
@@ -79,4 +79,3 @@ const auditSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 module.exports = mongoose.model('Audit', auditSchema);
-

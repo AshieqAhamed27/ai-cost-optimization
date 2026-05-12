@@ -11,7 +11,7 @@ const calculateAudit = ({ tools = [], teamSize = 1 }) => {
       monthlyCost: Math.max(0, toNumber(tool.monthlyCost)),
       seats: Math.max(1, Math.round(toNumber(tool.seats) || 1)),
       usage: ['high', 'medium', 'low', 'unused'].includes(tool.usage) ? tool.usage : 'medium',
-      category: tool.category || 'AI tool'
+      category: tool.category || 'Software subscription'
     }));
 
   const monthlySpend = cleanTools.reduce((sum, tool) => sum + tool.monthlyCost, 0);
@@ -37,8 +37,8 @@ const calculateAudit = ({ tools = [], teamSize = 1 }) => {
 
   if (monthlySpend > 10000) {
     recommendations.push({
-      title: 'Create an AI tool approval rule',
-      detail: 'Before buying a new AI tool, define the owner, expected use, monthly budget, and success metric.',
+      title: 'Create a software purchase approval rule',
+      detail: 'Before buying a new subscription, define the owner, expected use, monthly budget, and success metric.',
       impact: 'Medium'
     });
   }
@@ -54,7 +54,7 @@ const calculateAudit = ({ tools = [], teamSize = 1 }) => {
   if (!recommendations.length) {
     recommendations.push({
       title: 'Start monthly spend tracking',
-      detail: 'Keep a monthly AI spend sheet so tool costs do not grow silently.',
+      detail: 'Keep a monthly software spend sheet so tool costs do not grow silently.',
       impact: 'Medium'
     });
   }
@@ -70,4 +70,3 @@ const calculateAudit = ({ tools = [], teamSize = 1 }) => {
 };
 
 module.exports = { calculateAudit };
-

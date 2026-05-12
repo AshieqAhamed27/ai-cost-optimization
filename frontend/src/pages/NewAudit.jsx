@@ -40,7 +40,7 @@ export default function NewAudit() {
 
     const filledTools = tools.filter((tool) => tool.name.trim());
     if (!filledTools.length) {
-      setError('Add at least one AI tool before creating a report.');
+      setError('Add at least one software tool before creating a report.');
       return;
     }
 
@@ -80,9 +80,9 @@ export default function NewAudit() {
     <main className="container-page py-10">
       <section className="mb-8">
         <p className="label text-yellow-300">New audit</p>
-        <h1 className="mt-3 text-4xl font-black text-white md:text-5xl">Create AI cost report</h1>
+        <h1 className="mt-3 text-4xl font-black text-white md:text-5xl">Create software cost report</h1>
         <p className="mt-3 max-w-2xl text-sm font-semibold leading-relaxed text-zinc-500">
-          Enter the client's real AI tools, seats, usage level, and monthly spend to generate a report.
+          Enter the client's real software tools, seats, usage level, and monthly spend to generate a report.
         </p>
       </section>
 
@@ -119,7 +119,7 @@ export default function NewAudit() {
           <p className="label text-emerald-200">Live preview</p>
           <div className="mt-5 grid gap-3">
             {[
-              ['Monthly AI spend', preview.monthlySpend],
+              ['Monthly software spend', preview.monthlySpend],
               ['Possible monthly savings', preview.savings],
               ['Spend after cleanup', preview.afterCleanup],
               ['Possible yearly savings', preview.yearlySavings]

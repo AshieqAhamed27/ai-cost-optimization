@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 const controls = [
   {
     title: 'Secure payment handling',
-    text: 'Payments are created and verified through Razorpay. AI Cost Audit does not collect or store card numbers.'
+    text: 'Payments are created and verified through Razorpay. SpendGuard Audit does not collect or store card numbers.'
   },
   {
     title: 'Payment verification',
@@ -29,8 +29,8 @@ const controls = [
 ];
 
 const dataPractices = [
-  ['What you enter', 'Company name, business type, AI tool names, monthly costs, seat counts, usage levels, and notes.'],
-  ['What we use it for', 'Creating AI spend audits, savings estimates, report recommendations, and account/payment status.'],
+  ['What you enter', 'Company name, business type, software tool names, monthly costs, seat counts, usage levels, and notes.'],
+  ['What we use it for', 'Creating software spend audits, savings estimates, report recommendations, and account/payment status.'],
   ['What we avoid', 'We do not ask for card numbers, bank details, API keys, private model prompts, or internal passwords.']
 ];
 

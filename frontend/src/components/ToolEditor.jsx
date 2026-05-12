@@ -5,7 +5,7 @@ export const createBlankTool = () => ({
   monthlyCost: '',
   seats: 1,
   usage: 'medium',
-  category: 'AI tool'
+  category: 'Software subscription'
 });
 
 export default function ToolEditor({ tools, setTools }) {
@@ -33,7 +33,7 @@ export default function ToolEditor({ tools, setTools }) {
           <div className="grid gap-3 lg:grid-cols-[minmax(0,1.2fr)_130px_100px_130px_auto] lg:items-end">
             <label className="grid gap-2">
               <span className="label">Tool name</span>
-              <input className="input" value={tool.name} onChange={(event) => updateTool(index, 'name', event.target.value)} placeholder="Example: ChatGPT Team" required />
+              <input className="input" value={tool.name} onChange={(event) => updateTool(index, 'name', event.target.value)} placeholder="Example: Slack Business" required />
             </label>
             <label className="grid gap-2">
               <span className="label">Monthly Rs</span>
@@ -59,7 +59,7 @@ export default function ToolEditor({ tools, setTools }) {
         </article>
       ))}
       <button type="button" onClick={addTool} className="btn-secondary w-full">
-        Add Tool
+        Add Software Tool
       </button>
     </div>
   );

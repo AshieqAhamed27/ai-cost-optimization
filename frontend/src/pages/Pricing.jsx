@@ -4,7 +4,7 @@ import TrialCallout from '../components/TrialCallout';
 
 const steps = [
   ['Start free trial', 'Use a business email and create audit reports for 7 days with no card required.'],
-  ['Prove the value', 'Review real AI software spend and see whether the report can identify avoidable monthly costs.'],
+  ['Prove the value', 'Review real software subscription spend and see whether the report can identify avoidable monthly costs.'],
   ['Upgrade securely', 'After the trial, Razorpay checkout activates a paid plan and keeps report creation unlocked.']
 ];
 

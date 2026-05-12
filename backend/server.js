@@ -150,7 +150,7 @@ app.use(apiLimiter);
 app.get('/api/health', (req, res) => {
   res.json({
     ok: true,
-    service: 'AI Cost Optimization API',
+    service: 'SpendGuard Audit API',
     timestamp: new Date().toISOString()
   });
 });

@@ -28,11 +28,11 @@ export default function Navbar() {
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <Link to="/" className="flex items-center gap-3">
           <span className="grid h-11 w-11 place-items-center rounded-lg bg-gradient-to-br from-sky-300 to-yellow-300 text-sm font-black text-slate-950">
-            AI
+            SG
           </span>
           <span>
-            <span className="block text-base font-black text-white">AI Cost Audit</span>
-            <span className="block text-xs font-bold text-zinc-500">Paid AI cost audits</span>
+            <span className="block text-base font-black text-white">SpendGuard Audit</span>
+            <span className="block text-xs font-bold text-zinc-500">Software spend audits</span>
           </span>
         </Link>
 

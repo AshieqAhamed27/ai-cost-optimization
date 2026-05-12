@@ -1,13 +1,13 @@
-# AI Cost Audit
+# SpendGuard Audit
 
-AI Cost Audit is a full-stack paid audit company website and application for businesses that want to control AI software spend.
+SpendGuard Audit is a full-stack paid audit company website and application for businesses that want to control recurring software subscription spend.
 
 ## What the product does
 
-AI Cost Audit helps businesses:
+SpendGuard Audit helps businesses:
 
-- track AI tool and subscription spend
-- find unused or duplicate tools
+- track software subscription and seat spend
+- find unused seats, duplicate tools, and wrong plan tiers
 - estimate monthly and yearly savings
 - create audit reports
 - collect payment through Razorpay

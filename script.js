@@ -39,10 +39,10 @@ function calculate() {
   yearlySavingsEl.textContent = formatCurrency(yearlySavings);
 
   const message = [
-    'Hi, I am interested in an AI Cost Optimization Audit.',
+    'Hi, I am interested in a SpendGuard software spend audit.',
     `Business type: ${businessTypeInput.value}`,
     `Team size: ${teamSize}`,
-    `Estimated monthly AI spend: ${formatCurrency(totalSpend)}`,
+    `Estimated monthly software spend: ${formatCurrency(totalSpend)}`,
     `Possible monthly savings shown: ${formatCurrency(estimatedSavings)}`,
     'Can you check where we may be wasting money?'
   ].join('\n');

@@ -16,7 +16,7 @@ const legalLinks = [
 ];
 
 const serviceLinks = [
-  'AI software spend audit',
+  'Software subscription audit',
   'Unused seat review',
   'Duplicate tool analysis',
   'Savings recommendation reports'
@@ -30,15 +30,15 @@ export default function Footer() {
           <div>
             <Link to="/" className="flex items-center gap-3">
               <span className="grid h-11 w-11 place-items-center rounded-lg bg-gradient-to-br from-sky-300 to-yellow-300 text-sm font-black text-slate-950">
-                AI
+                SG
               </span>
               <span>
-                <span className="block text-base font-black text-white">AI Cost Audit</span>
-                <span className="block text-xs font-bold text-zinc-500">Paid AI spend audits for businesses</span>
+                <span className="block text-base font-black text-white">SpendGuard Audit</span>
+                <span className="block text-xs font-bold text-zinc-500">Paid software spend audits</span>
               </span>
             </Link>
             <p className="mt-4 max-w-xl text-sm font-semibold leading-relaxed text-zinc-500">
-              We help companies, consultants, and agencies review AI software spend, collect payment, and deliver clear savings recommendations.
+              We help companies, consultants, and agencies review subscription waste, collect payment, and deliver clear savings recommendations.
             </p>
           </div>
 
@@ -84,8 +84,8 @@ export default function Footer() {
         </div>
 
         <div className="mt-8 flex flex-col gap-3 border-t border-white/10 pt-6 text-xs font-bold uppercase tracking-widest text-zinc-600 sm:flex-row sm:items-center sm:justify-between">
-          <p>Copyright 2026 AI Cost Audit. All rights reserved.</p>
-          <p>Built for businesses that want controlled AI spend.</p>
+          <p>Copyright 2026 SpendGuard Audit. All rights reserved.</p>
+          <p>Built for businesses that want controlled software spend.</p>
         </div>
       </div>
     </footer>
