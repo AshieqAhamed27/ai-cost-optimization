@@ -29,9 +29,11 @@ export default function Footer() {
         <div className="grid gap-8 md:grid-cols-[minmax(0,1.1fr)_minmax(220px,0.55fr)_minmax(220px,0.65fr)_minmax(220px,0.55fr)_minmax(220px,0.55fr)]">
           <div>
             <Link to="/" className="flex items-center gap-3">
-              <span className="grid h-11 w-11 place-items-center rounded-lg bg-gradient-to-br from-sky-300 to-yellow-300 text-sm font-black text-slate-950">
-                SG
-              </span>
+              <img
+                src="/spendguard-logo.png"
+                alt="SpendGuard Audit logo"
+                className="h-11 w-11 rounded-lg object-cover"
+              />
               <span>
                 <span className="block text-base font-black text-white">SpendGuard Audit</span>
                 <span className="block text-xs font-bold text-zinc-500">AI API and infrastructure audits</span>
