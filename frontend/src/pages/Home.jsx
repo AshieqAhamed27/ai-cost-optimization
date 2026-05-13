@@ -344,6 +344,32 @@ export default function Home() {
         </div>
       </section>
 
+      <section className="border-y border-white/10 bg-black/15 py-12 md:py-16">
+        <div className="container-page">
+          <div className="grid gap-8 lg:grid-cols-[minmax(0,0.65fr)_minmax(0,1fr)]">
+            <div>
+              <p className="label text-emerald-200">Trust Model</p>
+              <h2 className="mt-3 text-3xl font-black text-white md:text-5xl">
+                Start with spend evidence, not secret access.
+              </h2>
+              <p className="mt-4 text-sm font-semibold leading-relaxed text-zinc-400">
+                SpendGuard is designed for founders who want useful cost answers without handing over passwords, secret API keys, or private customer data.
+              </p>
+              <Link to="/security" className="btn-secondary mt-6">View Security</Link>
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-2">
+              {trustSignals.map(([title, text]) => (
+                <article key={title} className="rounded-lg border border-white/10 bg-white/[0.04] p-5">
+                  <h3 className="text-lg font-black text-white">{title}</h3>
+                  <p className="mt-3 text-sm font-semibold leading-relaxed text-zinc-500">{text}</p>
+                </article>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section id="plans" className="border-y border-white/10 bg-slate-900/45 py-12 md:py-16">
         <div className="container-page">
           <TrialCallout />

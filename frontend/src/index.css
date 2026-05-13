@@ -39,3 +39,32 @@
     @apply text-[11px] font-black uppercase tracking-widest text-zinc-500;
   }
 }
+
+@media print {
+  body {
+    background: white !important;
+    color: #0f172a !important;
+  }
+
+  header,
+  footer {
+    display: none !important;
+  }
+
+  .container-page {
+    width: 100% !important;
+  }
+
+  .panel,
+  article,
+  aside,
+  section {
+    break-inside: avoid;
+    box-shadow: none !important;
+  }
+
+  * {
+    color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}

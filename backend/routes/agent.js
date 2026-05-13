@@ -23,8 +23,16 @@ const normalizeCostLines = (tools = []) =>
       category: cleanText(tool.category || 'Model API', 80),
       monthlyCost: Math.max(0, toNumber(tool.monthlyCost)),
       seats: Math.max(1, Math.round(toNumber(tool.seats) || 1)),
-      usage: ['high', 'medium', 'low', 'unused'].includes(tool.usage) ? tool.usage : 'medium'
+      usage: ['high', 'medium', 'low', 'unused'].includes(tool.usage) ? tool.usage : 'medium',
+      monthlyRequests: Math.max(0, Math.round(toNumber(tool.monthlyRequests))),
+      avgTokens: Math.max(0, Math.round(toNumber(tool.avgTokens))),
+      modelTier: ['premium', 'balanced', 'economy', 'mixed', 'unknown'].includes(tool.modelTier) ? tool.modelTier : 'unknown',
+      caching: ['none', 'partial', 'good', 'unknown'].includes(tool.caching) ? tool.caching : 'unknown',
+      owner: cleanText(tool.owner, 80)
     }));
+
+const normalizeControl = (value) =>
+  ['yes', 'partial', 'no', 'unknown'].includes(value) ? value : 'unknown';
 
 const money = (value) =>
   `Rs ${Math.round(Number(value || 0)).toLocaleString('en-IN')}`;
@@ -72,6 +80,16 @@ const buildRuleAgent = ({ companyName, businessType, teamSize, notes, costLines,
     });
   }
 
+  (audit.wasteFindings || []).slice(0, 2).forEach((finding) => {
+    if (!quickWins.some((item) => item.title === finding.title)) {
+      quickWins.push({
+        title: finding.title,
+        detail: `${finding.detail} Estimated monthly opportunity: ${money(finding.estimatedSavings)}.`,
+        impact: finding.impact || 'Medium'
+      });
+    }
+  });
+
   const risks = [
     'No per-customer or per-feature cost attribution makes it hard to know whether AI features are profitable.',
     'Retries, long prompts, and retained context can raise model bills without obvious product value.',
@@ -93,7 +111,7 @@ const buildRuleAgent = ({ companyName, businessType, teamSize, notes, costLines,
   ];
 
   return {
-    summary: `${cleanText(companyName || businessType || 'This account', 80)} has ${money(audit.monthlySpend)} in monthly AI and infrastructure cost lines, with an estimated ${money(audit.possibleMonthlySavings)} monthly optimization opportunity.`,
+    summary: `${cleanText(companyName || businessType || 'This account', 80)} has ${money(audit.monthlySpend)} in monthly AI and infrastructure cost lines, ${audit.riskLevel || 'Medium'} risk, and an estimated ${money(audit.possibleMonthlySavings)} monthly optimization opportunity.`,
     confidence: costLines.length >= 3 ? 'medium' : 'low',
     quickWins: quickWins.slice(0, 4),
     risks,
@@ -109,35 +127,42 @@ const buildRuleReportPack = (audit) => {
   const lowUsageLines = costLines.filter((line) => ['low', 'unused'].includes(line.usage));
   const topLineNames = topLines.map((line) => line.name).join(', ') || 'the largest AI cost lines';
   const lowUsageNames = lowUsageLines.map((line) => line.name).slice(0, 3).join(', ');
+  const findings = (audit.wasteFindings || []).slice(0, 4);
 
   const executiveSummary = [
     `${audit.companyName} is currently tracking ${money(audit.monthlySpend)} in monthly AI and infrastructure spend.`,
-    `The audit model estimates up to ${money(audit.possibleMonthlySavings)} in possible monthly savings before deeper usage-log validation.`,
+    `The audit model estimates up to ${money(audit.possibleMonthlySavings)} in possible monthly savings before deeper usage-log validation and rates the risk level as ${audit.riskLevel || 'Medium'}.`,
     `The first priority should be reviewing ${topLineNames}, then adding ownership, budgets, and usage controls around recurring model and infrastructure spend.`
   ].join(' ');
 
-  const actionPlan = [
-    {
-      week: 'Week 1',
-      title: 'Create a clean usage baseline',
-      detail: 'Export the last 30 days of provider billing, token usage, model calls, vector database usage, logs, and background job costs. Tag each line by feature, customer, and owner.'
-    },
-    {
-      week: 'Week 2',
-      title: 'Reduce waste in the highest-cost workflows',
-      detail: `Review ${topLineNames} for long prompts, duplicate calls, retry loops, expensive default models, and unused seats or environments.`
-    },
-    {
-      week: 'Week 3',
-      title: 'Add control systems',
-      detail: 'Set monthly budget alerts, per-workspace usage limits, prompt size checks, cache rules, and retention windows for vectors, traces, generated files, and logs.'
-    },
-    {
-      week: 'Week 4',
-      title: 'Validate savings and make it repeatable',
-      detail: 'Compare the new spend baseline against the original audit, document the changes, and schedule a monthly review for high-growth cost lines.'
-    }
-  ];
+  const actionPlan = (audit.actionPlan || []).length
+    ? audit.actionPlan.map((item) => ({
+      week: item.phase || 'Next',
+      title: item.title,
+      detail: item.detail
+    })).slice(0, 4)
+    : [
+      {
+        week: 'Week 1',
+        title: 'Create a clean usage baseline',
+        detail: 'Export the last 30 days of provider billing, token usage, model calls, vector database usage, logs, and background job costs. Tag each line by feature, customer, and owner.'
+      },
+      {
+        week: 'Week 2',
+        title: 'Reduce waste in the highest-cost workflows',
+        detail: `Review ${topLineNames} for long prompts, duplicate calls, retry loops, expensive default models, and unused seats or environments.`
+      },
+      {
+        week: 'Week 3',
+        title: 'Add control systems',
+        detail: 'Set monthly budget alerts, per-workspace usage limits, prompt size checks, cache rules, and retention windows for vectors, traces, generated files, and logs.'
+      },
+      {
+        week: 'Week 4',
+        title: 'Validate savings and make it repeatable',
+        detail: 'Compare the new spend baseline against the original audit, document the changes, and schedule a monthly review for high-growth cost lines.'
+      }
+    ];
 
   const checklist = [
     'Add per-feature and per-customer AI cost tags before scaling usage.',
@@ -151,6 +176,10 @@ const buildRuleReportPack = (audit) => {
   if (lowUsageNames) {
     checklist.unshift(`Review or pause low-usage cost lines: ${lowUsageNames}.`);
   }
+
+  findings.forEach((finding) => {
+    checklist.unshift(`${finding.category || 'Cost'}: ${finding.title} (${money(finding.estimatedSavings)} estimated monthly opportunity).`);
+  });
 
   const clientEmail = [
     `Subject: AI cost audit action plan for ${audit.companyName}`,
@@ -294,13 +323,20 @@ const callOpenAIReportPack = async (audit) => {
   const payload = {
     companyName: audit.companyName,
     businessType: audit.businessType,
+    productType: audit.productType,
     teamSize: audit.teamSize,
+    monthlyActiveUsers: audit.monthlyActiveUsers,
+    monthlyRequests: audit.monthlyRequests,
+    costConcern: audit.costConcern,
     notes: audit.notes,
     costLines: normalizeCostLines(audit.tools || []),
     monthlySpend: audit.monthlySpend,
     possibleMonthlySavings: audit.possibleMonthlySavings,
     spendAfterCleanup: audit.spendAfterCleanup,
     yearlySavings: audit.yearlySavings,
+    riskLevel: audit.riskLevel,
+    wasteFindings: audit.wasteFindings || [],
+    actionPlan: audit.actionPlan || [],
     recommendations: audit.recommendations || []
   };
 
@@ -354,12 +390,22 @@ router.post('/audit-advice', requireActivePlan, async (req, res, next) => {
     const context = {
       companyName: cleanText(req.body.companyName, 120),
       businessType: cleanText(req.body.businessType, 120),
+      productType: cleanText(req.body.productType, 120),
       teamSize: Math.max(1, Math.round(toNumber(req.body.teamSize) || 1)),
+      monthlyActiveUsers: Math.max(0, Math.round(toNumber(req.body.monthlyActiveUsers))),
+      monthlyRequests: Math.max(0, Math.round(toNumber(req.body.monthlyRequests))),
+      costConcern: cleanText(req.body.costConcern, 800),
+      agentFocus: cleanText(req.body.agentFocus, 80),
+      dataSource: cleanText(req.body.dataSource, 160),
+      hasCaching: normalizeControl(req.body.hasCaching),
+      hasModelRouting: normalizeControl(req.body.hasModelRouting),
+      hasUsageLimits: normalizeControl(req.body.hasUsageLimits),
+      hasCostAttribution: normalizeControl(req.body.hasCostAttribution),
       notes: cleanText(req.body.notes, 800),
       costLines
     };
 
-    const audit = calculateAudit({ tools: costLines, teamSize: context.teamSize });
+    const audit = calculateAudit({ tools: costLines, ...context });
     const fallbackAgent = buildRuleAgent({ ...context, audit });
 
     if (!process.env.OPENAI_API_KEY) {

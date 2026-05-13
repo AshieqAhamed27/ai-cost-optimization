@@ -86,11 +86,13 @@ export default function Dashboard() {
         </section>
       )}
 
-      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-6">
         <StatCard label="Audits" value={loading ? '...' : stats.totalAudits || 0} detail="Reports created in your workspace" />
         <StatCard label="Monthly spend checked" value={loading ? '...' : formatCurrency(stats.monthlySpend)} detail="AI API and infrastructure spend reviewed" />
         <StatCard label="Possible monthly savings" value={loading ? '...' : formatCurrency(stats.possibleMonthlySavings)} detail="Estimated waste you can help clients reduce" />
         <StatCard label="Possible yearly savings" value={loading ? '...' : formatCurrency(stats.yearlySavings)} detail="Annualized opportunity from audit reports" />
+        <StatCard label="Confirmed savings" value={loading ? '...' : formatCurrency(stats.confirmedMonthlySavings)} detail="Monthly savings recorded after implementation" />
+        <StatCard label="Actions done" value={loading ? '...' : `${stats.actionCompletionRate || 0}%`} detail="Before and after plan completion" />
       </section>
 
       <section className="panel mt-8">
@@ -114,11 +116,15 @@ export default function Dashboard() {
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <p className="text-lg font-black text-white">{audit.companyName}</p>
-                  <p className="text-sm font-semibold text-zinc-500">{audit.businessType} | {audit.tools?.length || 0} tools checked</p>
+                  <p className="text-sm font-semibold text-zinc-500">
+                    {audit.businessType} | {audit.riskLevel || 'Medium'} risk | {audit.tools?.length || 0} cost lines checked
+                  </p>
                 </div>
                 <div className="text-left sm:text-right">
                   <p className="text-sm font-black text-emerald-200">{formatCurrency(audit.possibleMonthlySavings)} possible monthly savings</p>
-                  <p className="text-xs font-bold uppercase tracking-widest text-zinc-600">{audit.status}</p>
+                  <p className="text-xs font-bold uppercase tracking-widest text-zinc-600">
+                    {audit.confirmedMonthlySavings ? `${formatCurrency(audit.confirmedMonthlySavings)} confirmed | ` : ''}{audit.status}
+                  </p>
                 </div>
               </div>
             </Link>

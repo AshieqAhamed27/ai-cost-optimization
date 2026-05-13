@@ -7,9 +7,17 @@ const impactClass = {
   Low: 'border-sky-300/20 bg-sky-300/[0.07] text-sky-100'
 };
 
+const focusOptions = [
+  ['reduce-bill', 'Reduce high bill'],
+  ['model-routing', 'Choose cheaper models'],
+  ['token-waste', 'Find token waste'],
+  ['infra-growth', 'Control infra growth']
+];
+
 export default function AuditAgent({ form, tools, preview }) {
   const [agent, setAgent] = useState(null);
   const [provider, setProvider] = useState('');
+  const [agentFocus, setAgentFocus] = useState('reduce-bill');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -25,6 +33,7 @@ export default function AuditAgent({ form, tools, preview }) {
         method: 'POST',
         body: {
           ...form,
+          agentFocus,
           tools: filledTools
         }
       });
@@ -42,10 +51,10 @@ export default function AuditAgent({ form, tools, preview }) {
     <section className="panel border-sky-300/20 bg-sky-300/[0.06]">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <p className="label text-sky-200">AI Audit Agent</p>
-          <h2 className="mt-2 text-2xl font-black text-white">Find cost risks before creating the report.</h2>
+          <p className="label text-sky-200">SpendGuard Cost Agent</p>
+          <h2 className="mt-2 text-2xl font-black text-white">Get a focused answer to the real cost problem.</h2>
           <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-400">
-            The agent reviews your cost lines and returns quick wins, risks, questions, and next steps.
+            This is not a general chatbot. It reviews AI spend, usage signals, and controls to return quick wins, risks, questions, and next steps.
           </p>
         </div>
         {provider && (
@@ -55,8 +64,28 @@ export default function AuditAgent({ form, tools, preview }) {
         )}
       </div>
 
+      <div className="mt-5">
+        <p className="label text-zinc-400">What should the agent focus on?</p>
+        <div className="mt-3 grid gap-2 sm:grid-cols-2">
+          {focusOptions.map(([value, label]) => (
+            <button
+              key={value}
+              type="button"
+              onClick={() => setAgentFocus(value)}
+              className={`rounded-lg border px-3 py-3 text-left text-xs font-black uppercase tracking-widest transition ${
+                agentFocus === value
+                  ? 'border-yellow-300/40 bg-yellow-300/15 text-yellow-100'
+                  : 'border-white/10 bg-black/20 text-zinc-400 hover:border-white/20 hover:text-white'
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      </div>
+
       <button type="button" onClick={askAgent} disabled={disabled} className="btn-primary mt-5 w-full">
-        {loading ? 'Thinking...' : 'Ask Audit Agent'}
+        {loading ? 'Thinking...' : 'Ask SpendGuard Agent'}
       </button>
 
       {filledTools.length === 0 && (

@@ -10,6 +10,9 @@ SpendGuard Audit helps businesses:
 - find waste from wrong model choices, oversized prompts, repeated calls, missing caching, and poor retention rules
 - estimate monthly and yearly savings
 - create AI usage audit reports
+- detect waste patterns across model routing, caching, token usage, retention, attribution, and budget controls
+- export reports through the browser print-to-PDF flow
+- track implementation status and confirmed monthly savings after fixes
 - give early users free access while keeping Razorpay payment infrastructure ready for later
 
 Report creation is free for early users right now. Razorpay payment routes, plan pricing, and verification logic remain in the codebase so paid plans can be enabled later without rebuilding checkout.
@@ -190,6 +193,17 @@ POST /api/agent/report-pack/:auditId
 `/report-pack/:auditId` turns a saved audit into an executive summary, savings narrative, 30-day action plan, implementation checklist, and client follow-up email.
 
 Both endpoints are available to early access and paid users. If `OPENAI_API_KEY` is configured, the backend calls OpenAI's Responses API from the server. If no key is configured or the provider request fails, the app falls back to built-in rule-based audit guidance so the product still works.
+
+## Audit workflow features
+
+The product now supports a more complete business workflow:
+
+- intake fields for product type, monthly active users, AI request volume, data source, cost concern, and control maturity
+- richer cost lines with request volume, average tokens, model tier, caching status, and owner
+- waste findings with estimated savings per issue
+- action plan status tracking: to do, doing, done
+- confirmed monthly savings and implementation notes
+- PDF-ready report view using browser print
 
 ## Suggested packages
 

@@ -2,6 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import AuditAgent from '../components/AuditAgent';
 import ToolEditor, { createBlankTool } from '../components/ToolEditor';
+import { calculateAuditPreview } from '../utils/auditInsights';
 import { apiRequest, formatCurrency, getUser, hasActivePlan } from '../utils/api';
 
 export default function NewAudit() {
@@ -11,24 +12,23 @@ export default function NewAudit() {
   const [form, setForm] = useState({
     companyName: '',
     businessType: '',
+    productType: '',
     teamSize: 1,
+    monthlyActiveUsers: '',
+    monthlyRequests: '',
+    costConcern: '',
+    dataSource: '',
+    hasCaching: 'unknown',
+    hasModelRouting: 'unknown',
+    hasUsageLimits: 'unknown',
+    hasCostAttribution: 'unknown',
     notes: ''
   });
   const [tools, setTools] = useState([createBlankTool()]);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const preview = useMemo(() => {
-    const monthlySpend = tools.reduce((sum, tool) => sum + Number(tool.monthlyCost || 0), 0);
-    const lowUsage = tools.filter((tool) => ['low', 'unused'].includes(tool.usage)).reduce((sum, tool) => sum + Number(tool.monthlyCost || 0), 0);
-    const savings = Math.min(monthlySpend * 0.42, lowUsage + monthlySpend * 0.18 + Math.max(0, Number(form.teamSize || 1) - 1) * 350);
-    return {
-      monthlySpend,
-      savings,
-      afterCleanup: Math.max(0, monthlySpend - savings),
-      yearlySavings: savings * 12
-    };
-  }, [tools, form.teamSize]);
+  const preview = useMemo(() => calculateAuditPreview({ tools, form }), [tools, form]);
 
   const submit = async (event) => {
     event.preventDefault();
@@ -99,13 +99,73 @@ export default function NewAudit() {
               <input className="input" value={form.businessType} onChange={(event) => setForm({ ...form, businessType: event.target.value })} required />
             </label>
             <label className="grid gap-2">
+              <span className="label">Product type</span>
+              <select className="input" value={form.productType} onChange={(event) => setForm({ ...form, productType: event.target.value })}>
+                <option value="">Select product type</option>
+                <option value="AI SaaS">AI SaaS</option>
+                <option value="AI agent workflow">AI agent workflow</option>
+                <option value="Internal automation">Internal automation</option>
+                <option value="Customer support assistant">Customer support assistant</option>
+                <option value="Developer tool">Developer tool</option>
+                <option value="AI agency service">AI agency service</option>
+              </select>
+            </label>
+            <label className="grid gap-2">
               <span className="label">Team size</span>
               <input className="input" type="number" min="1" value={form.teamSize} onChange={(event) => setForm({ ...form, teamSize: event.target.value })} />
             </label>
             <label className="grid gap-2">
-              <span className="label">Notes</span>
-              <input className="input" value={form.notes} onChange={(event) => setForm({ ...form, notes: event.target.value })} placeholder="Workflow, traffic pattern, or cost concern" />
+              <span className="label">Monthly active users</span>
+              <input className="input" type="number" min="0" value={form.monthlyActiveUsers} onChange={(event) => setForm({ ...form, monthlyActiveUsers: event.target.value })} placeholder="Optional" />
             </label>
+            <label className="grid gap-2">
+              <span className="label">Monthly AI requests</span>
+              <input className="input" type="number" min="0" value={form.monthlyRequests} onChange={(event) => setForm({ ...form, monthlyRequests: event.target.value })} placeholder="Optional" />
+            </label>
+            <label className="grid gap-2">
+              <span className="label">Data source</span>
+              <select className="input" value={form.dataSource} onChange={(event) => setForm({ ...form, dataSource: event.target.value })}>
+                <option value="">Select source</option>
+                <option value="Billing screenshot">Billing screenshot</option>
+                <option value="Provider export">Provider export</option>
+                <option value="Manual estimate">Manual estimate</option>
+                <option value="Invoice">Invoice</option>
+                <option value="Usage logs">Usage logs</option>
+              </select>
+            </label>
+          </div>
+
+          <div className="mt-6 grid gap-4 md:grid-cols-2">
+            <label className="grid gap-2">
+              <span className="label">Biggest cost concern</span>
+              <textarea className="input min-h-28 resize-y" value={form.costConcern} onChange={(event) => setForm({ ...form, costConcern: event.target.value })} placeholder="Example: OpenAI bill increased after launching a customer support agent" />
+            </label>
+            <label className="grid gap-2">
+              <span className="label">Notes for the audit</span>
+              <textarea className="input min-h-28 resize-y" value={form.notes} onChange={(event) => setForm({ ...form, notes: event.target.value })} placeholder="Workflow, traffic pattern, architecture detail, or billing context" />
+            </label>
+          </div>
+
+          <div className="mt-6 rounded-2xl border border-white/10 bg-black/20 p-4">
+            <p className="label text-emerald-200">Cost control maturity</p>
+            <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+              {[
+                ['hasCaching', 'Caching'],
+                ['hasModelRouting', 'Model routing'],
+                ['hasUsageLimits', 'Usage limits'],
+                ['hasCostAttribution', 'Cost attribution']
+              ].map(([field, label]) => (
+                <label key={field} className="grid gap-2">
+                  <span className="label">{label}</span>
+                  <select className="input" value={form[field]} onChange={(event) => setForm({ ...form, [field]: event.target.value })}>
+                    <option value="unknown">Unknown</option>
+                    <option value="yes">Yes</option>
+                    <option value="partial">Partial</option>
+                    <option value="no">No</option>
+                  </select>
+                </label>
+              ))}
+            </div>
           </div>
 
           <div className="mt-6">
@@ -131,6 +191,30 @@ export default function NewAudit() {
                   <p className="mt-2 text-2xl font-black text-white">{formatCurrency(value)}</p>
                 </div>
               ))}
+            </div>
+            <div className="mt-5 rounded-2xl border border-white/10 bg-black/20 p-4">
+              <div className="flex items-center justify-between gap-3">
+                <p className="label text-yellow-200">Waste detector</p>
+                <span className="rounded-lg border border-white/10 bg-white/[0.06] px-2 py-1 text-[10px] font-black uppercase tracking-widest text-white">
+                  {preview.riskLevel} risk
+                </span>
+              </div>
+              <div className="mt-3 grid gap-2">
+                {preview.wasteFindings.length === 0 && (
+                  <p className="text-sm font-semibold leading-relaxed text-zinc-500">
+                    Add cost lines and control details to detect waste patterns.
+                  </p>
+                )}
+                {preview.wasteFindings.slice(0, 4).map((finding) => (
+                  <div key={finding.title} className="rounded-lg border border-white/10 bg-white/[0.04] p-3">
+                    <div className="flex items-center justify-between gap-3">
+                      <p className="text-sm font-black text-white">{finding.title}</p>
+                      <p className="text-xs font-black text-emerald-200">{formatCurrency(finding.estimatedSavings)}</p>
+                    </div>
+                    <p className="mt-1 text-[10px] font-black uppercase tracking-widest text-zinc-500">{finding.category} | {finding.impact}</p>
+                  </div>
+                ))}
+              </div>
             </div>
             {error && <p className="mt-4 rounded-2xl border border-red-300/20 bg-red-300/10 p-3 text-sm font-bold text-red-100">{error}</p>}
             <button type="submit" disabled={loading} className="btn-primary mt-5 w-full">

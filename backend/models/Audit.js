@@ -22,6 +22,51 @@ const toolSchema = new mongoose.Schema({
   category: {
     type: String,
     default: 'Model API'
+  },
+  monthlyRequests: {
+    type: Number,
+    default: 0
+  },
+  avgTokens: {
+    type: Number,
+    default: 0
+  },
+  modelTier: {
+    type: String,
+    enum: ['premium', 'balanced', 'economy', 'mixed', 'unknown'],
+    default: 'unknown'
+  },
+  caching: {
+    type: String,
+    enum: ['none', 'partial', 'good', 'unknown'],
+    default: 'unknown'
+  },
+  owner: {
+    type: String,
+    default: ''
+  }
+}, { _id: false });
+
+const wasteFindingSchema = new mongoose.Schema({
+  title: String,
+  detail: String,
+  category: String,
+  impact: String,
+  estimatedSavings: {
+    type: Number,
+    default: 0
+  }
+}, { _id: false });
+
+const actionPlanSchema = new mongoose.Schema({
+  phase: String,
+  title: String,
+  detail: String,
+  owner: String,
+  status: {
+    type: String,
+    enum: ['todo', 'doing', 'done'],
+    default: 'todo'
   }
 }, { _id: false });
 
@@ -41,9 +86,49 @@ const auditSchema = new mongoose.Schema({
     required: true,
     trim: true
   },
+  productType: {
+    type: String,
+    default: ''
+  },
   teamSize: {
     type: Number,
     default: 1
+  },
+  monthlyActiveUsers: {
+    type: Number,
+    default: 0
+  },
+  monthlyRequests: {
+    type: Number,
+    default: 0
+  },
+  costConcern: {
+    type: String,
+    default: ''
+  },
+  dataSource: {
+    type: String,
+    default: ''
+  },
+  hasCaching: {
+    type: String,
+    enum: ['yes', 'partial', 'no', 'unknown'],
+    default: 'unknown'
+  },
+  hasModelRouting: {
+    type: String,
+    enum: ['yes', 'partial', 'no', 'unknown'],
+    default: 'unknown'
+  },
+  hasUsageLimits: {
+    type: String,
+    enum: ['yes', 'partial', 'no', 'unknown'],
+    default: 'unknown'
+  },
+  hasCostAttribution: {
+    type: String,
+    enum: ['yes', 'partial', 'no', 'unknown'],
+    default: 'unknown'
   },
   tools: [toolSchema],
   monthlySpend: {
@@ -61,6 +146,21 @@ const auditSchema = new mongoose.Schema({
   yearlySavings: {
     type: Number,
     default: 0
+  },
+  riskLevel: {
+    type: String,
+    enum: ['Low', 'Medium', 'High'],
+    default: 'Medium'
+  },
+  wasteFindings: [wasteFindingSchema],
+  actionPlan: [actionPlanSchema],
+  confirmedMonthlySavings: {
+    type: Number,
+    default: 0
+  },
+  implementationNotes: {
+    type: String,
+    default: ''
   },
   recommendations: [{
     title: String,
