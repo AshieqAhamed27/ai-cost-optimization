@@ -82,11 +82,11 @@ export default function ToolEditor({ tools, setTools }) {
           <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
             <label className="grid gap-2">
               <span className="label">Monthly requests</span>
-              <input className="input" type="number" min="0" value={tool.monthlyRequests} onChange={(event) => updateTool(index, 'monthlyRequests', event.target.value)} placeholder="Optional" />
+              <input className="input" type="number" min="0" value={tool.monthlyRequests} onChange={(event) => updateTool(index, 'monthlyRequests', event.target.value)} />
             </label>
             <label className="grid gap-2">
               <span className="label">Avg tokens</span>
-              <input className="input" type="number" min="0" value={tool.avgTokens} onChange={(event) => updateTool(index, 'avgTokens', event.target.value)} placeholder="Optional" />
+              <input className="input" type="number" min="0" value={tool.avgTokens} onChange={(event) => updateTool(index, 'avgTokens', event.target.value)} />
             </label>
             <label className="grid gap-2">
               <span className="label">Model tier</span>

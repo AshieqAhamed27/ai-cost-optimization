@@ -116,11 +116,11 @@ export default function NewAudit() {
             </label>
             <label className="grid gap-2">
               <span className="label">Monthly active users</span>
-              <input className="input" type="number" min="0" value={form.monthlyActiveUsers} onChange={(event) => setForm({ ...form, monthlyActiveUsers: event.target.value })} placeholder="Optional" />
+              <input className="input" type="number" min="0" value={form.monthlyActiveUsers} onChange={(event) => setForm({ ...form, monthlyActiveUsers: event.target.value })} />
             </label>
             <label className="grid gap-2">
               <span className="label">Monthly AI requests</span>
-              <input className="input" type="number" min="0" value={form.monthlyRequests} onChange={(event) => setForm({ ...form, monthlyRequests: event.target.value })} placeholder="Optional" />
+              <input className="input" type="number" min="0" value={form.monthlyRequests} onChange={(event) => setForm({ ...form, monthlyRequests: event.target.value })} />
             </label>
             <label className="grid gap-2">
               <span className="label">Data source</span>
@@ -138,7 +138,7 @@ export default function NewAudit() {
           <div className="mt-6 grid gap-4 md:grid-cols-2">
             <label className="grid gap-2">
               <span className="label">Biggest cost concern</span>
-              <textarea className="input min-h-28 resize-y" value={form.costConcern} onChange={(event) => setForm({ ...form, costConcern: event.target.value })} placeholder="Example: OpenAI bill increased after launching a customer support agent" />
+              <textarea className="input min-h-28 resize-y" value={form.costConcern} onChange={(event) => setForm({ ...form, costConcern: event.target.value })} placeholder="Describe the cost problem or billing concern" />
             </label>
             <label className="grid gap-2">
               <span className="label">Notes for the audit</span>

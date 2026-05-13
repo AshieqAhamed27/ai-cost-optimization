@@ -3,6 +3,193 @@ import { Link, useParams } from 'react-router-dom';
 import ReportAgent from '../components/ReportAgent';
 import { apiRequest, formatCurrency } from '../utils/api';
 
+const formatNumber = (value) =>
+  Number(value || 0).toLocaleString('en-IN');
+
+const hasText = (value) =>
+  Boolean(String(value || '').trim());
+
+const hasMeaningfulValue = (value) =>
+  hasText(value) && !['unknown', 'not provided'].includes(String(value).trim().toLowerCase());
+
+const buildIntakeRows = (audit) => [
+  ['Business type', audit.businessType],
+  ['Product type', audit.productType],
+  ['Team size', audit.teamSize ? `${formatNumber(audit.teamSize)} team members` : ''],
+  ['Monthly active users', audit.monthlyActiveUsers ? formatNumber(audit.monthlyActiveUsers) : ''],
+  ['Monthly AI requests', audit.monthlyRequests ? formatNumber(audit.monthlyRequests) : ''],
+  ['Data source', audit.dataSource],
+  ['Cost concern', audit.costConcern || audit.notes]
+].filter(([, value]) => hasMeaningfulValue(value));
+
+const buildToolSignals = (tool) => [
+  tool.monthlyRequests ? `${formatNumber(tool.monthlyRequests)} requests` : '',
+  tool.avgTokens ? `${formatNumber(tool.avgTokens)} avg tokens` : '',
+  hasMeaningfulValue(tool.modelTier) ? `${tool.modelTier} tier` : '',
+  hasMeaningfulValue(tool.caching) ? `${tool.caching} caching` : '',
+  hasMeaningfulValue(tool.owner) ? `Owner: ${tool.owner}` : ''
+].filter(Boolean);
+
+function PrintableReport({ audit, actionPlan, actionCompletion, savingsRate }) {
+  const intakeRows = buildIntakeRows(audit);
+  const findings = audit.wasteFindings || [];
+  const tools = audit.tools || [];
+  const recommendations = audit.recommendations || [];
+  const reportDate = audit.createdAt
+    ? new Date(audit.createdAt).toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric' })
+    : new Date().toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric' });
+
+  return (
+    <section className="pdf-report" aria-label="PDF audit report">
+      <header className="pdf-cover">
+        <div>
+          <p className="pdf-kicker">SpendGuard Audit</p>
+          <h1>{audit.companyName}</h1>
+          <p className="pdf-subtitle">AI API and infrastructure cost audit report</p>
+        </div>
+        <div className="pdf-meta">
+          <p>Report date</p>
+          <strong>{reportDate}</strong>
+          <span>{audit.riskLevel || 'Medium'} risk profile</span>
+        </div>
+      </header>
+
+      <section className="pdf-section">
+        <p className="pdf-label">Executive Summary</p>
+        <h2>{formatCurrency(audit.possibleMonthlySavings)} possible monthly savings across {tools.length} AI cost lines.</h2>
+        <p>
+          SpendGuard found a {audit.riskLevel || 'Medium'} risk cost profile and a possible {savingsRate}% reduction opportunity before validation. The report focuses on model overuse, repeated prompts, long context, missing cost attribution, budget guardrails, and infrastructure retention growth.
+        </p>
+      </section>
+
+      <section className="pdf-metrics">
+        {[
+          ['Current monthly spend', audit.monthlySpend],
+          ['Possible monthly savings', audit.possibleMonthlySavings],
+          ['Spend after cleanup', audit.spendAfterCleanup],
+          ['Possible yearly savings', audit.yearlySavings]
+        ].map(([label, value]) => (
+          <div key={label}>
+            <p>{label}</p>
+            <strong>{formatCurrency(value)}</strong>
+          </div>
+        ))}
+      </section>
+
+      {intakeRows.length > 0 && (
+        <section className="pdf-section">
+          <p className="pdf-label">Audit Intake</p>
+          <div className="pdf-info-grid">
+            {intakeRows.map(([label, value]) => (
+              <div key={label}>
+                <p>{label}</p>
+                <strong>{value}</strong>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {findings.length > 0 && (
+        <section className="pdf-section">
+          <p className="pdf-label">Cost Waste Findings</p>
+          <table className="pdf-table">
+            <thead>
+              <tr>
+                <th>Finding</th>
+                <th>Impact</th>
+                <th>Estimated monthly saving</th>
+              </tr>
+            </thead>
+            <tbody>
+              {findings.map((finding) => (
+                <tr key={finding.title}>
+                  <td>
+                    <strong>{finding.title}</strong>
+                    <span>{finding.detail}</span>
+                  </td>
+                  <td>{finding.category} / {finding.impact}</td>
+                  <td>{formatCurrency(finding.estimatedSavings)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </section>
+      )}
+
+      <section className="pdf-section">
+        <p className="pdf-label">Cost Lines Checked</p>
+        <table className="pdf-table">
+          <thead>
+            <tr>
+              <th>Cost line</th>
+              <th>Usage signals</th>
+              <th>Monthly cost</th>
+            </tr>
+          </thead>
+          <tbody>
+            {tools.map((tool, index) => {
+              const signals = buildToolSignals(tool);
+
+              return (
+                <tr key={`${tool.name}-${index}`}>
+                  <td>
+                    <strong>{tool.name}</strong>
+                    <span>{tool.category || 'Cost line'} / {tool.usage} usage / {tool.seats} units</span>
+                  </td>
+                  <td>{signals.length ? signals.join(', ') : 'Baseline spend line'}</td>
+                  <td>{formatCurrency(tool.monthlyCost)}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </section>
+
+      {actionPlan.length > 0 && (
+        <section className="pdf-section">
+          <div className="pdf-section-heading">
+            <div>
+              <p className="pdf-label">30-Day Action Plan</p>
+              <h2>Implementation progress: {actionCompletion}%</h2>
+            </div>
+          </div>
+          <div className="pdf-action-list">
+            {actionPlan.map((item) => (
+              <article key={`${item.phase}-${item.title}`}>
+                <p>{item.phase}</p>
+                <h3>{item.title}</h3>
+                <span>{item.detail}</span>
+                {hasMeaningfulValue(item.owner) && <small>Owner: {item.owner}</small>}
+              </article>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {recommendations.length > 0 && (
+        <section className="pdf-section">
+          <p className="pdf-label">Recommendations</p>
+          <div className="pdf-recommendations">
+            {recommendations.map((item, index) => (
+              <article key={`${item.title}-${index}`}>
+                <h3>{item.title}</h3>
+                <p>{item.detail}</p>
+                <span>Impact: {item.impact}</span>
+              </article>
+            ))}
+          </div>
+        </section>
+      )}
+
+      <footer className="pdf-footer">
+        <p>SpendGuard Audit</p>
+        <span>Estimates must be validated with billing exports, usage logs, architecture review, and implementation results.</span>
+      </footer>
+    </section>
+  );
+}
+
 export default function AuditReport() {
   const { id } = useParams();
   const [audit, setAudit] = useState(null);
@@ -71,15 +258,17 @@ export default function AuditReport() {
   const completedActions = actionPlan.filter((item) => item.status === 'done').length;
   const actionCompletion = actionPlan.length ? Math.round((completedActions / actionPlan.length) * 100) : 0;
   const savingsRate = audit.monthlySpend ? Math.round((audit.possibleMonthlySavings / audit.monthlySpend) * 100) : 0;
+  const intakeRows = buildIntakeRows(audit);
 
   return (
-    <main className="container-page py-10 print:py-0">
+    <>
+    <main className="container-page screen-report py-10">
       <section className="mb-8 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div>
           <p className="label text-yellow-300">Audit report</p>
           <h1 className="mt-3 text-4xl font-black text-white md:text-5xl">{audit.companyName}</h1>
           <p className="mt-3 text-sm font-semibold text-zinc-500">
-            {audit.businessType} | {audit.productType || 'AI product'} | {audit.teamSize} team members
+            {[audit.businessType, audit.productType, audit.teamSize ? `${audit.teamSize} team members` : ''].filter(hasMeaningfulValue).join(' | ')}
           </p>
         </div>
         <div className="flex flex-col gap-3 sm:flex-row print:hidden">
@@ -116,18 +305,17 @@ export default function AuditReport() {
         <aside className="panel">
           <p className="label text-sky-200">Audit intake</p>
           <div className="mt-4 grid gap-3">
-            {[
-              ['Product type', audit.productType || 'Not provided'],
-              ['Monthly active users', audit.monthlyActiveUsers ? audit.monthlyActiveUsers.toLocaleString('en-IN') : 'Not provided'],
-              ['Monthly AI requests', audit.monthlyRequests ? audit.monthlyRequests.toLocaleString('en-IN') : 'Not provided'],
-              ['Data source', audit.dataSource || 'Not provided'],
-              ['Cost concern', audit.costConcern || audit.notes || 'Not provided']
-            ].map(([label, value]) => (
+            {intakeRows.map(([label, value]) => (
               <div key={label} className="rounded-lg border border-white/10 bg-black/20 p-3">
                 <p className="label">{label}</p>
                 <p className="mt-1 text-sm font-bold leading-relaxed text-zinc-300">{value}</p>
               </div>
             ))}
+            {intakeRows.length === 0 && (
+              <p className="rounded-lg border border-white/10 bg-black/20 p-3 text-sm font-semibold text-zinc-500">
+                Add intake details in the next audit to include this section.
+              </p>
+            )}
           </div>
         </aside>
       </section>
@@ -175,15 +363,11 @@ export default function AuditReport() {
                     <p className="text-xs font-bold uppercase tracking-widest text-zinc-600">
                       {tool.category || 'Cost line'} | {tool.usage} usage | {tool.seats} units
                     </p>
-                    <p className="mt-1 text-xs font-semibold text-zinc-500">
-                      {tool.monthlyRequests ? `${tool.monthlyRequests.toLocaleString('en-IN')} requests` : 'Request volume unknown'}
-                      {' | '}
-                      {tool.avgTokens ? `${tool.avgTokens.toLocaleString('en-IN')} avg tokens` : 'Tokens unknown'}
-                      {' | '}
-                      {tool.modelTier || 'unknown'} tier
-                      {' | '}
-                      {tool.caching || 'unknown'} caching
-                    </p>
+                    {buildToolSignals(tool).length > 0 && (
+                      <p className="mt-1 text-xs font-semibold text-zinc-500">
+                        {buildToolSignals(tool).join(' | ')}
+                      </p>
+                    )}
                   </div>
                   <p className="text-lg font-black text-white">{formatCurrency(tool.monthlyCost)}</p>
                 </div>
@@ -293,5 +477,12 @@ export default function AuditReport() {
         <ReportAgent audit={audit} />
       </div>
     </main>
+    <PrintableReport
+      audit={audit}
+      actionPlan={actionPlan}
+      actionCompletion={actionCompletion}
+      savingsRate={savingsRate}
+    />
+    </>
   );
 }
