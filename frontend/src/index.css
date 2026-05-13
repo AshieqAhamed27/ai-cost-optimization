@@ -12,6 +12,13 @@
       radial-gradient(circle at top right, rgba(250, 204, 21, 0.12), transparent 30rem),
       linear-gradient(135deg, #020617, #0f172a 52%, #020617);
   }
+
+  label,
+  input,
+  select,
+  textarea {
+    min-width: 0;
+  }
 }
 
 @layer components {
@@ -32,12 +39,43 @@
   }
 
   .input {
-    @apply w-full rounded-lg border border-white/10 bg-black/25 px-4 py-3 text-sm font-bold text-white outline-none transition placeholder:text-zinc-600 focus:border-yellow-300/50;
+    @apply min-h-12 w-full rounded-lg border border-white/10 bg-black/25 px-4 py-3 text-sm font-bold leading-5 text-white outline-none transition placeholder:text-zinc-600 focus:border-yellow-300/50;
   }
 
   .label {
-    @apply text-[11px] font-black uppercase tracking-widest text-zinc-500;
+    @apply block text-[11px] font-black uppercase leading-4 tracking-widest text-zinc-500;
   }
+}
+
+select.input {
+  appearance: none;
+  cursor: pointer;
+  padding-right: 2.75rem;
+  background-color: rgba(0, 0, 0, 0.28);
+  background-image: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M5 7.5L10 12.5L15 7.5' stroke='%23E4E4E7' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-position: right 0.9rem center;
+  background-repeat: no-repeat;
+  background-size: 1rem;
+}
+
+select.input:hover {
+  border-color: rgba(255, 255, 255, 0.2);
+  background-color: rgba(0, 0, 0, 0.36);
+}
+
+select.input:focus {
+  border-color: rgba(253, 224, 71, 0.62);
+  box-shadow: 0 0 0 3px rgba(253, 224, 71, 0.1);
+}
+
+select.input option {
+  background: #020617;
+  color: #f8fafc;
+  font-weight: 700;
+}
+
+textarea.input {
+  line-height: 1.55;
 }
 
 @media print {

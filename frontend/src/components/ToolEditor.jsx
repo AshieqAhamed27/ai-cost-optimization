@@ -45,7 +45,7 @@ export default function ToolEditor({ tools, setTools }) {
     <div className="grid gap-3">
       {tools.map((tool, index) => (
         <article key={`${tool.name}-${index}`} className="rounded-2xl border border-white/10 bg-black/20 p-4">
-          <div className="grid gap-3 lg:grid-cols-[minmax(0,1.2fr)_150px_130px_100px_130px_auto] lg:items-end">
+          <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3 xl:items-end">
             <label className="grid gap-2">
               <span className="label">Cost line</span>
               <input className="input" value={tool.name} onChange={(event) => updateTool(index, 'name', event.target.value)} placeholder="Provider, service, or workflow name" required />
@@ -75,11 +75,11 @@ export default function ToolEditor({ tools, setTools }) {
                 <option value="unused">Unused</option>
               </select>
             </label>
-            <button type="button" onClick={() => removeTool(index)} className="btn-secondary px-4 py-3">
+            <button type="button" onClick={() => removeTool(index)} className="btn-secondary h-12 px-4 py-3 md:self-end">
               Remove
             </button>
           </div>
-          <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-5">
+          <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
             <label className="grid gap-2">
               <span className="label">Monthly requests</span>
               <input className="input" type="number" min="0" value={tool.monthlyRequests} onChange={(event) => updateTool(index, 'monthlyRequests', event.target.value)} placeholder="Optional" />
