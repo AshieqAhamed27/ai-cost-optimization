@@ -76,7 +76,8 @@ main,
   overflow: hidden;
 }
 
-.brand-mark img {
+.brand-mark img,
+.brand-mark svg {
   width: 100%;
   height: 100%;
   object-fit: contain;

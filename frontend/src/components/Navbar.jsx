@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { getPlanName, getUser, hasActivePlan, isEarlyAccessActive, isLoggedIn, isTrialActive, logout } from '../utils/api';
+import LogoMark from './LogoMark';
 
 export default function Navbar() {
   const navigate = useNavigate();
@@ -29,11 +30,7 @@ export default function Navbar() {
     <header className="sticky top-3 z-50 mx-auto mt-3 w-[min(1180px,calc(100%-1.25rem))] rounded-lg border border-white/10 bg-slate-950/90 px-3 py-3 shadow-2xl shadow-black/30 backdrop-blur-xl sm:w-[min(1180px,calc(100%-2rem))]">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <Link to="/" className="flex items-center gap-3">
-          <img
-            src="/spendguard-logo.svg"
-            alt="SpendGuard Audit logo"
-            className="h-11 w-11 rounded-lg object-contain"
-          />
+          <LogoMark className="h-11 w-11 shrink-0 rounded-lg" />
           <span>
             <span className="block text-base font-black text-white">SpendGuard Audit</span>
             <span className="block text-xs font-bold text-zinc-500">AI API cost audits</span>
