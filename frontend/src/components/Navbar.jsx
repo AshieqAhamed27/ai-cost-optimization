@@ -30,9 +30,9 @@ export default function Navbar() {
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <Link to="/" className="flex items-center gap-3">
           <img
-            src="/spendguard-logo.png"
+            src="/spendguard-logo.svg"
             alt="SpendGuard Audit logo"
-            className="h-11 w-11 rounded-lg object-cover"
+            className="h-11 w-11 rounded-lg object-contain"
           />
           <span>
             <span className="block text-base font-black text-white">SpendGuard Audit</span>
