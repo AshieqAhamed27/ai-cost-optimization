@@ -10,6 +10,7 @@ import Signup from './pages/Signup';
 import Dashboard from './pages/Dashboard';
 import NewAudit from './pages/NewAudit';
 import AuditReport from './pages/AuditReport';
+import PublicReport from './pages/PublicReport';
 import Pricing from './pages/Pricing';
 import Security from './pages/Security';
 import PolicyPage from './pages/PolicyPage';
@@ -33,6 +34,7 @@ export default function App() {
           <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
           <Route path="/audits/new" element={<ProtectedRoute><NewAudit /></ProtectedRoute>} />
           <Route path="/audits/:id" element={<ProtectedRoute><AuditReport /></ProtectedRoute>} />
+          <Route path="/reports/public/:token" element={<PublicReport />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </div>

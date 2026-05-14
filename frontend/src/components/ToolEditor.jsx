@@ -2,6 +2,10 @@ import React from 'react';
 
 export const createBlankTool = () => ({
   name: '',
+  provider: '',
+  modelName: '',
+  workflow: '',
+  customer: '',
   monthlyCost: '',
   seats: 1,
   usage: 'medium',
@@ -10,7 +14,8 @@ export const createBlankTool = () => ({
   avgTokens: '',
   modelTier: 'unknown',
   caching: 'unknown',
-  owner: ''
+  owner: '',
+  budgetLimit: ''
 });
 
 const categories = [
@@ -51,6 +56,14 @@ export default function ToolEditor({ tools, setTools }) {
               <input className="input" value={tool.name} onChange={(event) => updateTool(index, 'name', event.target.value)} placeholder="Provider, service, or workflow name" required />
             </label>
             <label className="grid gap-2">
+              <span className="label">Provider</span>
+              <input className="input" value={tool.provider} onChange={(event) => updateTool(index, 'provider', event.target.value)} />
+            </label>
+            <label className="grid gap-2">
+              <span className="label">Model / service</span>
+              <input className="input" value={tool.modelName} onChange={(event) => updateTool(index, 'modelName', event.target.value)} />
+            </label>
+            <label className="grid gap-2">
               <span className="label">Category</span>
               <select className="input" value={tool.category} onChange={(event) => updateTool(index, 'category', event.target.value)}>
                 {categories.map((category) => (
@@ -81,6 +94,14 @@ export default function ToolEditor({ tools, setTools }) {
           </div>
           <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
             <label className="grid gap-2">
+              <span className="label">Feature / workflow</span>
+              <input className="input" value={tool.workflow} onChange={(event) => updateTool(index, 'workflow', event.target.value)} />
+            </label>
+            <label className="grid gap-2">
+              <span className="label">Customer / client</span>
+              <input className="input" value={tool.customer} onChange={(event) => updateTool(index, 'customer', event.target.value)} />
+            </label>
+            <label className="grid gap-2">
               <span className="label">Monthly requests</span>
               <input className="input" type="number" min="0" value={tool.monthlyRequests} onChange={(event) => updateTool(index, 'monthlyRequests', event.target.value)} />
             </label>
@@ -110,6 +131,10 @@ export default function ToolEditor({ tools, setTools }) {
             <label className="grid gap-2">
               <span className="label">Owner</span>
               <input className="input" value={tool.owner} onChange={(event) => updateTool(index, 'owner', event.target.value)} placeholder="Team or person" />
+            </label>
+            <label className="grid gap-2">
+              <span className="label">Budget limit</span>
+              <input className="input" type="number" min="0" value={tool.budgetLimit} onChange={(event) => updateTool(index, 'budgetLimit', event.target.value)} />
             </label>
           </div>
         </article>

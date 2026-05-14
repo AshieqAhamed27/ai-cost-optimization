@@ -1,7 +1,11 @@
 import React, { useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import AuditAgent from '../components/AuditAgent';
+import BudgetAlerts from '../components/BudgetAlerts';
+import CostLedger from '../components/CostLedger';
 import ToolEditor, { createBlankTool } from '../components/ToolEditor';
+import UnitEconomicsPanel from '../components/UnitEconomicsPanel';
+import UsageImport from '../components/UsageImport';
 import { calculateAuditPreview } from '../utils/auditInsights';
 import { apiRequest, formatCurrency, getUser, hasActivePlan } from '../utils/api';
 
@@ -12,10 +16,13 @@ export default function NewAudit() {
   const [form, setForm] = useState({
     companyName: '',
     businessType: '',
+    workspaceName: '',
     productType: '',
     teamSize: 1,
     monthlyActiveUsers: '',
     monthlyRequests: '',
+    monthlyBudget: '',
+    targetSavingsRate: '',
     costConcern: '',
     dataSource: '',
     hasCaching: 'unknown',
@@ -29,6 +36,13 @@ export default function NewAudit() {
   const [loading, setLoading] = useState(false);
 
   const preview = useMemo(() => calculateAuditPreview({ tools, form }), [tools, form]);
+
+  const importTools = (importedTools) => {
+    setTools((current) => {
+      const existing = current.filter((tool) => tool.name.trim());
+      return [...existing, ...importedTools];
+    });
+  };
 
   const submit = async (event) => {
     event.preventDefault();
@@ -99,6 +113,10 @@ export default function NewAudit() {
               <input className="input" value={form.businessType} onChange={(event) => setForm({ ...form, businessType: event.target.value })} required />
             </label>
             <label className="grid gap-2">
+              <span className="label">Workspace / client</span>
+              <input className="input" value={form.workspaceName} onChange={(event) => setForm({ ...form, workspaceName: event.target.value })} />
+            </label>
+            <label className="grid gap-2">
               <span className="label">Product type</span>
               <select className="input" value={form.productType} onChange={(event) => setForm({ ...form, productType: event.target.value })}>
                 <option value="">Select product type</option>
@@ -121,6 +139,14 @@ export default function NewAudit() {
             <label className="grid gap-2">
               <span className="label">Monthly AI requests</span>
               <input className="input" type="number" min="0" value={form.monthlyRequests} onChange={(event) => setForm({ ...form, monthlyRequests: event.target.value })} />
+            </label>
+            <label className="grid gap-2">
+              <span className="label">Monthly budget</span>
+              <input className="input" type="number" min="0" value={form.monthlyBudget} onChange={(event) => setForm({ ...form, monthlyBudget: event.target.value })} />
+            </label>
+            <label className="grid gap-2">
+              <span className="label">Target savings %</span>
+              <input className="input" type="number" min="0" max="90" value={form.targetSavingsRate} onChange={(event) => setForm({ ...form, targetSavingsRate: event.target.value })} />
             </label>
             <label className="grid gap-2">
               <span className="label">Data source</span>
@@ -170,6 +196,9 @@ export default function NewAudit() {
 
           <div className="mt-6">
             <p className="label text-sky-300">AI cost lines</p>
+            <div className="mt-4">
+              <UsageImport onImport={importTools} />
+            </div>
             <div className="mt-4">
               <ToolEditor tools={tools} setTools={setTools} />
             </div>
@@ -225,6 +254,12 @@ export default function NewAudit() {
           <AuditAgent form={form} tools={tools} preview={preview} />
         </div>
       </form>
+
+      <div className="mt-8 grid gap-6">
+        <BudgetAlerts alerts={preview.budgetAlerts} />
+        <UnitEconomicsPanel economics={preview.unitEconomics} monthlySpend={preview.monthlySpend} />
+        <CostLedger tools={tools.filter((tool) => tool.name.trim())} />
+      </div>
     </main>
   );
 }

@@ -17,6 +17,17 @@ const addFinding = (findings, finding) => {
   });
 };
 
+const groupSpend = (tools, key) =>
+  tools.reduce((groups, tool) => {
+    const name = String(tool[key] || '').trim();
+    if (!name) return groups;
+    groups[name] = (groups[name] || 0) + Math.max(0, toNumber(tool.monthlyCost));
+    return groups;
+  }, {});
+
+const topGroup = (groups) =>
+  Object.entries(groups).sort((a, b) => b[1] - a[1])[0] || ['', 0];
+
 export function calculateAuditPreview({ tools = [], form = {} }) {
   const filledTools = tools.filter((tool) => tool.name?.trim());
   const monthlySpend = filledTools.reduce((sum, tool) => sum + Math.max(0, toNumber(tool.monthlyCost)), 0);
@@ -39,8 +50,10 @@ export function calculateAuditPreview({ tools = [], form = {} }) {
     .filter((tool) => toNumber(tool.avgTokens) >= 4000)
     .reduce((sum, tool) => sum + Math.max(0, toNumber(tool.monthlyCost)), 0);
 
-  const monthlyRequests = toNumber(form.monthlyRequests);
+  const monthlyRequests = toNumber(form.monthlyRequests) ||
+    filledTools.reduce((sum, tool) => sum + Math.max(0, toNumber(tool.monthlyRequests)), 0);
   const teamSize = Math.max(1, toNumber(form.teamSize) || 1);
+  const monthlyBudget = Math.max(0, toNumber(form.monthlyBudget));
   const routingEstimate = form.hasModelRouting === 'yes'
     ? premiumModelSpend * 0.06
     : premiumModelSpend * 0.2 + modelSpend * 0.04;
@@ -53,6 +66,39 @@ export function calculateAuditPreview({ tools = [], form = {} }) {
   const tokenEstimate = highTokenSpend * 0.14;
 
   const findings = [];
+  const budgetAlerts = [];
+
+  if (monthlyBudget > 0 && monthlySpend > monthlyBudget) {
+    budgetAlerts.push({
+      title: 'Monthly budget exceeded',
+      detail: `Current spend is above the configured budget.`,
+      severity: 'High',
+      currentSpend: monthlySpend,
+      threshold: monthlyBudget
+    });
+  } else if (monthlyBudget > 0 && monthlySpend >= monthlyBudget * 0.85) {
+    budgetAlerts.push({
+      title: 'Monthly budget nearly reached',
+      detail: 'Current spend is above 85% of the configured budget.',
+      severity: 'Medium',
+      currentSpend: monthlySpend,
+      threshold: monthlyBudget
+    });
+  }
+
+  filledTools.forEach((tool) => {
+    const budgetLimit = toNumber(tool.budgetLimit);
+    const monthlyCost = toNumber(tool.monthlyCost);
+    if (budgetLimit > 0 && monthlyCost > budgetLimit) {
+      budgetAlerts.push({
+        title: `${tool.name} is over budget`,
+        detail: 'This cost line is above its monthly limit.',
+        severity: monthlyCost >= budgetLimit * 1.25 ? 'High' : 'Medium',
+        currentSpend: monthlyCost,
+        threshold: budgetLimit
+      });
+    }
+  });
 
   addFinding(findings, {
     title: 'Low-usage or unused spend',
@@ -126,6 +172,14 @@ export function calculateAuditPreview({ tools = [], form = {} }) {
     if (form[key] === 'unknown') score += 0.5;
   });
 
+  const workflowGroups = groupSpend(filledTools, 'workflow');
+  const customerGroups = groupSpend(filledTools, 'customer');
+  const [topWorkflow, topWorkflowCost] = topGroup(workflowGroups);
+  const [topCustomer, topCustomerCost] = topGroup(customerGroups);
+  const unattributedSpend = filledTools
+    .filter((tool) => !String(tool.workflow || '').trim() && !String(tool.customer || '').trim())
+    .reduce((sum, tool) => sum + Math.max(0, toNumber(tool.monthlyCost)), 0);
+
   return {
     monthlySpend,
     savings: possibleSavings,
@@ -133,6 +187,16 @@ export function calculateAuditPreview({ tools = [], form = {} }) {
     afterCleanup: Math.max(0, monthlySpend - possibleSavings),
     yearlySavings: possibleSavings * 12,
     wasteFindings: findings.sort((a, b) => b.estimatedSavings - a.estimatedSavings).slice(0, 5),
+    budgetAlerts: budgetAlerts.slice(0, 6),
+    unitEconomics: {
+      costPerActiveUser: toNumber(form.monthlyActiveUsers) ? monthlySpend / toNumber(form.monthlyActiveUsers) : 0,
+      costPerRequest: monthlyRequests ? monthlySpend / monthlyRequests : 0,
+      topWorkflow,
+      topWorkflowCost,
+      topCustomer,
+      topCustomerCost,
+      unattributedSpend
+    },
     riskLevel: score >= 5 ? 'High' : score >= 2.5 ? 'Medium' : 'Low'
   };
 }

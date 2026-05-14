@@ -6,6 +6,22 @@ const toolSchema = new mongoose.Schema({
     required: true,
     trim: true
   },
+  provider: {
+    type: String,
+    default: ''
+  },
+  modelName: {
+    type: String,
+    default: ''
+  },
+  workflow: {
+    type: String,
+    default: ''
+  },
+  customer: {
+    type: String,
+    default: ''
+  },
   monthlyCost: {
     type: Number,
     default: 0
@@ -44,6 +60,10 @@ const toolSchema = new mongoose.Schema({
   owner: {
     type: String,
     default: ''
+  },
+  budgetLimit: {
+    type: Number,
+    default: 0
   }
 }, { _id: false });
 
@@ -70,6 +90,51 @@ const actionPlanSchema = new mongoose.Schema({
   }
 }, { _id: false });
 
+const budgetAlertSchema = new mongoose.Schema({
+  title: String,
+  detail: String,
+  severity: String,
+  currentSpend: {
+    type: Number,
+    default: 0
+  },
+  threshold: {
+    type: Number,
+    default: 0
+  }
+}, { _id: false });
+
+const unitEconomicsSchema = new mongoose.Schema({
+  costPerActiveUser: {
+    type: Number,
+    default: 0
+  },
+  costPerRequest: {
+    type: Number,
+    default: 0
+  },
+  topWorkflow: {
+    type: String,
+    default: ''
+  },
+  topWorkflowCost: {
+    type: Number,
+    default: 0
+  },
+  topCustomer: {
+    type: String,
+    default: ''
+  },
+  topCustomerCost: {
+    type: Number,
+    default: 0
+  },
+  unattributedSpend: {
+    type: Number,
+    default: 0
+  }
+}, { _id: false });
+
 const auditSchema = new mongoose.Schema({
   user: {
     type: mongoose.Schema.Types.ObjectId,
@@ -86,6 +151,10 @@ const auditSchema = new mongoose.Schema({
     required: true,
     trim: true
   },
+  workspaceName: {
+    type: String,
+    default: ''
+  },
   productType: {
     type: String,
     default: ''
@@ -99,6 +168,14 @@ const auditSchema = new mongoose.Schema({
     default: 0
   },
   monthlyRequests: {
+    type: Number,
+    default: 0
+  },
+  monthlyBudget: {
+    type: Number,
+    default: 0
+  },
+  targetSavingsRate: {
     type: Number,
     default: 0
   },
@@ -153,14 +230,35 @@ const auditSchema = new mongoose.Schema({
     default: 'Medium'
   },
   wasteFindings: [wasteFindingSchema],
+  budgetAlerts: [budgetAlertSchema],
+  unitEconomics: {
+    type: unitEconomicsSchema,
+    default: () => ({})
+  },
   actionPlan: [actionPlanSchema],
   confirmedMonthlySavings: {
+    type: Number,
+    default: 0
+  },
+  confirmedSpendAfter: {
     type: Number,
     default: 0
   },
   implementationNotes: {
     type: String,
     default: ''
+  },
+  reportShared: {
+    type: Boolean,
+    default: false
+  },
+  reportToken: {
+    type: String,
+    default: '',
+    index: true
+  },
+  reportSharedAt: {
+    type: Date
   },
   recommendations: [{
     title: String,

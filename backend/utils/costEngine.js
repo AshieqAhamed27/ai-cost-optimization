@@ -18,6 +18,17 @@ const isModelLine = (tool) =>
 const isStorageLine = (tool) =>
   /vector|embedding|storage|log|trace|observability|monitor/i.test(`${tool.category} ${tool.name}`);
 
+const groupSpend = (tools, key) =>
+  tools.reduce((groups, tool) => {
+    const groupName = cleanText(tool[key]) || '';
+    if (!groupName) return groups;
+    groups[groupName] = (groups[groupName] || 0) + tool.monthlyCost;
+    return groups;
+  }, {});
+
+const topGroup = (groups) =>
+  Object.entries(groups).sort((a, b) => b[1] - a[1])[0] || ['', 0];
+
 const addFinding = (findings, finding) => {
   if (!finding.estimatedSavings || finding.estimatedSavings < 1) return;
   findings.push({
@@ -31,6 +42,10 @@ const cleanTools = (tools = []) =>
     .filter((tool) => cleanText(tool?.name))
     .map((tool) => ({
       name: cleanText(tool.name),
+      provider: cleanText(tool.provider),
+      modelName: cleanText(tool.modelName),
+      workflow: cleanText(tool.workflow),
+      customer: cleanText(tool.customer),
       monthlyCost: Math.max(0, toNumber(tool.monthlyCost)),
       seats: Math.max(1, Math.round(toNumber(tool.seats) || 1)),
       usage: cleanChoice(tool.usage, ['high', 'medium', 'low', 'unused'], 'medium'),
@@ -39,7 +54,8 @@ const cleanTools = (tools = []) =>
       avgTokens: Math.max(0, Math.round(toNumber(tool.avgTokens))),
       modelTier: cleanChoice(tool.modelTier, ['premium', 'balanced', 'economy', 'mixed', 'unknown'], 'unknown'),
       caching: cleanChoice(tool.caching, ['none', 'partial', 'good', 'unknown'], 'unknown'),
-      owner: cleanText(tool.owner)
+      owner: cleanText(tool.owner),
+      budgetLimit: Math.max(0, toNumber(tool.budgetLimit))
     }));
 
 const buildActionPlan = ({ findings, context, topTool }) => {
@@ -132,6 +148,8 @@ const calculateAudit = ({
   teamSize = 1,
   monthlyActiveUsers = 0,
   monthlyRequests = 0,
+  monthlyBudget = 0,
+  targetSavingsRate = 0,
   hasCaching = 'unknown',
   hasModelRouting = 'unknown',
   hasUsageLimits = 'unknown',
@@ -142,6 +160,8 @@ const calculateAudit = ({
     teamSize: Math.max(1, Math.round(toNumber(teamSize) || 1)),
     monthlyActiveUsers: Math.max(0, Math.round(toNumber(monthlyActiveUsers))),
     monthlyRequests: Math.max(0, Math.round(toNumber(monthlyRequests))),
+    monthlyBudget: Math.max(0, Math.round(toNumber(monthlyBudget))),
+    targetSavingsRate: Math.max(0, Math.min(90, Math.round(toNumber(targetSavingsRate)))),
     hasCaching: cleanChoice(hasCaching, ['yes', 'partial', 'no', 'unknown'], 'unknown'),
     hasModelRouting: cleanChoice(hasModelRouting, ['yes', 'partial', 'no', 'unknown'], 'unknown'),
     hasUsageLimits: cleanChoice(hasUsageLimits, ['yes', 'partial', 'no', 'unknown'], 'unknown'),
@@ -149,6 +169,7 @@ const calculateAudit = ({
   };
 
   const monthlySpend = cleanCostLines.reduce((sum, tool) => sum + tool.monthlyCost, 0);
+  const derivedMonthlyRequests = context.monthlyRequests || cleanCostLines.reduce((sum, tool) => sum + tool.monthlyRequests, 0);
   const topTool = [...cleanCostLines].sort((a, b) => b.monthlyCost - a.monthlyCost)[0];
   const lowUsageSpend = cleanCostLines
     .filter((tool) => ['low', 'unused'].includes(tool.usage))
@@ -177,7 +198,7 @@ const calculateAudit = ({
     : premiumModelSpend * 0.2 + modelSpend * 0.04;
   const cachingEstimate = context.hasCaching === 'yes'
     ? noCacheSpend * 0.04
-    : noCacheSpend * 0.15 + (context.monthlyRequests > 10000 ? modelSpend * 0.05 : 0);
+    : noCacheSpend * 0.15 + (derivedMonthlyRequests > 10000 ? modelSpend * 0.05 : 0);
   const attributionEstimate = context.hasCostAttribution === 'yes' ? 0 : monthlySpend * 0.06;
   const limitsEstimate = context.hasUsageLimits === 'yes' ? 0 : monthlySpend * 0.05;
   const retentionEstimate = storageSpend * 0.18;
@@ -198,6 +219,37 @@ const calculateAudit = ({
   const yearlySavings = possibleMonthlySavings * 12;
 
   const wasteFindings = [];
+  const budgetAlerts = [];
+
+  if (context.monthlyBudget > 0 && monthlySpend > context.monthlyBudget) {
+    budgetAlerts.push({
+      title: 'Monthly budget exceeded',
+      detail: `Current monthly spend is above the configured budget by ${money(monthlySpend - context.monthlyBudget)}.`,
+      severity: 'High',
+      currentSpend: monthlySpend,
+      threshold: context.monthlyBudget
+    });
+  } else if (context.monthlyBudget > 0 && monthlySpend >= context.monthlyBudget * 0.85) {
+    budgetAlerts.push({
+      title: 'Monthly budget nearly reached',
+      detail: 'Current monthly spend is above 85% of the configured budget. Review high-growth workflows before the invoice closes.',
+      severity: 'Medium',
+      currentSpend: monthlySpend,
+      threshold: context.monthlyBudget
+    });
+  }
+
+  cleanCostLines.forEach((tool) => {
+    if (tool.budgetLimit > 0 && tool.monthlyCost > tool.budgetLimit) {
+      budgetAlerts.push({
+        title: `${tool.name} is over budget`,
+        detail: `${tool.name} is ${money(tool.monthlyCost - tool.budgetLimit)} over its monthly budget limit.`,
+        severity: tool.monthlyCost >= tool.budgetLimit * 1.25 ? 'High' : 'Medium',
+        currentSpend: tool.monthlyCost,
+        threshold: tool.budgetLimit
+      });
+    }
+  });
 
   addFinding(wasteFindings, {
     title: 'Low-usage or unused spend',
@@ -271,6 +323,22 @@ const calculateAudit = ({
 
   const actionPlan = buildActionPlan({ findings: wasteFindings, context, topTool });
   const riskLevel = calculateRiskLevel({ monthlySpend, possibleMonthlySavings, context, findings: wasteFindings });
+  const workflowGroups = groupSpend(cleanCostLines, 'workflow');
+  const customerGroups = groupSpend(cleanCostLines, 'customer');
+  const [topWorkflow, topWorkflowCost] = topGroup(workflowGroups);
+  const [topCustomer, topCustomerCost] = topGroup(customerGroups);
+  const unattributedSpend = cleanCostLines
+    .filter((tool) => !tool.workflow && !tool.customer)
+    .reduce((sum, tool) => sum + tool.monthlyCost, 0);
+  const unitEconomics = {
+    costPerActiveUser: context.monthlyActiveUsers ? monthlySpend / context.monthlyActiveUsers : 0,
+    costPerRequest: derivedMonthlyRequests ? monthlySpend / derivedMonthlyRequests : 0,
+    topWorkflow,
+    topWorkflowCost,
+    topCustomer,
+    topCustomerCost,
+    unattributedSpend
+  };
 
   return {
     tools: cleanCostLines,
@@ -280,6 +348,8 @@ const calculateAudit = ({
     yearlySavings,
     riskLevel,
     wasteFindings: wasteFindings.sort((a, b) => b.estimatedSavings - a.estimatedSavings).slice(0, 7),
+    budgetAlerts: budgetAlerts.slice(0, 8),
+    unitEconomics,
     actionPlan,
     recommendations
   };

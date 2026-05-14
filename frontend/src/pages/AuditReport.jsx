@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
+import BudgetAlerts from '../components/BudgetAlerts';
+import CostLedger from '../components/CostLedger';
 import ReportAgent from '../components/ReportAgent';
+import UnitEconomicsPanel from '../components/UnitEconomicsPanel';
 import { apiRequest, formatCurrency } from '../utils/api';
 
 const formatNumber = (value) =>
@@ -14,15 +17,20 @@ const hasMeaningfulValue = (value) =>
 
 const buildIntakeRows = (audit) => [
   ['Business type', audit.businessType],
+  ['Workspace / client', audit.workspaceName],
   ['Product type', audit.productType],
   ['Team size', audit.teamSize ? `${formatNumber(audit.teamSize)} team members` : ''],
   ['Monthly active users', audit.monthlyActiveUsers ? formatNumber(audit.monthlyActiveUsers) : ''],
   ['Monthly AI requests', audit.monthlyRequests ? formatNumber(audit.monthlyRequests) : ''],
+  ['Monthly budget', audit.monthlyBudget ? formatCurrency(audit.monthlyBudget) : ''],
   ['Data source', audit.dataSource],
   ['Cost concern', audit.costConcern || audit.notes]
 ].filter(([, value]) => hasMeaningfulValue(value));
 
 const buildToolSignals = (tool) => [
+  hasMeaningfulValue(tool.provider) ? `Provider: ${tool.provider}` : '',
+  hasMeaningfulValue(tool.workflow) ? `Workflow: ${tool.workflow}` : '',
+  hasMeaningfulValue(tool.customer) ? `Customer: ${tool.customer}` : '',
   tool.monthlyRequests ? `${formatNumber(tool.monthlyRequests)} requests` : '',
   tool.avgTokens ? `${formatNumber(tool.avgTokens)} avg tokens` : '',
   hasMeaningfulValue(tool.modelTier) ? `${tool.modelTier} tier` : '',
@@ -196,9 +204,12 @@ export default function AuditReport() {
   const [error, setError] = useState('');
   const [progressForm, setProgressForm] = useState({
     confirmedMonthlySavings: '',
+    confirmedSpendAfter: '',
     implementationNotes: ''
   });
   const [savingProgress, setSavingProgress] = useState(false);
+  const [shareUrl, setShareUrl] = useState('');
+  const [shareLoading, setShareLoading] = useState(false);
 
   useEffect(() => {
     apiRequest(`/audits/${id}`)
@@ -206,6 +217,7 @@ export default function AuditReport() {
         setAudit(data.audit);
         setProgressForm({
           confirmedMonthlySavings: data.audit.confirmedMonthlySavings || '',
+          confirmedSpendAfter: data.audit.confirmedSpendAfter || '',
           implementationNotes: data.audit.implementationNotes || ''
         });
       })
@@ -246,6 +258,36 @@ export default function AuditReport() {
     }
   };
 
+  const createShareLink = async () => {
+    setShareLoading(true);
+    setError('');
+
+    try {
+      const data = await apiRequest(`/audits/${audit._id}/share`, { method: 'POST' });
+      setAudit(data.audit);
+      setShareUrl(`${window.location.origin}${data.shareUrl}`);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setShareLoading(false);
+    }
+  };
+
+  const disableShareLink = async () => {
+    setShareLoading(true);
+    setError('');
+
+    try {
+      const data = await apiRequest(`/audits/${audit._id}/share`, { method: 'DELETE' });
+      setAudit(data.audit);
+      setShareUrl('');
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setShareLoading(false);
+    }
+  };
+
   if (error) {
     return <main className="container-page py-10"><p className="panel text-red-100">{error}</p></main>;
   }
@@ -268,7 +310,7 @@ export default function AuditReport() {
           <p className="label text-yellow-300">Audit report</p>
           <h1 className="mt-3 text-4xl font-black text-white md:text-5xl">{audit.companyName}</h1>
           <p className="mt-3 text-sm font-semibold text-zinc-500">
-            {[audit.businessType, audit.productType, audit.teamSize ? `${audit.teamSize} team members` : ''].filter(hasMeaningfulValue).join(' | ')}
+            {[audit.workspaceName, audit.businessType, audit.productType, audit.teamSize ? `${audit.teamSize} team members` : ''].filter(hasMeaningfulValue).join(' | ')}
           </p>
         </div>
         <div className="flex flex-col gap-3 sm:flex-row print:hidden">
@@ -289,6 +331,33 @@ export default function AuditReport() {
             <p className="mt-3 text-3xl font-black text-white">{formatCurrency(value)}</p>
           </article>
         ))}
+      </section>
+
+      <section className="panel mt-8 print:hidden">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <p className="label text-emerald-200">Private client report link</p>
+            <h2 className="mt-2 text-2xl font-black text-white">Share this report without giving account access.</h2>
+            <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-500">
+              The public link shows the report only. Editing, progress updates, and AI actions stay inside your account.
+            </p>
+          </div>
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <button type="button" onClick={createShareLink} disabled={shareLoading} className="btn-primary">
+              {audit.reportShared ? 'Refresh Link' : 'Create Link'}
+            </button>
+            {audit.reportShared && (
+              <button type="button" onClick={disableShareLink} disabled={shareLoading} className="btn-secondary">
+                Disable Link
+              </button>
+            )}
+          </div>
+        </div>
+        {(shareUrl || audit.reportShared) && (
+          <p className="mt-4 rounded-lg border border-white/10 bg-black/20 p-3 text-sm font-bold text-emerald-100">
+            {shareUrl || `${window.location.origin}/reports/public/${audit.reportToken}`}
+          </p>
+        )}
       </section>
 
       <section className="mt-8 grid gap-6 lg:grid-cols-[minmax(0,0.9fr)_minmax(320px,0.55fr)]">
@@ -350,6 +419,12 @@ export default function AuditReport() {
           )}
         </div>
       </section>
+
+      <div className="mt-8 grid gap-6">
+        <BudgetAlerts alerts={audit.budgetAlerts || []} />
+        <UnitEconomicsPanel economics={audit.unitEconomics} monthlySpend={audit.monthlySpend} />
+        <CostLedger tools={audit.tools || []} />
+      </div>
 
       <section className="mt-8 grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(320px,0.55fr)]">
         <div className="panel">
@@ -429,7 +504,7 @@ export default function AuditReport() {
           ))}
         </div>
 
-        <form onSubmit={saveProgress} className="mt-5 grid gap-4 border-t border-white/10 pt-5 lg:grid-cols-[220px_minmax(0,1fr)_auto] lg:items-end print:hidden">
+        <form onSubmit={saveProgress} className="mt-5 grid gap-4 border-t border-white/10 pt-5 md:grid-cols-2 xl:grid-cols-[220px_220px_minmax(0,1fr)_auto] xl:items-end print:hidden">
           <label className="grid gap-2">
             <span className="label">Confirmed monthly savings</span>
             <input
@@ -438,6 +513,16 @@ export default function AuditReport() {
               min="0"
               value={progressForm.confirmedMonthlySavings}
               onChange={(event) => setProgressForm({ ...progressForm, confirmedMonthlySavings: event.target.value })}
+            />
+          </label>
+          <label className="grid gap-2">
+            <span className="label">Actual monthly spend after</span>
+            <input
+              className="input"
+              type="number"
+              min="0"
+              value={progressForm.confirmedSpendAfter}
+              onChange={(event) => setProgressForm({ ...progressForm, confirmedSpendAfter: event.target.value })}
             />
           </label>
           <label className="grid gap-2">
@@ -454,10 +539,11 @@ export default function AuditReport() {
           </button>
         </form>
 
-        <div className="mt-5 grid gap-4 md:grid-cols-3">
+        <div className="mt-5 grid gap-4 md:grid-cols-4">
           {[
             ['Before cleanup', audit.monthlySpend],
             ['Estimated after fixes', audit.spendAfterCleanup],
+            ['Actual spend after', audit.confirmedSpendAfter || 0],
             ['Confirmed monthly savings', audit.confirmedMonthlySavings || 0]
           ].map(([label, value]) => (
             <div key={label} className="rounded-lg border border-white/10 bg-white/[0.04] p-4">

@@ -11,6 +11,11 @@ SpendGuard Audit helps businesses:
 - estimate monthly and yearly savings
 - create AI usage audit reports
 - detect waste patterns across model routing, caching, token usage, retention, attribution, and budget controls
+- import CSV usage rows from billing exports or pasted cost data
+- keep a cost ledger by provider, model or service, workflow, customer, owner, request volume, token usage, and budget
+- track unit economics such as cost per active user, cost per request, top workflow, top customer, and unattributed spend
+- flag budget alerts when total spend or individual cost lines cross limits
+- create private shareable report links for clients or stakeholders
 - export reports through the browser print-to-PDF flow
 - track implementation status and confirmed monthly savings after fixes
 - give early users free access while keeping Razorpay payment infrastructure ready for later
@@ -198,11 +203,16 @@ Both endpoints are available to early access and paid users. If `OPENAI_API_KEY`
 
 The product now supports a more complete business workflow:
 
+- CSV upload or paste import for cost ledger rows
 - intake fields for product type, monthly active users, AI request volume, data source, cost concern, and control maturity
-- richer cost lines with request volume, average tokens, model tier, caching status, and owner
+- workspace/client grouping for agencies, consultants, and multi-client operators
+- richer cost lines with provider, model/service, workflow, customer/client, request volume, average tokens, model tier, caching status, owner, and budget limit
 - waste findings with estimated savings per issue
+- budget alerts for overall monthly budget and cost-line budgets
+- unit economics for cost per active user, cost per request, top workflow, top customer, and unattributed spend
 - action plan status tracking: to do, doing, done
-- confirmed monthly savings and implementation notes
+- confirmed monthly savings, actual monthly spend after fixes, and implementation notes
+- private public report links at `/reports/public/:token`
 - PDF-ready report view using browser print
 
 ## Suggested packages

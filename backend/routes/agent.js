@@ -20,6 +20,10 @@ const normalizeCostLines = (tools = []) =>
     .slice(0, 12)
     .map((tool) => ({
       name: cleanText(tool.name, 120),
+      provider: cleanText(tool.provider, 80),
+      modelName: cleanText(tool.modelName, 120),
+      workflow: cleanText(tool.workflow, 120),
+      customer: cleanText(tool.customer, 120),
       category: cleanText(tool.category || 'Model API', 80),
       monthlyCost: Math.max(0, toNumber(tool.monthlyCost)),
       seats: Math.max(1, Math.round(toNumber(tool.seats) || 1)),
@@ -28,7 +32,8 @@ const normalizeCostLines = (tools = []) =>
       avgTokens: Math.max(0, Math.round(toNumber(tool.avgTokens))),
       modelTier: ['premium', 'balanced', 'economy', 'mixed', 'unknown'].includes(tool.modelTier) ? tool.modelTier : 'unknown',
       caching: ['none', 'partial', 'good', 'unknown'].includes(tool.caching) ? tool.caching : 'unknown',
-      owner: cleanText(tool.owner, 80)
+      owner: cleanText(tool.owner, 80),
+      budgetLimit: Math.max(0, toNumber(tool.budgetLimit))
     }));
 
 const normalizeControl = (value) =>
@@ -322,21 +327,25 @@ const callOpenAIAgent = async (payload) => {
 const callOpenAIReportPack = async (audit) => {
   const payload = {
     companyName: audit.companyName,
-    businessType: audit.businessType,
-    productType: audit.productType,
+      businessType: audit.businessType,
+      workspaceName: audit.workspaceName,
+      productType: audit.productType,
     teamSize: audit.teamSize,
     monthlyActiveUsers: audit.monthlyActiveUsers,
-    monthlyRequests: audit.monthlyRequests,
-    costConcern: audit.costConcern,
+      monthlyRequests: audit.monthlyRequests,
+      monthlyBudget: audit.monthlyBudget,
+      costConcern: audit.costConcern,
     notes: audit.notes,
     costLines: normalizeCostLines(audit.tools || []),
     monthlySpend: audit.monthlySpend,
     possibleMonthlySavings: audit.possibleMonthlySavings,
     spendAfterCleanup: audit.spendAfterCleanup,
     yearlySavings: audit.yearlySavings,
-    riskLevel: audit.riskLevel,
-    wasteFindings: audit.wasteFindings || [],
-    actionPlan: audit.actionPlan || [],
+      riskLevel: audit.riskLevel,
+      wasteFindings: audit.wasteFindings || [],
+      budgetAlerts: audit.budgetAlerts || [],
+      unitEconomics: audit.unitEconomics || {},
+      actionPlan: audit.actionPlan || [],
     recommendations: audit.recommendations || []
   };
 
@@ -390,10 +399,13 @@ router.post('/audit-advice', requireActivePlan, async (req, res, next) => {
     const context = {
       companyName: cleanText(req.body.companyName, 120),
       businessType: cleanText(req.body.businessType, 120),
+      workspaceName: cleanText(req.body.workspaceName, 120),
       productType: cleanText(req.body.productType, 120),
       teamSize: Math.max(1, Math.round(toNumber(req.body.teamSize) || 1)),
       monthlyActiveUsers: Math.max(0, Math.round(toNumber(req.body.monthlyActiveUsers))),
       monthlyRequests: Math.max(0, Math.round(toNumber(req.body.monthlyRequests))),
+      monthlyBudget: Math.max(0, Math.round(toNumber(req.body.monthlyBudget))),
+      targetSavingsRate: Math.max(0, Math.min(90, Math.round(toNumber(req.body.targetSavingsRate)))),
       costConcern: cleanText(req.body.costConcern, 800),
       agentFocus: cleanText(req.body.agentFocus, 80),
       dataSource: cleanText(req.body.dataSource, 160),

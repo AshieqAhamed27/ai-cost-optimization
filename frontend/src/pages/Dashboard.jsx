@@ -86,14 +86,46 @@ export default function Dashboard() {
         </section>
       )}
 
-      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-6">
+      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <StatCard label="Audits" value={loading ? '...' : stats.totalAudits || 0} detail="Reports created in your workspace" />
         <StatCard label="Monthly spend checked" value={loading ? '...' : formatCurrency(stats.monthlySpend)} detail="AI API and infrastructure spend reviewed" />
         <StatCard label="Possible monthly savings" value={loading ? '...' : formatCurrency(stats.possibleMonthlySavings)} detail="Estimated waste you can help clients reduce" />
         <StatCard label="Possible yearly savings" value={loading ? '...' : formatCurrency(stats.yearlySavings)} detail="Annualized opportunity from audit reports" />
         <StatCard label="Confirmed savings" value={loading ? '...' : formatCurrency(stats.confirmedMonthlySavings)} detail="Monthly savings recorded after implementation" />
         <StatCard label="Actions done" value={loading ? '...' : `${stats.actionCompletionRate || 0}%`} detail="Before and after plan completion" />
+        <StatCard label="Budget alerts" value={loading ? '...' : stats.activeAlerts || 0} detail="Reports with active spend warnings" />
+        <StatCard label="Budget tracked" value={loading ? '...' : formatCurrency(stats.monthlyBudget)} detail="Monthly budget entered across workspaces" />
       </section>
+
+      {data.workspaces?.length > 0 && (
+        <section className="panel mt-8">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="label text-emerald-200">Client workspaces</p>
+              <h2 className="mt-2 text-2xl font-black text-white">Spend by workspace or client</h2>
+            </div>
+            <Link to={planActive ? '/audits/new' : '/pricing'} className="btn-secondary">{planActive ? 'Add workspace report' : 'Unlock reports'}</Link>
+          </div>
+          <div className="mt-6 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+            {data.workspaces.map((workspace) => (
+              <article key={workspace.name} className="rounded-2xl border border-white/10 bg-black/20 p-4">
+                <p className="font-black text-white">{workspace.name}</p>
+                <p className="mt-2 text-sm font-semibold text-zinc-500">{workspace.audits} reports</p>
+                <div className="mt-4 grid grid-cols-2 gap-3">
+                  <div>
+                    <p className="label">Spend</p>
+                    <p className="mt-1 font-black text-white">{formatCurrency(workspace.monthlySpend)}</p>
+                  </div>
+                  <div>
+                    <p className="label">Savings</p>
+                    <p className="mt-1 font-black text-emerald-200">{formatCurrency(workspace.possibleMonthlySavings)}</p>
+                  </div>
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
+      )}
 
       <section className="panel mt-8">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -117,7 +149,7 @@ export default function Dashboard() {
                 <div>
                   <p className="text-lg font-black text-white">{audit.companyName}</p>
                   <p className="text-sm font-semibold text-zinc-500">
-                    {audit.businessType} | {audit.riskLevel || 'Medium'} risk | {audit.tools?.length || 0} cost lines checked
+                    {[audit.workspaceName, audit.businessType, `${audit.riskLevel || 'Medium'} risk`, `${audit.tools?.length || 0} cost lines checked`].filter(Boolean).join(' | ')}
                   </p>
                 </div>
                 <div className="text-left sm:text-right">
