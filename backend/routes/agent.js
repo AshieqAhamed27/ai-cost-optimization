@@ -290,38 +290,38 @@ const siteChatFallback = (question) => {
   const text = cleanText(question, 600).toLowerCase();
 
   if (!text) {
-    return 'Ask me about SpendGuard Audit, AI cost reports, CSV imports, budget alerts, security, early access, pricing, or how to start.';
+    return 'Ask me anything about SpendGuard Audit, AI cost problems, reports, CSV imports, security, early access, or how to start.\n\nIf the full AI assistant is connected, I can also answer broader business and product questions in a friendly way.';
   }
 
   if (/what|who|product|service|do you do|spendguard/.test(text)) {
-    return 'SpendGuard Audit helps startups review AI API and infrastructure spend, find waste, and create action reports. It focuses on model costs, token usage, vector databases, cloud inference, logs, workflows, customers, budgets, and savings proof.';
+    return 'SpendGuard Audit helps startups understand and reduce AI API and infrastructure waste.\n\nIt turns messy billing data into a clear audit: where money is going, which workflows are expensive, what can be optimized, and what actions should happen first.\n\nThe goal is simple: help a founder or team stop guessing about AI spend and make cost decisions with real numbers.';
   }
 
   if (/price|pricing|payment|pay|free|early|trial/.test(text)) {
-    return 'SpendGuard is free for early users right now. Payment is still built into the product for future paid plans, but early users can create reports without checkout.';
+    return 'SpendGuard is free for early users right now.\n\nThat means users can create an account, add real spend data, generate reports, and test the value before any payment is required. Payment support remains in the product for future paid plans, but early users should not need checkout to use the audit workflow.';
   }
 
   if (/safe|security|password|api key|secret|data|privacy/.test(text)) {
-    return 'SpendGuard does not need passwords, secret API keys, card details, or raw customer data for an audit. Start with invoices, billing screenshots, usage exports, tool names, monthly cost lines, request volume, token estimates, and workflow notes.';
+    return 'You should not share passwords, secret API keys, card details, bank details, or raw customer records in the chat or audit form.\n\nFor an AI cost audit, safer inputs are billing exports, invoices, provider names, service names, monthly cost lines, request volume, token estimates, workflow notes, and ownership details. That is enough to find waste without exposing private credentials.';
   }
 
   if (/csv|upload|import|billing|export|ledger/.test(text)) {
-    return 'You can paste or upload CSV billing rows. Useful headers include provider, service, monthly cost, workflow, customer, requests, tokens, owner, and budget. SpendGuard turns those rows into a cost ledger.';
+    return 'CSV import is for real billing rows.\n\nUseful columns include provider, service, monthly cost, workflow, customer, requests, tokens, owner, and budget. SpendGuard uses those rows to build a cost ledger, then shows where costs are coming from and which areas may need cleanup.';
   }
 
   if (/saving|reduce|cost|bill|waste|optimi/.test(text)) {
-    return 'SpendGuard looks for waste like premium models used for simple tasks, repeated prompts, long context, missing caching, vector/log retention growth, no cost attribution, and missing budget limits. Savings are estimates until validated with real usage data.';
+    return 'SpendGuard looks for practical cost problems: expensive models used for simple jobs, repeated prompts, long context windows, missing caching, vector database growth, log retention waste, missing budget limits, and costs that are not connected to customers or workflows.\n\nSavings are estimates until they are validated with real usage and billing data, so the report focuses on actions users can test and confirm.';
   }
 
   if (/report|pdf|share|client|link/.test(text)) {
-    return 'SpendGuard creates an audit report with executive summary, waste findings, cost ledger, unit economics, action plan, budget alerts, and before/after savings tracking. You can export PDF or create a private public report link for clients.';
+    return 'The report is designed to feel like a real business deliverable.\n\nIt includes an executive summary, waste findings, cost ledger, unit economics, action plan, budget alerts, before-and-after savings tracking, PDF export, and private share links for clients or teammates.';
   }
 
   if (/start|signup|account|how/.test(text)) {
-    return 'Start by creating a free early-access account, then create a new audit. Add company details, paste or upload billing rows, review the waste detector, and generate the report.';
+    return 'Start with a free early-access account.\n\nThen create a new audit, add company details, paste or upload billing rows, review the waste detector, and generate the report. The best first audit uses real monthly spend data, even if it is simple.';
   }
 
-  return 'I can help with SpendGuard Audit questions: what it does, whether it is safe, how pricing works, how CSV import works, what the report includes, and how it reduces AI API and infrastructure costs.';
+  return 'Good question. I can help like a friendly guide.\n\nWith the full AI assistant connected, I can answer broader questions about business, product decisions, AI cost strategy, and user doubts. Right now I can always explain SpendGuard, early access, safe data sharing, CSV import, reports, and how to reduce AI API or infrastructure waste.';
 };
 
 const callOpenAISiteChat = async ({ message, history }) => {
@@ -334,12 +334,15 @@ const callOpenAISiteChat = async ({ message, history }) => {
     body: JSON.stringify({
       model: process.env.OPENAI_MODEL || 'gpt-5',
       instructions: [
-        'You are SpendGuard Website Assistant, a concise product-support assistant for SpendGuard Audit.',
-        'Answer visitor questions about the product, early access, pricing, reports, CSV imports, cost ledger, budget alerts, unit economics, security, and how to start.',
+        'You are SpendGuard Website Assistant, a friendly AI guide who speaks like a helpful teammate.',
+        'Answer visitor questions about SpendGuard Audit, AI cost problems, startups, business decisions, product strategy, reports, CSV imports, cost ledger, budget alerts, unit economics, security, and how to start.',
+        'You may answer broader general questions too, but connect back to SpendGuard only when it is useful and natural.',
+        'Use simple English, warm tone, and clear explanations. When helpful, explain with short steps, examples, or bullets so a non-technical founder can understand.',
         'Do not ask for passwords, API keys, card details, bank details, raw customer data, or private credentials.',
+        'For legal, medical, financial, security, or other high-stakes topics, give general educational guidance only and recommend checking with a qualified professional or trusted source.',
         'Do not invent case studies, guaranteed savings, certifications, or paid plan changes.',
-        'If the question is outside SpendGuard or AI cost auditing, briefly redirect to SpendGuard-related help.',
-        'Keep answers under 110 words and end with a useful next step when appropriate.'
+        'Do not claim you can access a user account, private report, payment record, deployment, database, or hidden data unless it is directly provided in the conversation.',
+        'Give enough detail to be useful: usually two to six short paragraphs or bullets. End with a practical next step when appropriate.'
       ].join(' '),
       input: JSON.stringify({
         message,
@@ -353,7 +356,7 @@ const callOpenAISiteChat = async ({ message, history }) => {
           features: 'CSV import, cost ledger, waste detector, budget alerts, unit economics, action plan, PDF export, private report links, confirmed savings tracking'
         }
       }),
-      max_output_tokens: 260
+      max_output_tokens: 850
     })
   });
 
@@ -363,16 +366,16 @@ const callOpenAISiteChat = async ({ message, history }) => {
     throw new Error(data?.error?.message || 'Site chat request failed');
   }
 
-  return cleanText(extractOutputText(data), 900) || siteChatFallback(message);
+  return cleanText(extractOutputText(data), 2400) || siteChatFallback(message);
 };
 
 router.post('/site-chat', async (req, res, next) => {
   try {
-    const message = cleanText(req.body.message, 600);
+    const message = cleanText(req.body.message, 1200);
     const history = Array.isArray(req.body.history)
-      ? req.body.history.slice(-6).map((item) => ({
+      ? req.body.history.slice(-8).map((item) => ({
         role: item.role === 'assistant' ? 'assistant' : 'user',
-        content: cleanText(item.content, 500)
+        content: cleanText(item.content, 900)
       })).filter((item) => item.content)
       : [];
 
