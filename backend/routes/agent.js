@@ -286,6 +286,122 @@ const extractOutputText = (data) => {
     .join('\n');
 };
 
+const siteChatFallback = (question) => {
+  const text = cleanText(question, 600).toLowerCase();
+
+  if (!text) {
+    return 'Ask me about SpendGuard Audit, AI cost reports, CSV imports, budget alerts, security, early access, pricing, or how to start.';
+  }
+
+  if (/what|who|product|service|do you do|spendguard/.test(text)) {
+    return 'SpendGuard Audit helps startups review AI API and infrastructure spend, find waste, and create action reports. It focuses on model costs, token usage, vector databases, cloud inference, logs, workflows, customers, budgets, and savings proof.';
+  }
+
+  if (/price|pricing|payment|pay|free|early|trial/.test(text)) {
+    return 'SpendGuard is free for early users right now. Payment is still built into the product for future paid plans, but early users can create reports without checkout.';
+  }
+
+  if (/safe|security|password|api key|secret|data|privacy/.test(text)) {
+    return 'SpendGuard does not need passwords, secret API keys, card details, or raw customer data for an audit. Start with invoices, billing screenshots, usage exports, tool names, monthly cost lines, request volume, token estimates, and workflow notes.';
+  }
+
+  if (/csv|upload|import|billing|export|ledger/.test(text)) {
+    return 'You can paste or upload CSV billing rows. Useful headers include provider, service, monthly cost, workflow, customer, requests, tokens, owner, and budget. SpendGuard turns those rows into a cost ledger.';
+  }
+
+  if (/saving|reduce|cost|bill|waste|optimi/.test(text)) {
+    return 'SpendGuard looks for waste like premium models used for simple tasks, repeated prompts, long context, missing caching, vector/log retention growth, no cost attribution, and missing budget limits. Savings are estimates until validated with real usage data.';
+  }
+
+  if (/report|pdf|share|client|link/.test(text)) {
+    return 'SpendGuard creates an audit report with executive summary, waste findings, cost ledger, unit economics, action plan, budget alerts, and before/after savings tracking. You can export PDF or create a private public report link for clients.';
+  }
+
+  if (/start|signup|account|how/.test(text)) {
+    return 'Start by creating a free early-access account, then create a new audit. Add company details, paste or upload billing rows, review the waste detector, and generate the report.';
+  }
+
+  return 'I can help with SpendGuard Audit questions: what it does, whether it is safe, how pricing works, how CSV import works, what the report includes, and how it reduces AI API and infrastructure costs.';
+};
+
+const callOpenAISiteChat = async ({ message, history }) => {
+  const response = await fetch('https://api.openai.com/v1/responses', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      model: process.env.OPENAI_MODEL || 'gpt-5',
+      instructions: [
+        'You are SpendGuard Website Assistant, a concise product-support assistant for SpendGuard Audit.',
+        'Answer visitor questions about the product, early access, pricing, reports, CSV imports, cost ledger, budget alerts, unit economics, security, and how to start.',
+        'Do not ask for passwords, API keys, card details, bank details, raw customer data, or private credentials.',
+        'Do not invent case studies, guaranteed savings, certifications, or paid plan changes.',
+        'If the question is outside SpendGuard or AI cost auditing, briefly redirect to SpendGuard-related help.',
+        'Keep answers under 110 words and end with a useful next step when appropriate.'
+      ].join(' '),
+      input: JSON.stringify({
+        message,
+        recentConversation: history,
+        productFacts: {
+          product: 'SpendGuard Audit',
+          focus: 'AI API and infrastructure cost audit for startups',
+          access: 'Free for early users; payment remains built in for future paid plans',
+          safeInputs: 'billing screenshots, invoices, usage exports, cost lines, request volume, token estimates, tool names, workflow notes',
+          unsafeInputs: 'passwords, secret API keys, card details, bank details, raw customer records',
+          features: 'CSV import, cost ledger, waste detector, budget alerts, unit economics, action plan, PDF export, private report links, confirmed savings tracking'
+        }
+      }),
+      max_output_tokens: 260
+    })
+  });
+
+  const data = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    throw new Error(data?.error?.message || 'Site chat request failed');
+  }
+
+  return cleanText(extractOutputText(data), 900) || siteChatFallback(message);
+};
+
+router.post('/site-chat', async (req, res, next) => {
+  try {
+    const message = cleanText(req.body.message, 600);
+    const history = Array.isArray(req.body.history)
+      ? req.body.history.slice(-6).map((item) => ({
+        role: item.role === 'assistant' ? 'assistant' : 'user',
+        content: cleanText(item.content, 500)
+      })).filter((item) => item.content)
+      : [];
+
+    if (!message) {
+      return res.status(400).json({ message: 'Ask a question before sending chat.' });
+    }
+
+    if (!process.env.OPENAI_API_KEY) {
+      return res.json({
+        provider: 'rules',
+        answer: siteChatFallback(message)
+      });
+    }
+
+    try {
+      const answer = await callOpenAISiteChat({ message, history });
+      return res.json({ provider: 'openai', answer });
+    } catch (error) {
+      console.error('Site chat fallback used:', error.message);
+      return res.json({
+        provider: 'rules',
+        answer: siteChatFallback(message)
+      });
+    }
+  } catch (error) {
+    next(error);
+  }
+});
+
 const callOpenAIAgent = async (payload) => {
   const response = await fetch('https://api.openai.com/v1/responses', {
     method: 'POST',

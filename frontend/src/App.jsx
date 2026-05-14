@@ -3,6 +3,7 @@ import { Route, Routes } from 'react-router-dom';
 import Footer from './components/Footer';
 import Navbar from './components/Navbar';
 import ProtectedRoute from './components/ProtectedRoute';
+import SiteChatWidget from './components/SiteChatWidget';
 import Home from './pages/Home';
 import Company from './pages/Company';
 import Login from './pages/Login';
@@ -39,6 +40,7 @@ export default function App() {
         </Routes>
       </div>
       <Footer />
+      <SiteChatWidget />
     </div>
   );
 }

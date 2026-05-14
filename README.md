@@ -214,6 +214,19 @@ The product now supports a more complete business workflow:
 - confirmed monthly savings, actual monthly spend after fixes, and implementation notes
 - private public report links at `/reports/public/:token`
 - PDF-ready report view using browser print
+- public website AI chat assistant for product questions, security doubts, early access, imports, reports, and getting started
+
+## Website chat assistant
+
+The website includes a floating SpendGuard Assistant widget. It calls:
+
+```text
+POST /api/agent/site-chat
+```
+
+This endpoint is public so visitors can ask product questions before signup. If `OPENAI_API_KEY` is configured, the backend uses the server-side OpenAI Responses API. If no key is configured, the route falls back to built-in product answers.
+
+The assistant is intentionally scoped to SpendGuard Audit and should not ask users for passwords, API keys, card details, bank details, or private customer records.
 
 ## Suggested packages
 
