@@ -61,6 +61,51 @@ const payReasons = [
   }
 ];
 
+const nextFeatures = [
+  {
+    stage: 'Build next',
+    title: 'Unit margin map',
+    improve: 'Connect AI spend to customer, workspace, feature, and revenue tier so teams can see which workflows are profitable and which ones quietly lose money.',
+    unique: 'Most cost tools show provider bills. SpendGuard can show AI margin by product motion.'
+  },
+  {
+    stage: 'High leverage',
+    title: 'Model routing simulator',
+    improve: 'Let teams compare premium, mid-tier, small, and fallback model policies before they touch production code.',
+    unique: 'Turns recommendations into a decision sandbox for founders, finance, and engineering together.'
+  },
+  {
+    stage: 'Differentiator',
+    title: 'Waste replay engine',
+    improve: 'Upload usage exports and group repeated prompts, retries, duplicate embeddings, and oversized context into visible waste clusters.',
+    unique: 'Makes invisible AI waste easy to explain with evidence, not just advice.'
+  },
+  {
+    stage: 'Retention driver',
+    title: 'Savings proof ledger',
+    improve: 'Track recommended changes, implementation status, confirmed monthly savings, and before/after proof for every audit.',
+    unique: 'Moves the product from one-time reports into an ongoing cost accountability system.'
+  },
+  {
+    stage: 'Founder-friendly',
+    title: 'Budget policy autopilot',
+    improve: 'Create spend limits, warning thresholds, model downgrade rules, and alerts per feature or customer segment.',
+    unique: 'Combines finance guardrails with AI engineering policy in one workflow.'
+  },
+  {
+    stage: 'Expansion path',
+    title: 'Vendor negotiation brief',
+    improve: 'Summarize usage volume, growth trends, fallback options, and savings opportunities into a provider negotiation pack.',
+    unique: 'Helps startups use their own cost data to negotiate better AI and infrastructure terms.'
+  }
+];
+
+const uniquenessMoves = [
+  ['From bills to margin', 'Show whether each AI feature makes money after model, storage, inference, and observability costs.'],
+  ['From advice to proof', 'Track every recommendation through implementation and confirmed savings.'],
+  ['From audit to operating system', 'Create recurring budgets, policies, and alerts that keep costs controlled after the report.']
+];
+
 const savingsLevers = [
   {
     title: 'Model routing',
@@ -206,6 +251,48 @@ export default function Home() {
               <p className="mt-3 text-sm font-semibold leading-relaxed text-zinc-500">{service.text}</p>
             </article>
           ))}
+        </div>
+      </section>
+
+      <section className="border-y border-white/10 bg-black/15 py-12 md:py-16">
+        <div className="container-page">
+          <div className="grid gap-8 lg:grid-cols-[minmax(0,0.72fr)_minmax(0,1fr)] lg:items-end">
+            <div>
+              <p className="label text-emerald-200">Next Product Features</p>
+              <h2 className="mt-3 text-3xl font-black text-white md:text-5xl">
+                Build toward a product customers cannot replace with a generic dashboard.
+              </h2>
+              <p className="mt-4 text-sm font-semibold leading-relaxed text-zinc-400">
+                The next features should make SpendGuard unique by connecting AI spend to product margin, implementation proof, budget policy, and negotiation leverage.
+              </p>
+            </div>
+
+            <div className="grid gap-3">
+              {uniquenessMoves.map(([title, text]) => (
+                <article key={title} className="rounded-lg border border-white/10 bg-white/[0.04] p-4">
+                  <h3 className="text-lg font-black text-white">{title}</h3>
+                  <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-500">{text}</p>
+                </article>
+              ))}
+            </div>
+          </div>
+
+          <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {nextFeatures.map((feature) => (
+              <article key={feature.title} className="panel transition hover:-translate-y-1 hover:border-emerald-300/30">
+                <p className="label text-emerald-200">{feature.stage}</p>
+                <h3 className="mt-3 text-2xl font-black text-white">{feature.title}</h3>
+                <div className="mt-5 border-t border-white/10 pt-4">
+                  <p className="label">Product improvement</p>
+                  <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-400">{feature.improve}</p>
+                </div>
+                <div className="mt-4 border-t border-white/10 pt-4">
+                  <p className="label text-yellow-200">Uniqueness angle</p>
+                  <p className="mt-2 text-sm font-black leading-relaxed text-white">{feature.unique}</p>
+                </div>
+              </article>
+            ))}
+          </div>
         </div>
       </section>
 
