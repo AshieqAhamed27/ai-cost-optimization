@@ -30,6 +30,29 @@ const services = [
   }
 ];
 
+const realWorldProblems = [
+  {
+    title: 'AI bills grow before revenue catches up',
+    pain: 'A support bot, agent, or copilot can look successful while each active customer quietly costs too much to serve.',
+    outcome: 'SpendGuard shows monthly AI spend, possible savings, cost per user, and cost per request so the team can protect margin early.'
+  },
+  {
+    title: 'Nobody knows which feature is expensive',
+    pain: 'Provider invoices show totals, but they rarely explain which workflow, customer, prompt path, retry loop, or vector index is causing the bill.',
+    outcome: 'The audit maps spend lines to workflows, customers, owners, and usage signals so product and engineering can fix the right thing.'
+  },
+  {
+    title: 'Waste hides inside normal product usage',
+    pain: 'Oversized prompts, premium default models, repeated calls, unused indexes, excessive logs, and missing limits become invisible operating costs.',
+    outcome: 'SpendGuard turns those patterns into ranked findings with estimated monthly savings and a practical 30-day action plan.'
+  },
+  {
+    title: 'Savings are hard to prove after fixes',
+    pain: 'Teams may make improvements but forget to track whether spend actually fell or whether the same issue returned next month.',
+    outcome: 'Before and after tracking records actions, confirmed savings, implementation notes, and spend after cleanup.'
+  }
+];
+
 const workflow = [
   ['1. Share spend data', 'Add provider bills, usage exports, cost lines, traffic patterns, and infrastructure services.'],
   ['2. Identify waste', 'Find expensive model defaults, repeated work, over-retained vectors, noisy logs, and missing cost limits.'],
@@ -59,6 +82,13 @@ const payReasons = [
     title: 'Protect gross margin',
     text: 'AI features can look successful while quietly losing money per customer. The audit helps surface that risk early.'
   }
+];
+
+const paidDeliverables = [
+  ['Cost leak map', 'Ranked waste findings across model calls, tokens, embeddings, vector storage, logs, cloud inference, and workflow spend.'],
+  ['ROI estimate', 'Monthly savings estimate, yearly opportunity, spend after cleanup, cost per active user, and cost per request.'],
+  ['30-day action plan', 'Concrete fixes for model routing, caching, context trimming, retention, attribution, and budget guardrails.'],
+  ['Proof workflow', 'Progress tracking, confirmed savings, implementation notes, PDF export, and private report sharing.']
 ];
 
 const nextFeatures = [
@@ -230,6 +260,62 @@ export default function Home() {
               <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-500">{text}</p>
             </div>
           ))}
+        </div>
+      </section>
+
+      <section className="container-page py-12 md:py-16">
+        <div className="max-w-3xl">
+          <p className="label text-red-100">Real Problem Solved</p>
+          <h2 className="mt-3 text-3xl font-black text-white md:text-5xl">
+            SpendGuard is for teams losing money inside AI usage, not teams looking for another dashboard.
+          </h2>
+          <p className="mt-4 text-sm font-semibold leading-relaxed text-zinc-400">
+            A founder should pay only when the product helps answer a real business question: where is AI spend leaking, what should we fix first, and did the fix actually improve margin?
+          </p>
+        </div>
+
+        <div className="mt-8 grid gap-4 md:grid-cols-2">
+          {realWorldProblems.map((problem) => (
+            <article key={problem.title} className="panel">
+              <h3 className="text-2xl font-black text-white">{problem.title}</h3>
+              <div className="mt-5 grid gap-3">
+                <div className="rounded-lg border border-red-300/20 bg-red-300/[0.06] p-4">
+                  <p className="label text-red-100">Pain in the real world</p>
+                  <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-400">{problem.pain}</p>
+                </div>
+                <div className="rounded-lg border border-emerald-300/20 bg-emerald-300/[0.06] p-4">
+                  <p className="label text-emerald-200">What the product does</p>
+                  <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-300">{problem.outcome}</p>
+                </div>
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="border-y border-white/10 bg-slate-900/45 py-12 md:py-16">
+        <div className="container-page">
+          <div className="grid gap-8 lg:grid-cols-[minmax(0,0.7fr)_minmax(0,1fr)]">
+            <div>
+              <p className="label text-yellow-200">Why Users Pay</p>
+              <h2 className="mt-3 text-3xl font-black text-white md:text-5xl">
+                Buyers do not pay for a report. They pay for decisions that reduce waste.
+              </h2>
+              <p className="mt-4 text-sm font-semibold leading-relaxed text-zinc-400">
+                SpendGuard should feel worth paying for because it packages the hard part: turning messy bills and usage lines into fixes, owners, savings estimates, and proof after implementation.
+              </p>
+              <Link to="/pricing" className="btn-secondary mt-6">See Payback Plans</Link>
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-2">
+              {paidDeliverables.map(([title, text]) => (
+                <article key={title} className="rounded-lg border border-white/10 bg-white/[0.04] p-5">
+                  <h3 className="text-lg font-black text-white">{title}</h3>
+                  <p className="mt-3 text-sm font-semibold leading-relaxed text-zinc-500">{text}</p>
+                </article>
+              ))}
+            </div>
+          </div>
         </div>
       </section>
 

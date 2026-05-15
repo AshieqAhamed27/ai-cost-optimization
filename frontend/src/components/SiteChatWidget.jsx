@@ -158,11 +158,12 @@ export default function SiteChatWidget() {
       <button
         type="button"
         onClick={() => setOpen((current) => !current)}
-        className="ml-auto flex items-center gap-3 rounded-lg border border-yellow-300/30 bg-yellow-300 px-4 py-3 text-sm font-black uppercase tracking-widest text-slate-950 shadow-2xl shadow-black/40 transition hover:-translate-y-0.5 hover:bg-yellow-200"
+        className="ml-auto flex h-14 w-14 items-center justify-center rounded-lg border border-yellow-300/30 bg-yellow-300 p-0 text-xs font-black uppercase tracking-widest text-slate-950 shadow-2xl shadow-black/40 transition hover:-translate-y-0.5 hover:bg-yellow-200 sm:h-auto sm:w-auto sm:gap-3 sm:px-4 sm:py-3 sm:text-sm"
         aria-expanded={open}
+        aria-label="Ask questions"
       >
         <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-950 text-xs text-yellow-200">AI</span>
-        Ask Questions
+        <span className="hidden sm:inline">Ask Questions</span>
       </button>
     </div>
   );

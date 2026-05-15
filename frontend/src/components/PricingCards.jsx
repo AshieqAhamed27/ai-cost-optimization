@@ -7,19 +7,19 @@ export const defaultPlans = [
     id: 'mini_audit',
     name: 'Mini Audit',
     amount: 999,
-    description: 'A focused AI API and usage review for a small product or workflow.'
+    description: 'A focused leak check for one AI workflow where the team needs a fast savings decision.'
   },
   {
     id: 'business_audit',
     name: 'Business Audit',
     amount: 4999,
-    description: 'A full AI usage and infrastructure cost report for startups with active product traffic.'
+    description: 'A full AI usage and infrastructure savings report for a startup with active product traffic.'
   },
   {
     id: 'monthly_monitor',
     name: 'Monthly Monitor',
     amount: 9999,
-    description: 'Ongoing monthly AI cost monitoring, report updates, and savings follow-up.'
+    description: 'Ongoing AI spend control for teams that need recurring accountability after the first report.'
   }
 ];
 
@@ -27,17 +27,20 @@ const planDetails = {
   mini_audit: {
     badge: 'Starter',
     accent: 'border-white/10 bg-white/[0.04]',
-    features: ['One AI workflow reviewed', 'Model and token usage check', 'Savings estimate and action list']
+    valueNote: 'Best when one assistant, agent, or API-heavy workflow is already creating billing doubt.',
+    features: ['One AI workflow leak map', 'Break-even savings estimate', '3 priority fixes for this week']
   },
   business_audit: {
     badge: 'Most Popular',
     accent: 'border-yellow-300/40 bg-yellow-300/[0.08]',
-    features: ['API and infrastructure audit', 'Before/after savings report', 'Engineering-ready action plan']
+    valueNote: 'Best when AI spend affects product margin and leaders need a report engineers can act on.',
+    features: ['API and infrastructure waste findings', 'Unit economics and budget risk', '30-day action plan plus PDF report']
   },
   monthly_monitor: {
     badge: 'Growth',
     accent: 'border-sky-300/30 bg-sky-300/[0.06]',
-    features: ['Monthly AI cost monitoring', 'Savings progress follow-up', 'Priority report workflow']
+    valueNote: 'Best when usage changes every month and the team needs to prove savings did not disappear.',
+    features: ['Monthly spend and savings review', 'Confirmed savings proof ledger', 'Budget guardrails and follow-up actions']
   }
 };
 
@@ -67,6 +70,7 @@ const withPlanDetails = (plan) => ({
   ...(planDetails[plan.id] || {
     badge: 'Plan',
     accent: 'border-white/10 bg-white/[0.04]',
+    valueNote: 'Useful when AI usage cost is high enough that a clear savings plan can pay for the report.',
     features: ['AI cost report', 'Savings recommendations', 'Engineering-ready action plan']
   })
 });
@@ -193,6 +197,13 @@ export default function PricingCards({ compact = false }) {
             <h3 className="mt-4 text-2xl font-black text-white">{plan.name}</h3>
             <p className="mt-3 text-4xl font-black text-yellow-200">{formatCurrency(plan.amount)}</p>
             <p className="mt-3 text-sm font-semibold leading-relaxed text-zinc-400">{plan.description}</p>
+            <div className="mt-4 rounded-lg border border-emerald-300/20 bg-emerald-300/[0.06] p-4">
+              <p className="label text-emerald-200">Worth it if</p>
+              <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-300">{plan.valueNote}</p>
+              <p className="mt-3 text-xs font-black uppercase tracking-widest text-yellow-200">
+                Break-even: find {formatCurrency(plan.amount)} avoidable monthly waste.
+              </p>
+            </div>
             <ul className="mt-5 grid gap-3 text-sm font-bold text-zinc-300">
               {plan.features.map((feature) => (
                 <li key={feature} className="rounded-lg border border-white/10 bg-black/20 p-3">
