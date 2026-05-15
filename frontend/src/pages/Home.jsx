@@ -5,10 +5,29 @@ import TrialCallout from '../components/TrialCallout';
 import { formatCurrency } from '../utils/api';
 
 const metrics = [
-  ['Who', 'AI startups'],
-  ['Cost', 'API and infra'],
-  ['Access', 'Free early users'],
-  ['Payment', 'Ready for later']
+  ['Product', 'AI cost audit'],
+  ['For', 'AI startups'],
+  ['Finds', 'Wasted spend'],
+  ['Output', 'Fix plan']
+];
+
+const positioningCards = [
+  {
+    title: 'What it is',
+    text: 'SpendGuard is an AI cost audit tool for startups using LLM APIs, vector databases, cloud inference, logs, and agent workflows.'
+  },
+  {
+    title: 'Who it helps',
+    text: 'Founders, AI agencies, and SaaS teams whose AI bill is growing faster than they can explain.'
+  },
+  {
+    title: 'What users get',
+    text: 'A cost leak report with savings estimates, budget warnings, unit economics, and a 30-day fix plan.'
+  },
+  {
+    title: 'What users share',
+    text: 'Invoices, usage exports, screenshots, or manual cost lines. No passwords, API keys, or private customer data needed.'
+  }
 ];
 
 const services = [
@@ -91,49 +110,37 @@ const paidDeliverables = [
   ['Proof workflow', 'Progress tracking, confirmed savings, implementation notes, PDF export, and private report sharing.']
 ];
 
-const nextFeatures = [
+const differentiators = [
   {
-    stage: 'Build next',
+    stage: 'Margin clarity',
     title: 'Unit margin map',
-    improve: 'Connect AI spend to customer, workspace, feature, and revenue tier so teams can see which workflows are profitable and which ones quietly lose money.',
-    unique: 'Most cost tools show provider bills. SpendGuard can show AI margin by product motion.'
+    improve: 'Connect AI spend to customers, workflows, and usage so teams can see where margin is at risk.',
+    unique: 'Most cost tools show provider totals. SpendGuard explains product-level AI cost.'
   },
   {
-    stage: 'High leverage',
-    title: 'Model routing simulator',
-    improve: 'Let teams compare premium, mid-tier, small, and fallback model policies before they touch production code.',
-    unique: 'Turns recommendations into a decision sandbox for founders, finance, and engineering together.'
+    stage: 'Actionable fixes',
+    title: 'Waste finding report',
+    improve: 'Group expensive defaults, repeated calls, long prompts, missing caching, unused storage, and weak budget limits.',
+    unique: 'Turns vague AI bills into specific problems a founder or engineer can fix.'
   },
   {
-    stage: 'Differentiator',
-    title: 'Waste replay engine',
-    improve: 'Upload usage exports and group repeated prompts, retries, duplicate embeddings, and oversized context into visible waste clusters.',
-    unique: 'Makes invisible AI waste easy to explain with evidence, not just advice.'
-  },
-  {
-    stage: 'Retention driver',
+    stage: 'Proof after fixes',
     title: 'Savings proof ledger',
-    improve: 'Track recommended changes, implementation status, confirmed monthly savings, and before/after proof for every audit.',
-    unique: 'Moves the product from one-time reports into an ongoing cost accountability system.'
+    improve: 'Track recommended changes, implementation status, confirmed monthly savings, and before/after spend.',
+    unique: 'Keeps the audit useful after the first report instead of becoming a forgotten PDF.'
   },
   {
-    stage: 'Founder-friendly',
+    stage: 'Spend guardrails',
     title: 'Budget policy autopilot',
-    improve: 'Create spend limits, warning thresholds, model downgrade rules, and alerts per feature or customer segment.',
-    unique: 'Combines finance guardrails with AI engineering policy in one workflow.'
-  },
-  {
-    stage: 'Expansion path',
-    title: 'Vendor negotiation brief',
-    improve: 'Summarize usage volume, growth trends, fallback options, and savings opportunities into a provider negotiation pack.',
-    unique: 'Helps startups use their own cost data to negotiate better AI and infrastructure terms.'
+    improve: 'Set budget thresholds, usage warnings, and cost ownership so spend does not grow silently.',
+    unique: 'Combines finance guardrails with AI engineering decisions in one workflow.'
   }
 ];
 
 const uniquenessMoves = [
-  ['From bills to margin', 'Show whether each AI feature makes money after model, storage, inference, and observability costs.'],
-  ['From advice to proof', 'Track every recommendation through implementation and confirmed savings.'],
-  ['From audit to operating system', 'Create recurring budgets, policies, and alerts that keep costs controlled after the report.']
+  ['Clear category', 'AI cost audit for teams already using AI in production.'],
+  ['Clear buyer', 'Founders and agencies with real AI bills, not idea-stage users.'],
+  ['Clear outcome', 'Find leaks, estimate savings, and know what to fix first.']
 ];
 
 const savingsLevers = [
@@ -216,16 +223,19 @@ export default function Home() {
         <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(360px,0.82fr)] lg:items-center">
           <div>
             <p className="mb-5 inline-flex rounded-lg border border-sky-300/20 bg-sky-300/10 px-4 py-2 text-[10px] font-black uppercase tracking-[0.22em] text-sky-200">
-              AI API and infrastructure cost audit
+              AI cost audit for startups
             </p>
             <h1 className="max-w-5xl text-5xl font-black leading-[0.98] text-white md:text-7xl">
-              Help startups reduce unnecessary AI API and infrastructure costs.
+              Find where your AI product is wasting money.
             </h1>
             <p className="mt-6 max-w-3xl text-lg font-semibold leading-relaxed text-zinc-400">
-              SpendGuard Audit reviews model usage, token volume, vector databases, cloud inference, observability, and workflow patterns to find avoidable spend before AI features hurt margin.
+              SpendGuard turns AI API, token, vector database, cloud inference, and logging costs into a clear leak report with savings estimates and a 30-day fix plan.
             </p>
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <Link to="/signup" className="btn-primary">Start Free Early Access</Link>
+            <p className="mt-4 max-w-3xl text-sm font-bold leading-relaxed text-emerald-200">
+              No secret keys required. Start with bills, exports, screenshots, or manual cost lines.
+            </p>
+            <div className="mt-8 flex flex-col items-start gap-3 sm:flex-row">
+              <Link to="/signup" className="btn-primary">Create Free Audit</Link>
               <a href="#calculator" className="btn-secondary">Estimate Savings</a>
             </div>
             <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -249,12 +259,8 @@ export default function Home() {
       </section>
 
       <section className="border-y border-white/10 bg-black/15 py-8">
-        <div className="container-page grid gap-4 md:grid-cols-3">
-          {[
-            ['For', 'Startups building AI features, agents, assistants, copilots, or API-heavy workflows.'],
-            ['Reduces', 'Unnecessary model, token, embedding, vector DB, cloud, logging, and retry costs.'],
-            ['Works by', 'Auditing usage data, finding waste patterns, and producing an engineering-ready savings plan.']
-          ].map(([title, text]) => (
+        <div className="container-page grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          {positioningCards.map(({ title, text }) => (
             <div key={title} className="rounded-lg border border-white/10 bg-white/[0.03] p-5">
               <h2 className="text-lg font-black text-white">{title}</h2>
               <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-500">{text}</p>
@@ -267,10 +273,10 @@ export default function Home() {
         <div className="max-w-3xl">
           <p className="label text-red-100">Real Problem Solved</p>
           <h2 className="mt-3 text-3xl font-black text-white md:text-5xl">
-            SpendGuard is for teams losing money inside AI usage, not teams looking for another dashboard.
+            AI bills are confusing because invoices show totals, not the leak.
           </h2>
           <p className="mt-4 text-sm font-semibold leading-relaxed text-zinc-400">
-            A founder should pay only when the product helps answer a real business question: where is AI spend leaking, what should we fix first, and did the fix actually improve margin?
+            SpendGuard helps a founder answer three practical questions: where is AI spend leaking, what should we fix first, and did the fix actually improve margin?
           </p>
         </div>
 
@@ -323,10 +329,10 @@ export default function Home() {
         <div className="max-w-3xl">
           <p className="label text-yellow-300">AI Usage Audit Service</p>
           <h2 className="mt-3 text-3xl font-black text-white md:text-5xl">
-            Not another AI tool. A cost-control workflow for teams already using AI.
+            One product, one job: explain AI spend and reduce avoidable waste.
           </h2>
           <p className="mt-4 text-sm font-semibold leading-relaxed text-zinc-400">
-            The service focuses on a real business problem: AI features can scale usage costs faster than revenue if nobody audits model choice, request volume, context size, and infrastructure around the product.
+            The audit focuses on the systems that make AI products expensive: model choice, request volume, context size, retries, embeddings, storage, cloud inference, logs, and missing spend limits.
           </p>
         </div>
 
@@ -344,12 +350,12 @@ export default function Home() {
         <div className="container-page">
           <div className="grid gap-8 lg:grid-cols-[minmax(0,0.72fr)_minmax(0,1fr)] lg:items-end">
             <div>
-              <p className="label text-emerald-200">Next Product Features</p>
+              <p className="label text-emerald-200">Why It Is Different</p>
               <h2 className="mt-3 text-3xl font-black text-white md:text-5xl">
-                Build toward a product customers cannot replace with a generic dashboard.
+                SpendGuard is positioned around AI cost decisions, not generic finance tracking.
               </h2>
               <p className="mt-4 text-sm font-semibold leading-relaxed text-zinc-400">
-                The next features should make SpendGuard unique by connecting AI spend to product margin, implementation proof, budget policy, and negotiation leverage.
+                Users should understand the product quickly: it is for teams with real AI usage, real bills, and a need to find savings they can act on.
               </p>
             </div>
 
@@ -364,12 +370,12 @@ export default function Home() {
           </div>
 
           <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-            {nextFeatures.map((feature) => (
+            {differentiators.map((feature) => (
               <article key={feature.title} className="panel transition hover:-translate-y-1 hover:border-emerald-300/30">
                 <p className="label text-emerald-200">{feature.stage}</p>
                 <h3 className="mt-3 text-2xl font-black text-white">{feature.title}</h3>
                 <div className="mt-5 border-t border-white/10 pt-4">
-                  <p className="label">Product improvement</p>
+                  <p className="label">What it clarifies</p>
                   <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-400">{feature.improve}</p>
                 </div>
                 <div className="mt-4 border-t border-white/10 pt-4">

@@ -33,7 +33,7 @@ export default function Navbar() {
           <LogoMark className="h-11 w-11 shrink-0 rounded-lg" />
           <span>
             <span className="block text-base font-black text-white">SpendGuard Audit</span>
-            <span className="block text-xs font-bold text-zinc-500">AI API cost audits</span>
+            <span className="block text-xs font-bold text-zinc-500">AI cost leak reports</span>
           </span>
         </Link>
 
