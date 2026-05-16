@@ -174,6 +174,8 @@ export default function Dashboard() {
         <StatCard label="Budget tracked" value={loading ? '...' : formatCurrency(stats.monthlyBudget)} detail="Monthly budget entered across workspaces" />
         <StatCard label="Pending approvals" value={loading ? '...' : stats.approvalSummary?.pending || 0} detail="Finance, engineering, or leadership approvals waiting" />
         <StatCard label="Due reviews" value={loading ? '...' : stats.dueReviews || 0} detail="Recurring governance reviews ready for follow-up" />
+        <StatCard label="Verified proof" value={loading ? '...' : stats.proofSummary?.verifiedReports || 0} detail="Reports with savings evidence reviewed" />
+        <StatCard label="Case studies" value={loading ? '...' : stats.proofSummary?.caseStudyApproved || 0} detail="Proof approved for public customer use" />
       </section>
 
       <section className="mt-8 grid gap-6 lg:grid-cols-2">
@@ -268,7 +270,7 @@ export default function Dashboard() {
                 <div className="text-left sm:text-right">
                   <p className="text-sm font-black text-emerald-200">{formatCurrency(audit.possibleMonthlySavings)} possible monthly savings</p>
                   <p className="text-xs font-bold uppercase tracking-widest text-zinc-600">
-                    {audit.confirmedMonthlySavings ? `${formatCurrency(audit.confirmedMonthlySavings)} confirmed | ` : ''}{audit.status}
+                    {audit.confirmedMonthlySavings ? `${formatCurrency(audit.confirmedMonthlySavings)} confirmed | ` : ''}{audit.proof?.status ? `${audit.proof.status.replace(/_/g, ' ')} proof | ` : ''}{audit.status}
                   </p>
                 </div>
               </div>

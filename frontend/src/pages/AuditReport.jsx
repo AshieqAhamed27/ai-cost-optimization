@@ -45,11 +45,29 @@ const buildToolSignals = (tool) => [
   hasMeaningfulValue(tool.costCenter) ? `Cost center: ${tool.costCenter}` : ''
 ].filter(Boolean);
 
+const emptyProofForm = {
+  status: 'not_started',
+  baselinePeriod: '',
+  comparisonPeriod: '',
+  baselineSpend: '',
+  verifiedSpendAfter: '',
+  verifiedMonthlySavings: '',
+  validationMethod: '',
+  evidenceNotes: '',
+  evidenceLink: '',
+  verifiedBy: '',
+  customerQuote: '',
+  quoteAuthor: '',
+  permissionToUse: false,
+  caseStudyTitle: ''
+};
+
 function PrintableReport({ audit, actionPlan, actionCompletion, savingsRate }) {
   const intakeRows = buildIntakeRows(audit);
   const findings = audit.wasteFindings || [];
   const tools = audit.tools || [];
   const recommendations = audit.recommendations || [];
+  const proof = audit.proof || {};
   const reportDate = audit.createdAt
     ? new Date(audit.createdAt).toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric' })
     : new Date().toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric' });
@@ -197,6 +215,16 @@ function PrintableReport({ audit, actionPlan, actionCompletion, savingsRate }) {
         </section>
       )}
 
+      {hasMeaningfulValue(proof.status) && proof.status !== 'not_started' && (
+        <section className="pdf-section">
+          <p className="pdf-label">Savings Proof</p>
+          <h2>{formatCurrency(proof.verifiedMonthlySavings || audit.confirmedMonthlySavings)} verified monthly savings.</h2>
+          <p>
+            Proof status: {String(proof.status).replace(/_/g, ' ')}. Baseline period: {proof.baselinePeriod || 'not set'}. Comparison period: {proof.comparisonPeriod || 'not set'}. Validation method: {proof.validationMethod || 'not recorded'}.
+          </p>
+        </section>
+      )}
+
       <footer className="pdf-footer">
         <p>SpendGuard</p>
         <span>Estimates must be validated with billing exports, usage logs, architecture review, and implementation results.</span>
@@ -214,7 +242,9 @@ export default function AuditReport() {
     confirmedSpendAfter: '',
     implementationNotes: ''
   });
+  const [proofForm, setProofForm] = useState(emptyProofForm);
   const [savingProgress, setSavingProgress] = useState(false);
+  const [savingProof, setSavingProof] = useState(false);
   const [shareUrl, setShareUrl] = useState('');
   const [shareLoading, setShareLoading] = useState(false);
   const [approvalForm, setApprovalForm] = useState({
@@ -231,11 +261,28 @@ export default function AuditReport() {
   useEffect(() => {
     apiRequest(`/audits/${id}`)
       .then((data) => {
+        const proof = data.audit.proof || {};
         setAudit(data.audit);
         setProgressForm({
           confirmedMonthlySavings: data.audit.confirmedMonthlySavings || '',
           confirmedSpendAfter: data.audit.confirmedSpendAfter || '',
           implementationNotes: data.audit.implementationNotes || ''
+        });
+        setProofForm({
+          status: proof.status || 'not_started',
+          baselinePeriod: proof.baselinePeriod || '',
+          comparisonPeriod: proof.comparisonPeriod || '',
+          baselineSpend: proof.baselineSpend || data.audit.monthlySpend || '',
+          verifiedSpendAfter: proof.verifiedSpendAfter || data.audit.confirmedSpendAfter || '',
+          verifiedMonthlySavings: proof.verifiedMonthlySavings || data.audit.confirmedMonthlySavings || '',
+          validationMethod: proof.validationMethod || '',
+          evidenceNotes: proof.evidenceNotes || '',
+          evidenceLink: proof.evidenceLink || '',
+          verifiedBy: proof.verifiedBy || '',
+          customerQuote: proof.customerQuote || '',
+          quoteAuthor: proof.quoteAuthor || '',
+          permissionToUse: Boolean(proof.permissionToUse),
+          caseStudyTitle: proof.caseStudyTitle || ''
         });
       })
       .catch((err) => setError(err.message));
@@ -326,6 +373,24 @@ export default function AuditReport() {
     }
   };
 
+  const saveProof = async (event) => {
+    event.preventDefault();
+    setSavingProof(true);
+    setError('');
+
+    try {
+      const data = await apiRequest(`/audits/${audit._id}/proof`, {
+        method: 'PATCH',
+        body: proofForm
+      });
+      setAudit(data.audit);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setSavingProof(false);
+    }
+  };
+
   const createShareLink = async () => {
     setShareLoading(true);
     setError('');
@@ -371,6 +436,8 @@ export default function AuditReport() {
   const intakeRows = buildIntakeRows(audit);
   const approvalSteps = ['finance', 'engineering', 'leadership'];
   const auditLog = audit.auditLog || [];
+  const proof = audit.proof || {};
+  const proofStatus = String(proof.status || 'not_started').replace(/_/g, ' ');
 
   return (
     <>
@@ -519,6 +586,33 @@ export default function AuditReport() {
                 ))}
               </div>
             </article>
+
+            {enterprisePack.proof && (
+              <article className="rounded-lg border border-emerald-300/20 bg-emerald-300/[0.06] p-5">
+                <p className="label text-emerald-200">Proof for leadership</p>
+                <div className="mt-3 grid gap-3 md:grid-cols-4">
+                  {[
+                    ['Status', String(enterprisePack.proof.status || 'not_started').replace(/_/g, ' ')],
+                    ['Verified savings', formatCurrency(enterprisePack.proof.verifiedMonthlySavings)],
+                    ['Baseline', enterprisePack.proof.baselinePeriod || 'Not set'],
+                    ['Comparison', enterprisePack.proof.comparisonPeriod || 'Not set']
+                  ].map(([label, value]) => (
+                    <div key={label} className="rounded-lg border border-white/10 bg-black/20 p-3">
+                      <p className="label">{label}</p>
+                      <p className="mt-1 font-black capitalize text-white">{value}</p>
+                    </div>
+                  ))}
+                </div>
+                {enterprisePack.proof.validationMethod && (
+                  <p className="mt-4 text-sm font-semibold leading-relaxed text-zinc-300">{enterprisePack.proof.validationMethod}</p>
+                )}
+                {enterprisePack.proof.customerQuote && (
+                  <p className="mt-3 rounded-lg border border-white/10 bg-black/20 p-3 text-sm font-semibold leading-relaxed text-emerald-100">
+                    "{enterprisePack.proof.customerQuote}"
+                  </p>
+                )}
+              </article>
+            )}
 
             <div className="grid gap-5 lg:grid-cols-2">
               <article className="rounded-lg border border-white/10 bg-black/20 p-5">
@@ -748,6 +842,147 @@ export default function AuditReport() {
             {audit.implementationNotes}
           </p>
         )}
+      </section>
+
+      <section className="panel mt-8">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <p className="label text-emerald-200">Proof Center</p>
+            <h2 className="mt-2 text-2xl font-black text-white">Record the evidence that makes savings believable.</h2>
+            <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-500">
+              Use this after implementation to separate estimated savings from verified proof.
+            </p>
+          </div>
+          <div className="rounded-lg border border-white/10 bg-black/20 px-4 py-3 text-left lg:text-right">
+            <p className="label">Proof status</p>
+            <p className="mt-1 text-2xl font-black capitalize text-white">{proofStatus}</p>
+          </div>
+        </div>
+
+        <div className="mt-5 grid gap-4 md:grid-cols-4">
+          {[
+            ['Baseline spend', proof.baselineSpend || audit.monthlySpend],
+            ['Verified spend after', proof.verifiedSpendAfter || audit.confirmedSpendAfter || 0],
+            ['Verified monthly savings', proof.verifiedMonthlySavings || audit.confirmedMonthlySavings || 0],
+            ['Case study permission', proof.permissionToUse ? 'Approved' : 'Private']
+          ].map(([label, value]) => (
+            <div key={label} className="rounded-lg border border-white/10 bg-white/[0.04] p-4">
+              <p className="label">{label}</p>
+              <p className="mt-2 text-2xl font-black text-white">
+                {typeof value === 'number' ? formatCurrency(value) : value}
+              </p>
+            </div>
+          ))}
+        </div>
+
+        {proof.evidenceLink && (
+          <a
+            href={proof.evidenceLink}
+            target="_blank"
+            rel="noreferrer"
+            className="mt-4 block rounded-lg border border-white/10 bg-black/20 p-4 text-sm font-bold text-emerald-100"
+          >
+            Evidence link: {proof.evidenceLink}
+          </a>
+        )}
+
+        <form onSubmit={saveProof} className="mt-5 grid gap-4 border-t border-white/10 pt-5 print:hidden">
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            <label className="grid gap-2">
+              <span className="label">Proof status</span>
+              <select className="input" value={proofForm.status} onChange={(event) => setProofForm({ ...proofForm, status: event.target.value })}>
+                <option value="not_started">Not started</option>
+                <option value="collecting">Collecting</option>
+                <option value="verified">Verified</option>
+                <option value="case_study_ready">Case study ready</option>
+              </select>
+            </label>
+            <label className="grid gap-2">
+              <span className="label">Baseline period</span>
+              <input className="input" value={proofForm.baselinePeriod} onChange={(event) => setProofForm({ ...proofForm, baselinePeriod: event.target.value })} placeholder="Apr 2026" />
+            </label>
+            <label className="grid gap-2">
+              <span className="label">Comparison period</span>
+              <input className="input" value={proofForm.comparisonPeriod} onChange={(event) => setProofForm({ ...proofForm, comparisonPeriod: event.target.value })} placeholder="May 2026" />
+            </label>
+            <label className="grid gap-2">
+              <span className="label">Verified by</span>
+              <input className="input" value={proofForm.verifiedBy} onChange={(event) => setProofForm({ ...proofForm, verifiedBy: event.target.value })} placeholder="Finance reviewer" />
+            </label>
+            <label className="grid gap-2">
+              <span className="label">Baseline spend</span>
+              <input className="input" type="number" min="0" value={proofForm.baselineSpend} onChange={(event) => setProofForm({ ...proofForm, baselineSpend: event.target.value })} />
+            </label>
+            <label className="grid gap-2">
+              <span className="label">Verified spend after</span>
+              <input className="input" type="number" min="0" value={proofForm.verifiedSpendAfter} onChange={(event) => setProofForm({ ...proofForm, verifiedSpendAfter: event.target.value })} />
+            </label>
+            <label className="grid gap-2">
+              <span className="label">Verified monthly savings</span>
+              <input className="input" type="number" min="0" value={proofForm.verifiedMonthlySavings} onChange={(event) => setProofForm({ ...proofForm, verifiedMonthlySavings: event.target.value })} />
+            </label>
+            <label className="grid gap-2">
+              <span className="label">Evidence link</span>
+              <input className="input" value={proofForm.evidenceLink} onChange={(event) => setProofForm({ ...proofForm, evidenceLink: event.target.value })} placeholder="Billing export or dashboard URL" />
+            </label>
+          </div>
+
+          <label className="grid gap-2">
+            <span className="label">Validation method</span>
+            <textarea
+              className="input min-h-24"
+              value={proofForm.validationMethod}
+              onChange={(event) => setProofForm({ ...proofForm, validationMethod: event.target.value })}
+              placeholder="How the savings were verified: billing export, usage logs, invoice comparison, finance review."
+            />
+          </label>
+
+          <label className="grid gap-2">
+            <span className="label">Evidence notes</span>
+            <textarea
+              className="input min-h-24"
+              value={proofForm.evidenceNotes}
+              onChange={(event) => setProofForm({ ...proofForm, evidenceNotes: event.target.value })}
+              placeholder="What changed, which controls were shipped, and what data proves the result."
+            />
+          </label>
+
+          <div className="grid gap-4 md:grid-cols-2">
+            <label className="grid gap-2">
+              <span className="label">Customer quote</span>
+              <textarea
+                className="input min-h-24"
+                value={proofForm.customerQuote}
+                onChange={(event) => setProofForm({ ...proofForm, customerQuote: event.target.value })}
+                placeholder="Only add a quote the customer has approved."
+              />
+            </label>
+            <div className="grid gap-4">
+              <label className="grid gap-2">
+                <span className="label">Quote author</span>
+                <input className="input" value={proofForm.quoteAuthor} onChange={(event) => setProofForm({ ...proofForm, quoteAuthor: event.target.value })} placeholder="Name, title, company" />
+              </label>
+              <label className="grid gap-2">
+                <span className="label">Case study title</span>
+                <input className="input" value={proofForm.caseStudyTitle} onChange={(event) => setProofForm({ ...proofForm, caseStudyTitle: event.target.value })} placeholder="Approved customer story title" />
+              </label>
+              <label className="flex items-center gap-3 rounded-lg border border-white/10 bg-black/20 p-4">
+                <input
+                  type="checkbox"
+                  checked={proofForm.permissionToUse}
+                  onChange={(event) => setProofForm({ ...proofForm, permissionToUse: event.target.checked })}
+                />
+                <span className="text-sm font-bold text-zinc-300">Customer approved public use of quote and proof.</span>
+              </label>
+            </div>
+          </div>
+
+          <div className="flex justify-end">
+            <button type="submit" disabled={savingProof} className="btn-primary">
+              {savingProof ? 'Saving...' : 'Save Proof'}
+            </button>
+          </div>
+        </form>
       </section>
 
       <section className="panel mt-8">

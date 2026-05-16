@@ -37,6 +37,7 @@ export default function PublicReport() {
   const savingsRate = audit.monthlySpend
     ? Math.round((audit.possibleMonthlySavings / audit.monthlySpend) * 100)
     : 0;
+  const proof = audit.proof || {};
 
   return (
     <main className="container-page py-10">
@@ -92,6 +93,35 @@ export default function PublicReport() {
           ))}
         </div>
       </section>
+
+      {proof.permissionToUse && (
+        <section className="panel mt-8 border-emerald-300/20 bg-emerald-300/[0.06]">
+          <p className="label text-emerald-200">Verified proof</p>
+          <h2 className="mt-3 text-3xl font-black text-white">
+            {formatCurrency(proof.verifiedMonthlySavings || audit.confirmedMonthlySavings)} verified monthly savings.
+          </h2>
+          <div className="mt-5 grid gap-3 md:grid-cols-3">
+            {[
+              ['Status', String(proof.status || 'verified').replace(/_/g, ' ')],
+              ['Baseline', proof.baselinePeriod || 'Not set'],
+              ['Comparison', proof.comparisonPeriod || 'Not set']
+            ].map(([label, value]) => (
+              <article key={label} className="rounded-lg border border-white/10 bg-black/20 p-4">
+                <p className="label">{label}</p>
+                <p className="mt-2 font-black capitalize text-white">{value}</p>
+              </article>
+            ))}
+          </div>
+          {proof.validationMethod && (
+            <p className="mt-4 text-sm font-semibold leading-relaxed text-zinc-300">{proof.validationMethod}</p>
+          )}
+          {proof.customerQuote && (
+            <blockquote className="mt-4 rounded-lg border border-white/10 bg-black/20 p-4 text-sm font-semibold leading-relaxed text-emerald-100">
+              "{proof.customerQuote}" {proof.quoteAuthor ? `- ${proof.quoteAuthor}` : ''}
+            </blockquote>
+          )}
+        </section>
+      )}
 
       <div className="mt-8 grid gap-6">
         <BudgetAlerts alerts={audit.budgetAlerts || []} />

@@ -175,6 +175,67 @@ const auditLogEntrySchema = new mongoose.Schema({
   }
 }, { _id: false });
 
+const proofSchema = new mongoose.Schema({
+  status: {
+    type: String,
+    enum: ['not_started', 'collecting', 'verified', 'case_study_ready'],
+    default: 'not_started'
+  },
+  baselinePeriod: {
+    type: String,
+    default: ''
+  },
+  comparisonPeriod: {
+    type: String,
+    default: ''
+  },
+  baselineSpend: {
+    type: Number,
+    default: 0
+  },
+  verifiedSpendAfter: {
+    type: Number,
+    default: 0
+  },
+  verifiedMonthlySavings: {
+    type: Number,
+    default: 0
+  },
+  validationMethod: {
+    type: String,
+    default: ''
+  },
+  evidenceNotes: {
+    type: String,
+    default: ''
+  },
+  evidenceLink: {
+    type: String,
+    default: ''
+  },
+  verifiedBy: {
+    type: String,
+    default: ''
+  },
+  customerQuote: {
+    type: String,
+    default: ''
+  },
+  quoteAuthor: {
+    type: String,
+    default: ''
+  },
+  permissionToUse: {
+    type: Boolean,
+    default: false
+  },
+  caseStudyTitle: {
+    type: String,
+    default: ''
+  },
+  updatedAt: Date
+}, { _id: false });
+
 const unitEconomicsSchema = new mongoose.Schema({
   costPerActiveUser: {
     type: Number,
@@ -341,6 +402,10 @@ const auditSchema = new mongoose.Schema({
     default: () => ({})
   },
   auditLog: [auditLogEntrySchema],
+  proof: {
+    type: proofSchema,
+    default: () => ({})
+  },
   unitEconomics: {
     type: unitEconomicsSchema,
     default: () => ({})

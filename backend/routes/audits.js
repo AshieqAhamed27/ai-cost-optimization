@@ -22,6 +22,11 @@ const normalizeApprovalStatus = (value) =>
     ? value
     : 'pending';
 
+const normalizeProofStatus = (value) =>
+  ['not_started', 'collecting', 'verified', 'case_study_ready'].includes(value)
+    ? value
+    : 'collecting';
+
 const normalizeCadence = (value) =>
   ['none', 'monthly', 'quarterly'].includes(value) ? value : 'monthly';
 
@@ -122,8 +127,52 @@ const approvalSummary = (audits) => audits.reduce((summary, audit) => {
   return summary;
 }, { not_requested: 0, pending: 0, approved: 0, changes_requested: 0 });
 
+const proofSummary = (audits) => audits.reduce((summary, audit) => {
+  const status = audit.proof?.status || 'not_started';
+  summary[status] = (summary[status] || 0) + 1;
+  summary.verifiedReports += ['verified', 'case_study_ready'].includes(status) ? 1 : 0;
+  summary.caseStudyApproved += audit.proof?.permissionToUse ? 1 : 0;
+  summary.verifiedMonthlySavings += audit.proof?.verifiedMonthlySavings || 0;
+  return summary;
+}, {
+  not_started: 0,
+  collecting: 0,
+  verified: 0,
+  case_study_ready: 0,
+  verifiedReports: 0,
+  caseStudyApproved: 0,
+  verifiedMonthlySavings: 0
+});
+
+const publicProof = (proof = {}) => {
+  if (!proof.permissionToUse) {
+    return {
+      status: proof.status || 'not_started',
+      permissionToUse: false
+    };
+  }
+
+  return {
+    status: proof.status || 'not_started',
+    baselinePeriod: proof.baselinePeriod || '',
+    comparisonPeriod: proof.comparisonPeriod || '',
+    baselineSpend: proof.baselineSpend || 0,
+    verifiedSpendAfter: proof.verifiedSpendAfter || 0,
+    verifiedMonthlySavings: proof.verifiedMonthlySavings || 0,
+    validationMethod: proof.validationMethod || '',
+    evidenceNotes: proof.evidenceNotes || '',
+    verifiedBy: proof.verifiedBy || '',
+    customerQuote: proof.customerQuote || '',
+    quoteAuthor: proof.quoteAuthor || '',
+    permissionToUse: true,
+    caseStudyTitle: proof.caseStudyTitle || '',
+    updatedAt: proof.updatedAt
+  };
+};
+
 const buildEnterprisePack = (audit) => {
   const tools = audit.tools || [];
+  const proof = audit.proof || {};
   const vendors = Object.values(tools.reduce((groups, tool) => {
     const name = tool.provider || tool.name || 'Unknown vendor';
     if (!groups[name]) groups[name] = { name, spend: 0, workflows: new Set(), owners: new Set() };
@@ -187,6 +236,19 @@ const buildEnterprisePack = (audit) => {
       reviewPeriod: audit.reviewPeriod || currentReviewPeriod(),
       nextReviewAt: audit.nextReviewAt,
       recurringReport: Boolean(audit.recurringReport)
+    },
+    proof: {
+      status: proof.status || 'not_started',
+      baselinePeriod: proof.baselinePeriod || '',
+      comparisonPeriod: proof.comparisonPeriod || '',
+      baselineSpend: proof.baselineSpend || audit.monthlySpend || 0,
+      verifiedSpendAfter: proof.verifiedSpendAfter || audit.confirmedSpendAfter || 0,
+      verifiedMonthlySavings: proof.verifiedMonthlySavings || audit.confirmedMonthlySavings || 0,
+      validationMethod: proof.validationMethod || '',
+      evidenceNotes: proof.evidenceNotes || '',
+      verifiedBy: proof.verifiedBy || '',
+      customerQuote: proof.permissionToUse ? proof.customerQuote || '' : '',
+      caseStudyReady: proof.status === 'case_study_ready' && Boolean(proof.permissionToUse)
     }
   };
 };
@@ -217,6 +279,7 @@ const getPublicAudit = (audit) => ({
   budgetAlerts: audit.budgetAlerts,
   unitEconomics: audit.unitEconomics,
   approval: audit.approval,
+  proof: publicProof(audit.proof),
   actionPlan: audit.actionPlan,
   confirmedMonthlySavings: audit.confirmedMonthlySavings,
   confirmedSpendAfter: audit.confirmedSpendAfter,
@@ -310,6 +373,7 @@ router.get('/stats', async (req, res, next) => {
         monthlyBudget,
         activeAlerts,
         approvalSummary: approvalSummary(audits),
+        proofSummary: proofSummary(audits),
         recurringReports,
         dueReviews,
         actionCompletionRate: actionTotals.total
@@ -540,6 +604,56 @@ router.patch('/:id/progress', requireEditor, async (req, res, next) => {
   }
 });
 
+router.patch('/:id/proof', requireEditor, async (req, res, next) => {
+  try {
+    const audit = await Audit.findOne({ _id: req.params.id, user: req.user._id });
+
+    if (!audit) {
+      return res.status(404).json({ message: 'Audit not found' });
+    }
+
+    const baselineSpend = Math.max(0, toNumber(req.body.baselineSpend || audit.monthlySpend));
+    const verifiedSpendAfter = Math.max(0, toNumber(req.body.verifiedSpendAfter));
+    const explicitSavings = Math.max(0, toNumber(req.body.verifiedMonthlySavings));
+    const calculatedSavings = baselineSpend && verifiedSpendAfter
+      ? Math.max(0, baselineSpend - verifiedSpendAfter)
+      : 0;
+    const verifiedMonthlySavings = explicitSavings || calculatedSavings;
+    const status = normalizeProofStatus(req.body.status);
+
+    audit.proof = {
+      ...(audit.proof?.toObject?.() || audit.proof || {}),
+      status,
+      baselinePeriod: cleanText(req.body.baselinePeriod, 80),
+      comparisonPeriod: cleanText(req.body.comparisonPeriod, 80),
+      baselineSpend,
+      verifiedSpendAfter,
+      verifiedMonthlySavings,
+      validationMethod: cleanText(req.body.validationMethod, 500),
+      evidenceNotes: cleanText(req.body.evidenceNotes, 1200),
+      evidenceLink: cleanText(req.body.evidenceLink, 500),
+      verifiedBy: cleanText(req.body.verifiedBy || req.user.name, 120),
+      customerQuote: cleanText(req.body.customerQuote, 800),
+      quoteAuthor: cleanText(req.body.quoteAuthor, 160),
+      permissionToUse: Boolean(req.body.permissionToUse),
+      caseStudyTitle: cleanText(req.body.caseStudyTitle, 160),
+      updatedAt: new Date()
+    };
+
+    if (['verified', 'case_study_ready'].includes(status)) {
+      audit.confirmedSpendAfter = verifiedSpendAfter || audit.confirmedSpendAfter;
+      audit.confirmedMonthlySavings = verifiedMonthlySavings || audit.confirmedMonthlySavings;
+    }
+
+    addAuditLog(audit, req, 'Proof updated', `${status} proof recorded with ${verifiedMonthlySavings} verified monthly savings.`);
+    await audit.save();
+
+    res.json({ audit });
+  } catch (error) {
+    next(error);
+  }
+});
+
 router.patch('/:id/approval', requireEditor, async (req, res, next) => {
   try {
     const step = ['finance', 'engineering', 'leadership'].includes(req.body.step)
@@ -609,6 +723,11 @@ router.post('/:id/monthly-review', requireActivePlan, requireEditor, async (req,
       reviewCadence: normalizeCadence(req.body.reviewCadence || source.reviewCadence),
       nextReviewAt: nextReviewDate(normalizeCadence(req.body.reviewCadence || source.reviewCadence)),
       status: 'draft',
+      proof: {
+        status: 'collecting',
+        baselinePeriod: source.reviewPeriod || '',
+        baselineSpend: source.monthlySpend || 0
+      },
       approval: {
         finance: { status: 'pending', owner: source.approval?.finance?.owner || '' },
         engineering: { status: 'pending', owner: source.approval?.engineering?.owner || '' },
