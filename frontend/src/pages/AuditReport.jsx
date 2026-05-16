@@ -16,6 +16,10 @@ const hasMeaningfulValue = (value) =>
   hasText(value) && !['unknown', 'not provided'].includes(String(value).trim().toLowerCase());
 
 const buildIntakeRows = (audit) => [
+  ['Organization', audit.organizationName],
+  ['Department', audit.department],
+  ['Region', audit.region],
+  ['Cost center', audit.costCenter],
   ['Business type', audit.businessType],
   ['Workspace / client', audit.workspaceName],
   ['Product type', audit.productType],
@@ -35,7 +39,10 @@ const buildToolSignals = (tool) => [
   tool.avgTokens ? `${formatNumber(tool.avgTokens)} avg tokens` : '',
   hasMeaningfulValue(tool.modelTier) ? `${tool.modelTier} tier` : '',
   hasMeaningfulValue(tool.caching) ? `${tool.caching} caching` : '',
-  hasMeaningfulValue(tool.owner) ? `Owner: ${tool.owner}` : ''
+  hasMeaningfulValue(tool.owner) ? `Owner: ${tool.owner}` : '',
+  hasMeaningfulValue(tool.department) ? `Department: ${tool.department}` : '',
+  hasMeaningfulValue(tool.region) ? `Region: ${tool.region}` : '',
+  hasMeaningfulValue(tool.costCenter) ? `Cost center: ${tool.costCenter}` : ''
 ].filter(Boolean);
 
 function PrintableReport({ audit, actionPlan, actionCompletion, savingsRate }) {
@@ -210,6 +217,16 @@ export default function AuditReport() {
   const [savingProgress, setSavingProgress] = useState(false);
   const [shareUrl, setShareUrl] = useState('');
   const [shareLoading, setShareLoading] = useState(false);
+  const [approvalForm, setApprovalForm] = useState({
+    step: 'finance',
+    status: 'pending',
+    owner: '',
+    notes: ''
+  });
+  const [savingApproval, setSavingApproval] = useState(false);
+  const [enterprisePack, setEnterprisePack] = useState(null);
+  const [packLoading, setPackLoading] = useState(false);
+  const [monthlyLoading, setMonthlyLoading] = useState(false);
 
   useEffect(() => {
     apiRequest(`/audits/${id}`)
@@ -226,6 +243,57 @@ export default function AuditReport() {
 
   const exportPdf = () => {
     window.print();
+  };
+
+  const saveApproval = async (event) => {
+    event.preventDefault();
+    setSavingApproval(true);
+    setError('');
+
+    try {
+      const data = await apiRequest(`/audits/${audit._id}/approval`, {
+        method: 'PATCH',
+        body: approvalForm
+      });
+      setAudit(data.audit);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setSavingApproval(false);
+    }
+  };
+
+  const loadEnterprisePack = async () => {
+    setPackLoading(true);
+    setError('');
+
+    try {
+      const data = await apiRequest(`/audits/${audit._id}/enterprise-pack`);
+      setEnterprisePack(data.pack);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setPackLoading(false);
+    }
+  };
+
+  const createMonthlyReview = async () => {
+    setMonthlyLoading(true);
+    setError('');
+
+    try {
+      const data = await apiRequest(`/audits/${audit._id}/monthly-review`, {
+        method: 'POST',
+        body: {
+          reviewCadence: audit.reviewCadence || 'monthly'
+        }
+      });
+      setAudit(data.audit);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setMonthlyLoading(false);
+    }
   };
 
   const updateActionStatus = async (index, status) => {
@@ -301,6 +369,8 @@ export default function AuditReport() {
   const actionCompletion = actionPlan.length ? Math.round((completedActions / actionPlan.length) * 100) : 0;
   const savingsRate = audit.monthlySpend ? Math.round((audit.possibleMonthlySavings / audit.monthlySpend) * 100) : 0;
   const intakeRows = buildIntakeRows(audit);
+  const approvalSteps = ['finance', 'engineering', 'leadership'];
+  const auditLog = audit.auditLog || [];
 
   return (
     <>
@@ -310,7 +380,7 @@ export default function AuditReport() {
           <p className="label text-yellow-300">Governance report</p>
           <h1 className="mt-3 text-4xl font-black text-white md:text-5xl">{audit.companyName}</h1>
           <p className="mt-3 text-sm font-semibold text-zinc-500">
-            {[audit.workspaceName, audit.businessType, audit.productType, audit.teamSize ? `${audit.teamSize} team members` : ''].filter(hasMeaningfulValue).join(' | ')}
+            {[audit.organizationName, audit.department, audit.region, audit.costCenter, audit.workspaceName, audit.businessType, audit.productType, audit.teamSize ? `${audit.teamSize} team members` : ''].filter(hasMeaningfulValue).join(' | ')}
           </p>
         </div>
         <div className="flex flex-col gap-3 sm:flex-row print:hidden">
@@ -331,6 +401,69 @@ export default function AuditReport() {
             <p className="mt-3 text-3xl font-black text-white">{formatCurrency(value)}</p>
           </article>
         ))}
+      </section>
+
+      <section className="panel mt-8">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <p className="label text-yellow-200">Approval workflow</p>
+            <h2 className="mt-2 text-2xl font-black text-white">Finance, engineering, and leadership approval.</h2>
+            <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-500">
+              Use this to move a report from analysis into controlled implementation.
+            </p>
+          </div>
+          <button type="button" onClick={createMonthlyReview} disabled={monthlyLoading} className="btn-secondary px-4 py-2">
+            {monthlyLoading ? 'Creating...' : 'Create Monthly Review'}
+          </button>
+        </div>
+
+        <div className="mt-5 grid gap-4 md:grid-cols-3">
+          {approvalSteps.map((step) => {
+            const item = audit.approval?.[step] || {};
+            return (
+              <article key={step} className="rounded-lg border border-white/10 bg-black/20 p-4">
+                <p className="label text-sky-200">{step}</p>
+                <h3 className="mt-2 text-xl font-black capitalize text-white">{item.status || 'not_requested'}</h3>
+                <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-500">
+                  Owner: {item.owner || 'Unassigned'}
+                </p>
+                {item.notes && <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-400">{item.notes}</p>}
+                {item.decidedBy && <p className="mt-2 text-xs font-bold uppercase tracking-widest text-zinc-600">By {item.decidedBy}</p>}
+              </article>
+            );
+          })}
+        </div>
+
+        <form onSubmit={saveApproval} className="mt-5 grid gap-4 border-t border-white/10 pt-5 md:grid-cols-2 xl:grid-cols-[180px_220px_220px_minmax(0,1fr)_auto] xl:items-end print:hidden">
+          <label className="grid gap-2">
+            <span className="label">Step</span>
+            <select className="input" value={approvalForm.step} onChange={(event) => setApprovalForm({ ...approvalForm, step: event.target.value })}>
+              <option value="finance">Finance</option>
+              <option value="engineering">Engineering</option>
+              <option value="leadership">Leadership</option>
+            </select>
+          </label>
+          <label className="grid gap-2">
+            <span className="label">Status</span>
+            <select className="input" value={approvalForm.status} onChange={(event) => setApprovalForm({ ...approvalForm, status: event.target.value })}>
+              <option value="pending">Pending</option>
+              <option value="approved">Approved</option>
+              <option value="changes_requested">Changes requested</option>
+              <option value="not_requested">Not requested</option>
+            </select>
+          </label>
+          <label className="grid gap-2">
+            <span className="label">Owner</span>
+            <input className="input" value={approvalForm.owner} onChange={(event) => setApprovalForm({ ...approvalForm, owner: event.target.value })} />
+          </label>
+          <label className="grid gap-2">
+            <span className="label">Notes</span>
+            <input className="input" value={approvalForm.notes} onChange={(event) => setApprovalForm({ ...approvalForm, notes: event.target.value })} placeholder="Approval condition or requested change" />
+          </label>
+          <button type="submit" disabled={savingApproval} className="btn-primary">
+            {savingApproval ? 'Saving...' : 'Save Approval'}
+          </button>
+        </form>
       </section>
 
       <section className="panel mt-8 print:hidden">
@@ -357,6 +490,64 @@ export default function AuditReport() {
           <p className="mt-4 rounded-lg border border-white/10 bg-black/20 p-3 text-sm font-bold text-emerald-100">
             {shareUrl || `${window.location.origin}/reports/public/${audit.reportToken}`}
           </p>
+        )}
+      </section>
+
+      <section className="panel mt-8 print:hidden">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <p className="label text-emerald-200">Enterprise export pack</p>
+            <h2 className="mt-2 text-2xl font-black text-white">Board summary, procurement brief, risk register, and executive actions.</h2>
+          </div>
+          <button type="button" onClick={loadEnterprisePack} disabled={packLoading} className="btn-primary">
+            {packLoading ? 'Generating...' : 'Generate Enterprise Pack'}
+          </button>
+        </div>
+
+        {enterprisePack && (
+          <div className="mt-6 grid gap-5">
+            <article className="rounded-lg border border-white/10 bg-black/20 p-5">
+              <p className="label text-yellow-200">Board summary</p>
+              <h3 className="mt-2 text-xl font-black text-white">{enterprisePack.boardSummary.title}</h3>
+              <p className="mt-3 text-sm font-semibold leading-relaxed text-zinc-400">{enterprisePack.boardSummary.narrative}</p>
+              <div className="mt-4 grid gap-3 md:grid-cols-4">
+                {enterprisePack.boardSummary.metrics.map(([label, value]) => (
+                  <div key={label} className="rounded-lg border border-white/10 bg-white/[0.04] p-3">
+                    <p className="label">{label}</p>
+                    <p className="mt-1 font-black text-white">{formatCurrency(value)}</p>
+                  </div>
+                ))}
+              </div>
+            </article>
+
+            <div className="grid gap-5 lg:grid-cols-2">
+              <article className="rounded-lg border border-white/10 bg-black/20 p-5">
+                <p className="label text-sky-200">Procurement brief</p>
+                <div className="mt-3 grid gap-3">
+                  {enterprisePack.procurementBrief.map((vendor) => (
+                    <div key={vendor.vendor} className="rounded-lg border border-white/10 bg-white/[0.04] p-3">
+                      <p className="font-black text-white">{vendor.vendor} | {formatCurrency(vendor.spend)}</p>
+                      <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-400">{vendor.negotiationAngle}</p>
+                      <p className="mt-2 text-xs font-bold uppercase tracking-widest text-zinc-600">Owners: {vendor.owners}</p>
+                    </div>
+                  ))}
+                </div>
+              </article>
+
+              <article className="rounded-lg border border-white/10 bg-black/20 p-5">
+                <p className="label text-red-100">Risk register</p>
+                <div className="mt-3 grid gap-3">
+                  {enterprisePack.riskRegister.map((risk) => (
+                    <div key={`${risk.risk}-${risk.owner}`} className="rounded-lg border border-white/10 bg-white/[0.04] p-3">
+                      <p className="font-black text-white">{risk.risk}</p>
+                      <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-400">{risk.mitigation}</p>
+                      <p className="mt-2 text-xs font-bold uppercase tracking-widest text-yellow-200">{risk.severity} | {risk.owner}</p>
+                    </div>
+                  ))}
+                </div>
+              </article>
+            </div>
+          </div>
         )}
       </section>
 
@@ -557,6 +748,28 @@ export default function AuditReport() {
             {audit.implementationNotes}
           </p>
         )}
+      </section>
+
+      <section className="panel mt-8">
+        <p className="label text-sky-200">Activity log</p>
+        <h2 className="mt-2 text-2xl font-black text-white">Governance audit trail</h2>
+        <div className="mt-5 grid gap-3">
+          {auditLog.map((entry, index) => (
+            <article key={`${entry.event}-${entry.createdAt}-${index}`} className="rounded-lg border border-white/10 bg-black/20 p-4">
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                <p className="font-black text-white">{entry.event}</p>
+                <p className="text-xs font-bold uppercase tracking-widest text-zinc-600">
+                  {entry.createdAt ? new Date(entry.createdAt).toLocaleString('en-IN') : ''}
+                </p>
+              </div>
+              <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-400">{entry.detail}</p>
+              <p className="mt-2 text-xs font-bold uppercase tracking-widest text-zinc-600">
+                {entry.actorName || 'System'} | {entry.actorRole || 'role'}
+              </p>
+            </article>
+          ))}
+          {!auditLog.length && <p className="rounded-lg border border-white/10 bg-black/20 p-4 text-sm font-semibold text-zinc-500">No activity recorded yet.</p>}
+        </div>
       </section>
 
       <div className="mt-8 print:hidden">

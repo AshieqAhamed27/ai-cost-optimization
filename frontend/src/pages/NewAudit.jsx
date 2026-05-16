@@ -15,6 +15,10 @@ export default function NewAudit() {
   const planActive = hasActivePlan(user);
   const [form, setForm] = useState({
     companyName: '',
+    organizationName: user?.organizationName || user?.companyName || '',
+    department: user?.department || '',
+    region: user?.region || '',
+    costCenter: '',
     businessType: '',
     workspaceName: '',
     productType: '',
@@ -25,6 +29,7 @@ export default function NewAudit() {
     targetSavingsRate: '',
     costConcern: '',
     dataSource: '',
+    reviewCadence: 'monthly',
     hasCaching: 'unknown',
     hasModelRouting: 'unknown',
     hasUsageLimits: 'unknown',
@@ -109,8 +114,24 @@ export default function NewAudit() {
               <input className="input" value={form.companyName} onChange={(event) => setForm({ ...form, companyName: event.target.value })} required />
             </label>
             <label className="grid gap-2">
+              <span className="label">Organization</span>
+              <input className="input" value={form.organizationName} onChange={(event) => setForm({ ...form, organizationName: event.target.value })} placeholder="Parent company or group" />
+            </label>
+            <label className="grid gap-2">
               <span className="label">Business type</span>
               <input className="input" value={form.businessType} onChange={(event) => setForm({ ...form, businessType: event.target.value })} required />
+            </label>
+            <label className="grid gap-2">
+              <span className="label">Department</span>
+              <input className="input" value={form.department} onChange={(event) => setForm({ ...form, department: event.target.value })} placeholder="Finance, product, support" />
+            </label>
+            <label className="grid gap-2">
+              <span className="label">Region</span>
+              <input className="input" value={form.region} onChange={(event) => setForm({ ...form, region: event.target.value })} placeholder="Global, India, US, EMEA" />
+            </label>
+            <label className="grid gap-2">
+              <span className="label">Cost center</span>
+              <input className="input" value={form.costCenter} onChange={(event) => setForm({ ...form, costCenter: event.target.value })} placeholder="AI-OPS-01" />
             </label>
             <label className="grid gap-2">
               <span className="label">Workspace / client</span>
@@ -157,6 +178,14 @@ export default function NewAudit() {
                 <option value="Manual estimate">Manual estimate</option>
                 <option value="Invoice">Invoice</option>
                 <option value="Usage logs">Usage logs</option>
+              </select>
+            </label>
+            <label className="grid gap-2">
+              <span className="label">Review cadence</span>
+              <select className="input" value={form.reviewCadence} onChange={(event) => setForm({ ...form, reviewCadence: event.target.value })}>
+                <option value="monthly">Monthly</option>
+                <option value="quarterly">Quarterly</option>
+                <option value="none">One-time</option>
               </select>
             </label>
           </div>

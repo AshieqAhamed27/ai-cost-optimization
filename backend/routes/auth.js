@@ -2,7 +2,7 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
-const { requireAuth } = require('../middleware/auth');
+const { requireAuth, roleCapabilities } = require('../middleware/auth');
 
 const router = express.Router();
 
@@ -20,6 +20,11 @@ const publicUser = (user) => ({
   name: user.name,
   email: user.email,
   companyName: user.companyName,
+  organizationName: user.organizationName || user.companyName || '',
+  department: user.department || '',
+  region: user.region || '',
+  accessRole: user.accessRole || 'admin',
+  capabilities: roleCapabilities[user.accessRole || 'admin'] || roleCapabilities.admin,
   role: user.role,
   activePlan: user.activePlan,
   planStatus: user.planStatus,
@@ -45,6 +50,12 @@ router.post('/signup', async (req, res, next) => {
     const email = normalizeEmail(req.body.email);
     const password = String(req.body.password || '');
     const companyName = cleanText(req.body.companyName);
+    const organizationName = cleanText(req.body.organizationName || companyName);
+    const department = cleanText(req.body.department);
+    const region = cleanText(req.body.region);
+    const accessRole = ['admin', 'finance', 'engineering', 'leadership', 'auditor', 'viewer'].includes(req.body.accessRole)
+      ? req.body.accessRole
+      : 'admin';
 
     if (!name || !email || !password) {
       return res.status(400).json({ message: 'Name, email, and password are required' });
@@ -64,6 +75,10 @@ router.post('/signup', async (req, res, next) => {
       name,
       email,
       companyName,
+      organizationName,
+      department,
+      region,
+      accessRole,
       passwordHash,
       activePlan: 'early_access',
       planStatus: 'active'

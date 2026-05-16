@@ -15,6 +15,9 @@ export const createBlankTool = () => ({
   modelTier: 'unknown',
   caching: 'unknown',
   owner: '',
+  department: '',
+  region: '',
+  costCenter: '',
   budgetLimit: ''
 });
 
@@ -131,6 +134,18 @@ export default function ToolEditor({ tools, setTools }) {
             <label className="grid gap-2">
               <span className="label">Owner</span>
               <input className="input" value={tool.owner} onChange={(event) => updateTool(index, 'owner', event.target.value)} placeholder="Team or person" />
+            </label>
+            <label className="grid gap-2">
+              <span className="label">Department</span>
+              <input className="input" value={tool.department} onChange={(event) => updateTool(index, 'department', event.target.value)} placeholder="Finance, product, support" />
+            </label>
+            <label className="grid gap-2">
+              <span className="label">Region</span>
+              <input className="input" value={tool.region} onChange={(event) => updateTool(index, 'region', event.target.value)} placeholder="Global, India, US, EMEA" />
+            </label>
+            <label className="grid gap-2">
+              <span className="label">Cost center</span>
+              <input className="input" value={tool.costCenter} onChange={(event) => updateTool(index, 'costCenter', event.target.value)} placeholder="AI-OPS-01" />
             </label>
             <label className="grid gap-2">
               <span className="label">Budget limit</span>

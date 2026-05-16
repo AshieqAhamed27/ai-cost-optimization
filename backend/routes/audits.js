@@ -1,7 +1,7 @@
 const express = require('express');
 const crypto = require('crypto');
 const Audit = require('../models/Audit');
-const { requireAuth, requireActivePlan } = require('../middleware/auth');
+const { requireAuth, requireActivePlan, requireEditor, getAccessRole, hasCapability } = require('../middleware/auth');
 const { calculateAudit } = require('../utils/costEngine');
 
 const router = express.Router();
@@ -17,9 +17,187 @@ const toNumber = (value) => {
 const normalizeChoice = (value) =>
   ['yes', 'partial', 'no', 'unknown'].includes(value) ? value : 'unknown';
 
+const normalizeApprovalStatus = (value) =>
+  ['not_requested', 'pending', 'approved', 'changes_requested'].includes(value)
+    ? value
+    : 'pending';
+
+const normalizeCadence = (value) =>
+  ['none', 'monthly', 'quarterly'].includes(value) ? value : 'monthly';
+
+const currentReviewPeriod = () =>
+  new Date().toLocaleDateString('en-IN', { month: 'short', year: 'numeric' });
+
+const nextReviewDate = (cadence) => {
+  if (cadence === 'none') return undefined;
+
+  const date = new Date();
+  date.setHours(9, 0, 0, 0);
+  date.setMonth(date.getMonth() + (cadence === 'quarterly' ? 3 : 1));
+  return date;
+};
+
+const addAuditLog = (audit, req, event, detail = '') => {
+  audit.auditLog = audit.auditLog || [];
+  audit.auditLog.unshift({
+    event,
+    detail,
+    actorName: req.user?.name || 'System',
+    actorRole: getAccessRole(req.user),
+    createdAt: new Date()
+  });
+  audit.auditLog = audit.auditLog.slice(0, 80);
+};
+
+const matchesFilter = (audit, filters) => {
+  const values = {
+    department: audit.department,
+    region: audit.region,
+    costCenter: audit.costCenter,
+    status: audit.status,
+    riskLevel: audit.riskLevel,
+    reviewCadence: audit.reviewCadence
+  };
+
+  if (filters.department && values.department !== filters.department) return false;
+  if (filters.region && values.region !== filters.region) return false;
+  if (filters.costCenter && values.costCenter !== filters.costCenter) return false;
+  if (filters.status && values.status !== filters.status) return false;
+  if (filters.riskLevel && values.riskLevel !== filters.riskLevel) return false;
+  if (filters.reviewCadence && values.reviewCadence !== filters.reviewCadence) return false;
+
+  if (filters.owner) {
+    const ownerMatch = (audit.tools || []).some((tool) => tool.owner === filters.owner) ||
+      (audit.actionPlan || []).some((action) => action.owner === filters.owner);
+    if (!ownerMatch) return false;
+  }
+
+  if (filters.search) {
+    const haystack = [
+      audit.companyName,
+      audit.organizationName,
+      audit.workspaceName,
+      audit.businessType,
+      audit.productType,
+      audit.department,
+      audit.region,
+      audit.costCenter,
+      ...(audit.tools || []).flatMap((tool) => [tool.name, tool.provider, tool.workflow, tool.customer, tool.owner])
+    ].join(' ').toLowerCase();
+    if (!haystack.includes(filters.search.toLowerCase())) return false;
+  }
+
+  return true;
+};
+
+const buildFacets = (audits) => {
+  const owners = new Set();
+  audits.forEach((audit) => {
+    (audit.tools || []).forEach((tool) => {
+      if (tool.owner) owners.add(tool.owner);
+    });
+    (audit.actionPlan || []).forEach((action) => {
+      if (action.owner) owners.add(action.owner);
+    });
+  });
+
+  const collect = (getter) => [...new Set(audits.map(getter).filter(Boolean))].sort();
+
+  return {
+    departments: collect((audit) => audit.department),
+    regions: collect((audit) => audit.region),
+    costCenters: collect((audit) => audit.costCenter),
+    owners: [...owners].sort(),
+    statuses: collect((audit) => audit.status),
+    riskLevels: collect((audit) => audit.riskLevel),
+    reviewCadences: collect((audit) => audit.reviewCadence)
+  };
+};
+
+const approvalSummary = (audits) => audits.reduce((summary, audit) => {
+  ['finance', 'engineering', 'leadership'].forEach((step) => {
+    const status = audit.approval?.[step]?.status || 'not_requested';
+    summary[status] = (summary[status] || 0) + 1;
+  });
+  return summary;
+}, { not_requested: 0, pending: 0, approved: 0, changes_requested: 0 });
+
+const buildEnterprisePack = (audit) => {
+  const tools = audit.tools || [];
+  const vendors = Object.values(tools.reduce((groups, tool) => {
+    const name = tool.provider || tool.name || 'Unknown vendor';
+    if (!groups[name]) groups[name] = { name, spend: 0, workflows: new Set(), owners: new Set() };
+    groups[name].spend += tool.monthlyCost || 0;
+    if (tool.workflow) groups[name].workflows.add(tool.workflow);
+    if (tool.owner) groups[name].owners.add(tool.owner);
+    return groups;
+  }, {})).map((vendor) => ({
+    ...vendor,
+    workflows: [...vendor.workflows].join(', ') || 'Not tagged',
+    owners: [...vendor.owners].join(', ') || 'No owner'
+  })).sort((a, b) => b.spend - a.spend);
+
+  const approval = audit.approval || {};
+  const approvalLine = ['finance', 'engineering', 'leadership']
+    .map((step) => `${step}: ${approval[step]?.status || 'not_requested'}`)
+    .join(' | ');
+
+  return {
+    boardSummary: {
+      title: `${audit.companyName} AI cost governance summary`,
+      narrative: `${audit.organizationName || audit.companyName} is tracking ${audit.monthlySpend || 0} in monthly AI and infrastructure spend with ${audit.possibleMonthlySavings || 0} possible monthly savings. Current risk is ${audit.riskLevel || 'Medium'} and approval posture is ${approvalLine}.`,
+      metrics: [
+        ['Monthly spend', audit.monthlySpend || 0],
+        ['Possible monthly savings', audit.possibleMonthlySavings || 0],
+        ['Possible yearly savings', audit.yearlySavings || 0],
+        ['Confirmed monthly savings', audit.confirmedMonthlySavings || 0]
+      ]
+    },
+    procurementBrief: vendors.slice(0, 6).map((vendor) => ({
+      vendor: vendor.name,
+      spend: vendor.spend,
+      workflows: vendor.workflows,
+      owners: vendor.owners,
+      negotiationAngle: vendor.spend >= (audit.monthlySpend || 0) * 0.3
+        ? 'High concentration vendor. Review committed-use discounts, model routing alternatives, and volume tiers.'
+        : 'Review usage, retention, and owner accountability before renewal.'
+    })),
+    riskRegister: [
+      ...(audit.budgetAlerts || []).map((alert) => ({
+        risk: alert.title,
+        severity: alert.severity,
+        owner: audit.department || 'Operations',
+        mitigation: alert.detail
+      })),
+      ...(audit.wasteFindings || []).slice(0, 5).map((finding) => ({
+        risk: finding.title,
+        severity: finding.impact,
+        owner: audit.department || 'Engineering',
+        mitigation: finding.detail
+      }))
+    ].slice(0, 8),
+    executiveActions: (audit.actionPlan || []).slice(0, 6).map((action) => ({
+      phase: action.phase,
+      action: action.title,
+      owner: action.owner || 'Unassigned',
+      status: action.status || 'todo'
+    })),
+    monthlyReview: {
+      cadence: audit.reviewCadence || 'monthly',
+      reviewPeriod: audit.reviewPeriod || currentReviewPeriod(),
+      nextReviewAt: audit.nextReviewAt,
+      recurringReport: Boolean(audit.recurringReport)
+    }
+  };
+};
+
 const getPublicAudit = (audit) => ({
   _id: audit._id,
   companyName: audit.companyName,
+  organizationName: audit.organizationName,
+  department: audit.department,
+  region: audit.region,
+  costCenter: audit.costCenter,
   businessType: audit.businessType,
   workspaceName: audit.workspaceName,
   productType: audit.productType,
@@ -38,6 +216,7 @@ const getPublicAudit = (audit) => ({
   wasteFindings: audit.wasteFindings,
   budgetAlerts: audit.budgetAlerts,
   unitEconomics: audit.unitEconomics,
+  approval: audit.approval,
   actionPlan: audit.actionPlan,
   confirmedMonthlySavings: audit.confirmedMonthlySavings,
   confirmedSpendAfter: audit.confirmedSpendAfter,
@@ -66,12 +245,41 @@ router.use(requireAuth);
 
 router.get('/stats', async (req, res, next) => {
   try {
-    const audits = await Audit.find({ user: req.user._id }).sort({ createdAt: -1 }).limit(20);
+    const allAudits = await Audit.find({ user: req.user._id }).sort({ createdAt: -1 }).limit(120);
+    const filters = {
+      department: cleanText(req.query.department, 120),
+      region: cleanText(req.query.region, 120),
+      costCenter: cleanText(req.query.costCenter, 120),
+      owner: cleanText(req.query.owner, 120),
+      status: cleanText(req.query.status, 40),
+      riskLevel: cleanText(req.query.riskLevel, 40),
+      reviewCadence: cleanText(req.query.reviewCadence, 40),
+      search: cleanText(req.query.search, 120)
+    };
+    const audits = allAudits.filter((audit) => matchesFilter(audit, filters)).slice(0, 40);
     const monthlySpend = audits.reduce((sum, audit) => sum + audit.monthlySpend, 0);
     const possibleMonthlySavings = audits.reduce((sum, audit) => sum + audit.possibleMonthlySavings, 0);
     const confirmedMonthlySavings = audits.reduce((sum, audit) => sum + (audit.confirmedMonthlySavings || 0), 0);
     const monthlyBudget = audits.reduce((sum, audit) => sum + (audit.monthlyBudget || 0), 0);
     const activeAlerts = audits.reduce((sum, audit) => sum + (audit.budgetAlerts?.length || 0), 0);
+    const recurringReports = audits.filter((audit) => audit.recurringReport || audit.reviewCadence !== 'none').length;
+    const dueReviews = audits.filter((audit) => audit.nextReviewAt && new Date(audit.nextReviewAt).getTime() <= Date.now()).length;
+    const departments = audits.reduce((groups, audit) => {
+      const name = audit.department || 'Unassigned';
+      if (!groups[name]) groups[name] = { name, reports: 0, monthlySpend: 0, possibleMonthlySavings: 0 };
+      groups[name].reports += 1;
+      groups[name].monthlySpend += audit.monthlySpend || 0;
+      groups[name].possibleMonthlySavings += audit.possibleMonthlySavings || 0;
+      return groups;
+    }, {});
+    const regions = audits.reduce((groups, audit) => {
+      const name = audit.region || 'Global';
+      if (!groups[name]) groups[name] = { name, reports: 0, monthlySpend: 0, possibleMonthlySavings: 0 };
+      groups[name].reports += 1;
+      groups[name].monthlySpend += audit.monthlySpend || 0;
+      groups[name].possibleMonthlySavings += audit.possibleMonthlySavings || 0;
+      return groups;
+    }, {});
     const workspaceMap = audits.reduce((groups, audit) => {
       const name = audit.workspaceName || audit.companyName || 'Workspace';
       if (!groups[name]) {
@@ -101,11 +309,18 @@ router.get('/stats', async (req, res, next) => {
         confirmedYearlySavings: confirmedMonthlySavings * 12,
         monthlyBudget,
         activeAlerts,
+        approvalSummary: approvalSummary(audits),
+        recurringReports,
+        dueReviews,
         actionCompletionRate: actionTotals.total
           ? Math.round((actionTotals.done / actionTotals.total) * 100)
           : 0
       },
       workspaces: Object.values(workspaceMap).sort((a, b) => b.monthlySpend - a.monthlySpend),
+      departments: Object.values(departments).sort((a, b) => b.monthlySpend - a.monthlySpend),
+      regions: Object.values(regions).sort((a, b) => b.monthlySpend - a.monthlySpend),
+      facets: buildFacets(allAudits),
+      filters,
       audits
     });
   } catch (error) {
@@ -122,10 +337,14 @@ router.get('/', async (req, res, next) => {
   }
 });
 
-router.post('/', requireActivePlan, async (req, res, next) => {
+router.post('/', requireActivePlan, requireEditor, async (req, res, next) => {
   try {
     const {
       companyName,
+      organizationName,
+      department,
+      region,
+      costCenter,
       businessType,
       workspaceName,
       productType,
@@ -136,6 +355,7 @@ router.post('/', requireActivePlan, async (req, res, next) => {
       targetSavingsRate,
       costConcern,
       dataSource,
+      reviewCadence,
       hasCaching,
       hasModelRouting,
       hasUsageLimits,
@@ -154,6 +374,10 @@ router.post('/', requireActivePlan, async (req, res, next) => {
 
     const intake = {
       companyName: cleanText(companyName, 120),
+      organizationName: cleanText(organizationName || req.user.organizationName || req.user.companyName || companyName, 120),
+      department: cleanText(department || req.user.department, 120),
+      region: cleanText(region || req.user.region, 120),
+      costCenter: cleanText(costCenter, 120),
       businessType: cleanText(businessType, 120),
       workspaceName: cleanText(workspaceName, 120),
       productType: cleanText(productType, 120),
@@ -164,6 +388,9 @@ router.post('/', requireActivePlan, async (req, res, next) => {
       targetSavingsRate: Math.max(0, Math.min(90, Math.round(toNumber(targetSavingsRate)))),
       costConcern: cleanText(costConcern, 500),
       dataSource: cleanText(dataSource, 160),
+      reviewCadence: normalizeCadence(reviewCadence),
+      reviewPeriod: currentReviewPeriod(),
+      nextReviewAt: nextReviewDate(normalizeCadence(reviewCadence)),
       hasCaching: normalizeChoice(hasCaching),
       hasModelRouting: normalizeChoice(hasModelRouting),
       hasUsageLimits: normalizeChoice(hasUsageLimits),
@@ -175,7 +402,14 @@ router.post('/', requireActivePlan, async (req, res, next) => {
     const audit = await Audit.create({
       user: req.user._id,
       ...intake,
-      ...result
+      ...result,
+      auditLog: [{
+        event: 'Report created',
+        detail: 'Initial governance report created from spend data.',
+        actorName: req.user.name || 'User',
+        actorRole: getAccessRole(req.user),
+        createdAt: new Date()
+      }]
     });
 
     res.status(201).json({ audit });
@@ -196,21 +430,21 @@ router.get('/:id', async (req, res, next) => {
   }
 });
 
-router.patch('/:id/status', async (req, res, next) => {
+router.patch('/:id/status', requireEditor, async (req, res, next) => {
   try {
     const status = ['draft', 'review_ready', 'delivered'].includes(req.body.status)
       ? req.body.status
       : 'review_ready';
 
-    const audit = await Audit.findOneAndUpdate(
-      { _id: req.params.id, user: req.user._id },
-      { status },
-      { new: true }
-    );
+    const audit = await Audit.findOne({ _id: req.params.id, user: req.user._id });
 
     if (!audit) {
       return res.status(404).json({ message: 'Audit not found' });
     }
+
+    audit.status = status;
+    addAuditLog(audit, req, 'Status updated', `Report status changed to ${status}.`);
+    await audit.save();
 
     res.json({ audit });
   } catch (error) {
@@ -218,7 +452,7 @@ router.patch('/:id/status', async (req, res, next) => {
   }
 });
 
-router.post('/:id/share', requireActivePlan, async (req, res, next) => {
+router.post('/:id/share', requireActivePlan, requireEditor, async (req, res, next) => {
   try {
     const audit = await Audit.findOne({ _id: req.params.id, user: req.user._id });
 
@@ -229,6 +463,7 @@ router.post('/:id/share', requireActivePlan, async (req, res, next) => {
     audit.reportShared = true;
     audit.reportToken = audit.reportToken || crypto.randomBytes(24).toString('hex');
     audit.reportSharedAt = new Date();
+    addAuditLog(audit, req, 'Private link enabled', 'A private public report link was created or refreshed.');
     await audit.save();
 
     res.json({ audit, shareUrl: `/reports/public/${audit.reportToken}` });
@@ -237,17 +472,17 @@ router.post('/:id/share', requireActivePlan, async (req, res, next) => {
   }
 });
 
-router.delete('/:id/share', requireActivePlan, async (req, res, next) => {
+router.delete('/:id/share', requireActivePlan, requireEditor, async (req, res, next) => {
   try {
-    const audit = await Audit.findOneAndUpdate(
-      { _id: req.params.id, user: req.user._id },
-      { reportShared: false },
-      { new: true }
-    );
+    const audit = await Audit.findOne({ _id: req.params.id, user: req.user._id });
 
     if (!audit) {
       return res.status(404).json({ message: 'Audit not found' });
     }
+
+    audit.reportShared = false;
+    addAuditLog(audit, req, 'Private link disabled', 'The private public report link was disabled.');
+    await audit.save();
 
     res.json({ audit });
   } catch (error) {
@@ -255,7 +490,7 @@ router.delete('/:id/share', requireActivePlan, async (req, res, next) => {
   }
 });
 
-router.patch('/:id/action-plan/:index', async (req, res, next) => {
+router.patch('/:id/action-plan/:index', requireEditor, async (req, res, next) => {
   try {
     const status = ['todo', 'doing', 'done'].includes(req.body.status)
       ? req.body.status
@@ -273,6 +508,7 @@ router.patch('/:id/action-plan/:index', async (req, res, next) => {
     }
 
     audit.actionPlan[index].status = status;
+    addAuditLog(audit, req, 'Action updated', `${audit.actionPlan[index].title} moved to ${status}.`);
     await audit.save();
 
     res.json({ audit });
@@ -281,7 +517,7 @@ router.patch('/:id/action-plan/:index', async (req, res, next) => {
   }
 });
 
-router.patch('/:id/progress', async (req, res, next) => {
+router.patch('/:id/progress', requireEditor, async (req, res, next) => {
   try {
     const confirmedSpendAfter = Math.max(0, toNumber(req.body.confirmedSpendAfter));
     const explicitSavings = Math.max(0, toNumber(req.body.confirmedMonthlySavings));
@@ -295,9 +531,134 @@ router.patch('/:id/progress', async (req, res, next) => {
     audit.confirmedMonthlySavings = explicitSavings ||
       (confirmedSpendAfter ? Math.max(0, audit.monthlySpend - confirmedSpendAfter) : 0);
     audit.implementationNotes = cleanText(req.body.implementationNotes, 1200);
+    addAuditLog(audit, req, 'Savings progress recorded', `${audit.confirmedMonthlySavings} confirmed monthly savings recorded.`);
     await audit.save();
 
     res.json({ audit });
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.patch('/:id/approval', requireEditor, async (req, res, next) => {
+  try {
+    const step = ['finance', 'engineering', 'leadership'].includes(req.body.step)
+      ? req.body.step
+      : '';
+
+    if (!step) {
+      return res.status(400).json({ message: 'Approval step is required' });
+    }
+
+    const capability = `approve_${step}`;
+    const status = normalizeApprovalStatus(req.body.status);
+
+    if (['approved', 'changes_requested'].includes(status) && !hasCapability(req.user, capability)) {
+      return res.status(403).json({ message: `Your role cannot decide ${step} approval` });
+    }
+
+    const audit = await Audit.findOne({ _id: req.params.id, user: req.user._id });
+
+    if (!audit) {
+      return res.status(404).json({ message: 'Audit not found' });
+    }
+
+    audit.approval = audit.approval || {};
+    audit.approval[step] = {
+      ...(audit.approval[step]?.toObject?.() || audit.approval[step] || {}),
+      status,
+      owner: cleanText(req.body.owner, 120),
+      notes: cleanText(req.body.notes, 800),
+      decidedBy: ['approved', 'changes_requested'].includes(status) ? req.user.name : '',
+      decidedAt: ['approved', 'changes_requested'].includes(status) ? new Date() : undefined
+    };
+
+    addAuditLog(audit, req, 'Approval updated', `${step} approval changed to ${status}.`);
+    await audit.save();
+
+    res.json({ audit });
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.post('/:id/monthly-review', requireActivePlan, requireEditor, async (req, res, next) => {
+  try {
+    const source = await Audit.findOne({ _id: req.params.id, user: req.user._id });
+
+    if (!source) {
+      return res.status(404).json({ message: 'Audit not found' });
+    }
+
+    const period = cleanText(req.body.reviewPeriod, 80) || currentReviewPeriod();
+    const sourceObject = source.toObject();
+    delete sourceObject._id;
+    delete sourceObject.createdAt;
+    delete sourceObject.updatedAt;
+    delete sourceObject.reportToken;
+    delete sourceObject.reportSharedAt;
+
+    const review = await Audit.create({
+      ...sourceObject,
+      user: req.user._id,
+      reportShared: false,
+      reportToken: '',
+      parentAudit: source._id,
+      recurringReport: true,
+      reviewPeriod: period,
+      reviewCadence: normalizeCadence(req.body.reviewCadence || source.reviewCadence),
+      nextReviewAt: nextReviewDate(normalizeCadence(req.body.reviewCadence || source.reviewCadence)),
+      status: 'draft',
+      approval: {
+        finance: { status: 'pending', owner: source.approval?.finance?.owner || '' },
+        engineering: { status: 'pending', owner: source.approval?.engineering?.owner || '' },
+        leadership: { status: 'pending', owner: source.approval?.leadership?.owner || '' }
+      },
+      auditLog: [{
+        event: 'Monthly review created',
+        detail: `Recurring governance review created for ${period}.`,
+        actorName: req.user.name || 'User',
+        actorRole: getAccessRole(req.user),
+        createdAt: new Date()
+      }]
+    });
+
+    addAuditLog(source, req, 'Monthly review generated', `Created recurring review for ${period}.`);
+    await source.save();
+
+    res.status(201).json({ audit: review });
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.get('/:id/audit-log', async (req, res, next) => {
+  try {
+    const audit = await Audit.findOne({ _id: req.params.id, user: req.user._id }).select('auditLog');
+
+    if (!audit) {
+      return res.status(404).json({ message: 'Audit not found' });
+    }
+
+    res.json({ auditLog: audit.auditLog || [] });
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.get('/:id/enterprise-pack', async (req, res, next) => {
+  try {
+    if (!hasCapability(req.user, 'export')) {
+      return res.status(403).json({ message: 'Your current role cannot export enterprise packs' });
+    }
+
+    const audit = await Audit.findOne({ _id: req.params.id, user: req.user._id });
+
+    if (!audit) {
+      return res.status(404).json({ message: 'Audit not found' });
+    }
+
+    res.json({ pack: buildEnterprisePack(audit) });
   } catch (error) {
     next(error);
   }

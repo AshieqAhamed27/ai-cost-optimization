@@ -7,6 +7,20 @@ const isTrialActive = (user) =>
   user?.trialEndsAt &&
   new Date(user.trialEndsAt).getTime() > Date.now();
 
+const getAccessRole = (user) => user?.accessRole || 'admin';
+
+const roleCapabilities = {
+  admin: ['read', 'write', 'approve_finance', 'approve_engineering', 'approve_leadership', 'export'],
+  finance: ['read', 'write', 'approve_finance', 'export'],
+  engineering: ['read', 'write', 'approve_engineering', 'export'],
+  leadership: ['read', 'write', 'approve_leadership', 'export'],
+  auditor: ['read', 'write', 'export'],
+  viewer: ['read']
+};
+
+const hasCapability = (user, capability) =>
+  roleCapabilities[getAccessRole(user)]?.includes(capability);
+
 const requireAuth = async (req, res, next) => {
   try {
     const header = req.headers.authorization || '';
@@ -59,4 +73,20 @@ const requireActivePlan = (req, res, next) => {
   });
 };
 
-module.exports = { requireAuth, requireActivePlan, isTrialActive };
+const requireCapability = (capability) => (req, res, next) => {
+  if (hasCapability(req.user, capability)) return next();
+  return res.status(403).json({ message: 'Your current role does not allow this action' });
+};
+
+const requireEditor = requireCapability('write');
+
+module.exports = {
+  requireAuth,
+  requireActivePlan,
+  requireCapability,
+  requireEditor,
+  isTrialActive,
+  getAccessRole,
+  hasCapability,
+  roleCapabilities
+};

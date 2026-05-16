@@ -4,7 +4,16 @@ import { apiRequest, setSession } from '../utils/api';
 
 export default function Signup() {
   const navigate = useNavigate();
-  const [form, setForm] = useState({ name: '', email: '', password: '', companyName: '' });
+  const [form, setForm] = useState({
+    name: '',
+    email: '',
+    password: '',
+    companyName: '',
+    organizationName: '',
+    department: '',
+    region: '',
+    accessRole: 'admin'
+  });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -40,6 +49,29 @@ export default function Signup() {
           <label className="grid gap-2">
             <span className="label">Company</span>
             <input className="input" value={form.companyName} onChange={(event) => setForm({ ...form, companyName: event.target.value })} />
+          </label>
+          <label className="grid gap-2 sm:col-span-2">
+            <span className="label">Organization</span>
+            <input className="input" value={form.organizationName} onChange={(event) => setForm({ ...form, organizationName: event.target.value })} placeholder="Parent company or group" />
+          </label>
+          <label className="grid gap-2">
+            <span className="label">Department</span>
+            <input className="input" value={form.department} onChange={(event) => setForm({ ...form, department: event.target.value })} placeholder="Finance, product, engineering" />
+          </label>
+          <label className="grid gap-2">
+            <span className="label">Region</span>
+            <input className="input" value={form.region} onChange={(event) => setForm({ ...form, region: event.target.value })} placeholder="Global, India, US, EMEA" />
+          </label>
+          <label className="grid gap-2 sm:col-span-2">
+            <span className="label">Access role</span>
+            <select className="input" value={form.accessRole} onChange={(event) => setForm({ ...form, accessRole: event.target.value })}>
+              <option value="admin">Admin</option>
+              <option value="finance">Finance</option>
+              <option value="engineering">Engineering</option>
+              <option value="leadership">Leadership</option>
+              <option value="auditor">Auditor</option>
+              <option value="viewer">Viewer</option>
+            </select>
           </label>
           <label className="grid gap-2 sm:col-span-2">
             <span className="label">Email</span>

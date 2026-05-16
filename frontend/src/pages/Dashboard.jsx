@@ -5,21 +5,51 @@ import { apiRequest, formatCurrency, getPlanName, getUser, hasActivePlan, isEarl
 
 export default function Dashboard() {
   const user = getUser();
-  const [data, setData] = useState({ stats: null, audits: [] });
+  const [data, setData] = useState({ stats: null, audits: [], facets: {} });
+  const [filters, setFilters] = useState({
+    department: '',
+    region: '',
+    costCenter: '',
+    owner: '',
+    riskLevel: '',
+    status: '',
+    reviewCadence: '',
+    search: ''
+  });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
   useEffect(() => {
-    apiRequest('/audits/stats')
+    const params = new URLSearchParams(
+      Object.entries(filters).filter(([, value]) => String(value || '').trim())
+    );
+    setLoading(true);
+    apiRequest(`/audits/stats${params.toString() ? `?${params}` : ''}`)
       .then(setData)
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
-  }, []);
+  }, [filters]);
 
   const stats = data.stats || {};
   const planActive = hasActivePlan(user);
   const earlyAccessActive = isEarlyAccessActive(user);
   const trialActive = isTrialActive(user);
+  const facets = data.facets || {};
+  const updateFilter = (field, value) => {
+    setFilters((current) => ({ ...current, [field]: value }));
+  };
+  const clearFilters = () => {
+    setFilters({
+      department: '',
+      region: '',
+      costCenter: '',
+      owner: '',
+      riskLevel: '',
+      status: '',
+      reviewCadence: '',
+      search: ''
+    });
+  };
 
   return (
     <main className="container-page py-10">
@@ -32,6 +62,18 @@ export default function Dashboard() {
           <p className="mt-3 max-w-2xl text-sm font-semibold leading-relaxed text-zinc-500">
             Manage AI cost governance reports, savings estimates, owners, and engineering-ready recommendations.
           </p>
+          <div className="mt-4 flex flex-wrap gap-2">
+            {[
+              ['Role', user?.accessRole || 'admin'],
+              ['Organization', user?.organizationName || user?.companyName || 'Default'],
+              ['Department', user?.department || 'Unassigned'],
+              ['Region', user?.region || 'Global']
+            ].map(([label, value]) => (
+              <span key={label} className="rounded-lg border border-white/10 bg-white/[0.04] px-3 py-2 text-xs font-black uppercase tracking-widest text-zinc-300">
+                {label}: {value}
+              </span>
+            ))}
+          </div>
         </div>
         <div className="flex flex-col gap-3 sm:flex-row">
           <Link to={planActive ? '/audits/new' : '/pricing'} className="btn-primary">{planActive ? 'New Report' : 'Start Pilot'}</Link>
@@ -86,6 +128,41 @@ export default function Dashboard() {
         </section>
       )}
 
+      <section className="panel mb-8">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <p className="label text-sky-200">Enterprise filters</p>
+            <h2 className="mt-2 text-2xl font-black text-white">Slice reports by team, region, owner, status, or risk.</h2>
+          </div>
+          <button type="button" onClick={clearFilters} className="btn-secondary px-4 py-2">Clear Filters</button>
+        </div>
+        <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+          <label className="grid gap-2">
+            <span className="label">Search</span>
+            <input className="input" value={filters.search} onChange={(event) => updateFilter('search', event.target.value)} placeholder="Company, vendor, workflow" />
+          </label>
+          {[
+            ['department', 'Department', facets.departments || []],
+            ['region', 'Region', facets.regions || []],
+            ['costCenter', 'Cost center', facets.costCenters || []],
+            ['owner', 'Owner', facets.owners || []],
+            ['riskLevel', 'Risk', facets.riskLevels || []],
+            ['status', 'Status', facets.statuses || []],
+            ['reviewCadence', 'Cadence', facets.reviewCadences || []]
+          ].map(([field, label, options]) => (
+            <label key={field} className="grid gap-2">
+              <span className="label">{label}</span>
+              <select className="input" value={filters[field]} onChange={(event) => updateFilter(field, event.target.value)}>
+                <option value="">All</option>
+                {options.map((option) => (
+                  <option key={option} value={option}>{option}</option>
+                ))}
+              </select>
+            </label>
+          ))}
+        </div>
+      </section>
+
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <StatCard label="Reports" value={loading ? '...' : stats.totalAudits || 0} detail="Governance reports created in your workspace" />
         <StatCard label="Monthly spend checked" value={loading ? '...' : formatCurrency(stats.monthlySpend)} detail="AI API and infrastructure spend reviewed" />
@@ -95,6 +172,42 @@ export default function Dashboard() {
         <StatCard label="Actions done" value={loading ? '...' : `${stats.actionCompletionRate || 0}%`} detail="Before and after plan completion" />
         <StatCard label="Budget alerts" value={loading ? '...' : stats.activeAlerts || 0} detail="Reports with active spend warnings" />
         <StatCard label="Budget tracked" value={loading ? '...' : formatCurrency(stats.monthlyBudget)} detail="Monthly budget entered across workspaces" />
+        <StatCard label="Pending approvals" value={loading ? '...' : stats.approvalSummary?.pending || 0} detail="Finance, engineering, or leadership approvals waiting" />
+        <StatCard label="Due reviews" value={loading ? '...' : stats.dueReviews || 0} detail="Recurring governance reviews ready for follow-up" />
+      </section>
+
+      <section className="mt-8 grid gap-6 lg:grid-cols-2">
+        <div className="panel">
+          <p className="label text-emerald-200">Departments</p>
+          <div className="mt-4 grid gap-3">
+            {(data.departments || []).slice(0, 5).map((item) => (
+              <div key={item.name} className="rounded-lg border border-white/10 bg-black/20 p-4">
+                <div className="flex items-center justify-between gap-3">
+                  <p className="font-black text-white">{item.name}</p>
+                  <p className="text-sm font-black text-emerald-200">{formatCurrency(item.possibleMonthlySavings)} savings</p>
+                </div>
+                <p className="mt-1 text-xs font-bold uppercase tracking-widest text-zinc-600">{item.reports} reports | {formatCurrency(item.monthlySpend)} spend</p>
+              </div>
+            ))}
+            {!(data.departments || []).length && <p className="text-sm font-semibold text-zinc-500">No department data yet.</p>}
+          </div>
+        </div>
+
+        <div className="panel">
+          <p className="label text-sky-200">Regions</p>
+          <div className="mt-4 grid gap-3">
+            {(data.regions || []).slice(0, 5).map((item) => (
+              <div key={item.name} className="rounded-lg border border-white/10 bg-black/20 p-4">
+                <div className="flex items-center justify-between gap-3">
+                  <p className="font-black text-white">{item.name}</p>
+                  <p className="text-sm font-black text-emerald-200">{formatCurrency(item.possibleMonthlySavings)} savings</p>
+                </div>
+                <p className="mt-1 text-xs font-bold uppercase tracking-widest text-zinc-600">{item.reports} reports | {formatCurrency(item.monthlySpend)} spend</p>
+              </div>
+            ))}
+            {!(data.regions || []).length && <p className="text-sm font-semibold text-zinc-500">No region data yet.</p>}
+          </div>
+        </div>
       </section>
 
       {data.workspaces?.length > 0 && (

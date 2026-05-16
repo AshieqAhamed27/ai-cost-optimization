@@ -55,6 +55,9 @@ const cleanTools = (tools = []) =>
       modelTier: cleanChoice(tool.modelTier, ['premium', 'balanced', 'economy', 'mixed', 'unknown'], 'unknown'),
       caching: cleanChoice(tool.caching, ['none', 'partial', 'good', 'unknown'], 'unknown'),
       owner: cleanText(tool.owner),
+      department: cleanText(tool.department),
+      region: cleanText(tool.region),
+      costCenter: cleanText(tool.costCenter),
       budgetLimit: Math.max(0, toNumber(tool.budgetLimit))
     }));
 

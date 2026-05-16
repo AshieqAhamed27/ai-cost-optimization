@@ -50,7 +50,7 @@ export default function PublicReport() {
             </div>
           </div>
           <p className="mt-4 max-w-3xl text-sm font-semibold leading-relaxed text-zinc-400">
-            {audit.workspaceName || audit.businessType} cost governance review with {formatCurrency(audit.possibleMonthlySavings)} possible monthly savings and {audit.riskLevel || 'Medium'} risk profile.
+            {[audit.organizationName, audit.department, audit.region, audit.costCenter, audit.workspaceName || audit.businessType].filter(Boolean).join(' | ')} cost governance review with {formatCurrency(audit.possibleMonthlySavings)} possible monthly savings and {audit.riskLevel || 'Medium'} risk profile.
           </p>
         </div>
         <button type="button" onClick={() => window.print()} className="btn-primary print:hidden">Export PDF</button>
@@ -78,6 +78,19 @@ export default function PublicReport() {
         <p className="mt-4 text-sm font-semibold leading-relaxed text-zinc-400">
           This report highlights AI API and infrastructure waste patterns, budget risks, unit economics, ownership gaps, and recommended cost-control actions. Editing access remains private to the report owner.
         </p>
+      </section>
+
+      <section className="panel mt-8">
+        <p className="label text-yellow-200">Approval posture</p>
+        <div className="mt-5 grid gap-3 md:grid-cols-3">
+          {['finance', 'engineering', 'leadership'].map((step) => (
+            <article key={step} className="rounded-lg border border-white/10 bg-black/20 p-4">
+              <p className="label text-sky-200">{step}</p>
+              <h2 className="mt-2 text-xl font-black capitalize text-white">{audit.approval?.[step]?.status || 'not_requested'}</h2>
+              <p className="mt-2 text-sm font-semibold text-zinc-500">Owner: {audit.approval?.[step]?.owner || 'Unassigned'}</p>
+            </article>
+          ))}
+        </div>
       </section>
 
       <div className="mt-8 grid gap-6">

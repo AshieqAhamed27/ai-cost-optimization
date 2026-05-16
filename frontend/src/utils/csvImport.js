@@ -96,6 +96,9 @@ export function csvRowsToTools(rows) {
         modelTier: normalizeValue(getFirst(row, ['modeltier', 'tier']), ['premium', 'balanced', 'economy', 'mixed', 'unknown'], 'unknown'),
         caching: normalizeValue(getFirst(row, ['caching', 'cache']), ['none', 'partial', 'good', 'unknown'], 'unknown'),
         owner: getFirst(row, ['owner', 'team']),
+        department: getFirst(row, ['department', 'dept', 'businessunit', 'businessunitname']),
+        region: getFirst(row, ['region', 'geo', 'country', 'market']),
+        costCenter: getFirst(row, ['costcenter', 'costcentre', 'budgetcode']),
         budgetLimit: parseNumber(getFirst(row, ['budget', 'budgetlimit', 'monthlybudget']))
       };
     })

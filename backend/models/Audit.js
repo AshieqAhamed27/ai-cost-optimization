@@ -61,6 +61,18 @@ const toolSchema = new mongoose.Schema({
     type: String,
     default: ''
   },
+  department: {
+    type: String,
+    default: ''
+  },
+  region: {
+    type: String,
+    default: ''
+  },
+  costCenter: {
+    type: String,
+    default: ''
+  },
   budgetLimit: {
     type: Number,
     default: 0
@@ -101,6 +113,65 @@ const budgetAlertSchema = new mongoose.Schema({
   threshold: {
     type: Number,
     default: 0
+  }
+}, { _id: false });
+
+const approvalStepSchema = new mongoose.Schema({
+  status: {
+    type: String,
+    enum: ['not_requested', 'pending', 'approved', 'changes_requested'],
+    default: 'not_requested'
+  },
+  owner: {
+    type: String,
+    default: ''
+  },
+  notes: {
+    type: String,
+    default: ''
+  },
+  decidedBy: {
+    type: String,
+    default: ''
+  },
+  decidedAt: Date
+}, { _id: false });
+
+const approvalSchema = new mongoose.Schema({
+  finance: {
+    type: approvalStepSchema,
+    default: () => ({})
+  },
+  engineering: {
+    type: approvalStepSchema,
+    default: () => ({})
+  },
+  leadership: {
+    type: approvalStepSchema,
+    default: () => ({})
+  }
+}, { _id: false });
+
+const auditLogEntrySchema = new mongoose.Schema({
+  event: {
+    type: String,
+    required: true
+  },
+  detail: {
+    type: String,
+    default: ''
+  },
+  actorName: {
+    type: String,
+    default: ''
+  },
+  actorRole: {
+    type: String,
+    default: ''
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now
   }
 }, { _id: false });
 
@@ -151,6 +222,22 @@ const auditSchema = new mongoose.Schema({
     required: true,
     trim: true
   },
+  organizationName: {
+    type: String,
+    default: ''
+  },
+  department: {
+    type: String,
+    default: ''
+  },
+  region: {
+    type: String,
+    default: ''
+  },
+  costCenter: {
+    type: String,
+    default: ''
+  },
   workspaceName: {
     type: String,
     default: ''
@@ -186,6 +273,24 @@ const auditSchema = new mongoose.Schema({
   dataSource: {
     type: String,
     default: ''
+  },
+  reviewCadence: {
+    type: String,
+    enum: ['none', 'monthly', 'quarterly'],
+    default: 'monthly'
+  },
+  reviewPeriod: {
+    type: String,
+    default: ''
+  },
+  nextReviewAt: Date,
+  parentAudit: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Audit'
+  },
+  recurringReport: {
+    type: Boolean,
+    default: false
   },
   hasCaching: {
     type: String,
@@ -231,6 +336,11 @@ const auditSchema = new mongoose.Schema({
   },
   wasteFindings: [wasteFindingSchema],
   budgetAlerts: [budgetAlertSchema],
+  approval: {
+    type: approvalSchema,
+    default: () => ({})
+  },
+  auditLog: [auditLogEntrySchema],
   unitEconomics: {
     type: unitEconomicsSchema,
     default: () => ({})

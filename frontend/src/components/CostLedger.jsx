@@ -11,11 +11,11 @@ export default function CostLedger({ tools = [], compact = false }) {
       {!compact && (
         <div className="mb-5">
           <p className="label text-sky-300">Cost ledger</p>
-          <h2 className="mt-2 text-2xl font-black text-white">Provider, workflow, customer, and owner view</h2>
+          <h2 className="mt-2 text-2xl font-black text-white">Provider, workflow, owner, department, and region view</h2>
         </div>
       )}
       <div className="overflow-x-auto">
-        <table className="min-w-[860px] w-full border-separate border-spacing-y-2 text-left">
+        <table className="min-w-[1040px] w-full border-separate border-spacing-y-2 text-left">
           <thead>
             <tr className="text-[10px] font-black uppercase tracking-widest text-zinc-500">
               <th className="px-3 py-2">Provider</th>
@@ -25,6 +25,9 @@ export default function CostLedger({ tools = [], compact = false }) {
               <th className="px-3 py-2">Requests</th>
               <th className="px-3 py-2">Tokens</th>
               <th className="px-3 py-2">Owner</th>
+              <th className="px-3 py-2">Department</th>
+              <th className="px-3 py-2">Region</th>
+              <th className="px-3 py-2">Cost center</th>
               <th className="px-3 py-2 text-right">Monthly cost</th>
             </tr>
           </thead>
@@ -41,6 +44,9 @@ export default function CostLedger({ tools = [], compact = false }) {
                 <td className="px-3 py-3">{tool.monthlyRequests ? Number(tool.monthlyRequests).toLocaleString('en-IN') : '-'}</td>
                 <td className="px-3 py-3">{tool.avgTokens ? Number(tool.avgTokens).toLocaleString('en-IN') : '-'}</td>
                 <td className="px-3 py-3">{textOrDash(tool.owner)}</td>
+                <td className="px-3 py-3">{textOrDash(tool.department)}</td>
+                <td className="px-3 py-3">{textOrDash(tool.region)}</td>
+                <td className="px-3 py-3">{textOrDash(tool.costCenter)}</td>
                 <td className="rounded-r-lg px-3 py-3 text-right font-black text-emerald-200">{formatCurrency(tool.monthlyCost)}</td>
               </tr>
             ))}

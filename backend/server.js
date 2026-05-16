@@ -159,7 +159,7 @@ app.use(apiLimiter);
 app.get('/api/health', (req, res) => {
   res.json({
     ok: true,
-    service: 'SpendGuard AI Cost Audit API',
+    service: 'SpendGuard AI Cost Governance API',
     timestamp: new Date().toISOString()
   });
 });
