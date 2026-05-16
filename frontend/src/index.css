@@ -8,9 +8,9 @@
   body {
     @apply min-h-screen bg-slate-950 font-sans text-white antialiased;
     background:
-      radial-gradient(circle at top left, rgba(56, 189, 248, 0.18), transparent 34rem),
-      radial-gradient(circle at top right, rgba(250, 204, 21, 0.12), transparent 30rem),
-      linear-gradient(135deg, #020617, #0f172a 52%, #020617);
+      linear-gradient(135deg, rgba(14, 165, 233, 0.09), transparent 34%),
+      linear-gradient(315deg, rgba(250, 204, 21, 0.08), transparent 32%),
+      linear-gradient(180deg, #05070d 0%, #10151b 48%, #050505 100%);
   }
 
   label,

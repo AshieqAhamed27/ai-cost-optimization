@@ -27,14 +27,14 @@ export default function Dashboard() {
         <div>
           <p className="label text-yellow-300">Dashboard</p>
           <h1 className="mt-3 text-4xl font-black tracking-tight text-white md:text-5xl">
-            Good to see you, {user?.name || 'Founder'}
+            Good to see you, {user?.name || 'Operator'}
           </h1>
           <p className="mt-3 max-w-2xl text-sm font-semibold leading-relaxed text-zinc-500">
-            Manage AI usage cost reports, savings estimates, and engineering-ready recommendations.
+            Manage AI cost governance reports, savings estimates, owners, and engineering-ready recommendations.
           </p>
         </div>
         <div className="flex flex-col gap-3 sm:flex-row">
-          <Link to={planActive ? '/audits/new' : '/pricing'} className="btn-primary">{planActive ? 'New Audit' : 'Start Free'}</Link>
+          <Link to={planActive ? '/audits/new' : '/pricing'} className="btn-primary">{planActive ? 'New Report' : 'Start Pilot'}</Link>
           <Link to="/pricing" className="btn-secondary">{planActive ? getPlanName(user.activePlan) : 'Pricing'}</Link>
         </div>
       </section>
@@ -46,9 +46,9 @@ export default function Dashboard() {
           <p className="label text-emerald-200">Early access active</p>
           <div className="mt-3 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div>
-              <h2 className="text-2xl font-black text-white">Reports are free for early users right now.</h2>
+              <h2 className="text-2xl font-black text-white">Governance reports are free for pilot users right now.</h2>
               <p className="mt-2 max-w-2xl text-sm font-semibold leading-relaxed text-zinc-400">
-                Use the product with real AI spend data. Payments remain built in for future paid plans, but they are not required for early access.
+                Use the product with real AI spend data. Payments remain built in for future paid plans, but they are not required for the pilot.
               </p>
             </div>
             <Link to="/audits/new" className="btn-primary shrink-0">Create Report</Link>
@@ -61,9 +61,9 @@ export default function Dashboard() {
           <p className="label text-emerald-200">Free access active</p>
           <div className="mt-3 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div>
-              <h2 className="text-2xl font-black text-white">You can create reports during free access.</h2>
+              <h2 className="text-2xl font-black text-white">You can create reports during free pilot access.</h2>
               <p className="mt-2 max-w-2xl text-sm font-semibold leading-relaxed text-zinc-400">
-                Early access is available now, and paid plans can be enabled later without changing your workflow.
+                Pilot access is available now, and paid plans can be enabled later without changing your workflow.
               </p>
             </div>
             <Link to="/audits/new" className="btn-primary shrink-0">Create Report</Link>
@@ -76,21 +76,21 @@ export default function Dashboard() {
           <p className="label text-yellow-200">Access required</p>
           <div className="mt-3 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div>
-              <h2 className="text-2xl font-black text-white">Start free early access to unlock report creation.</h2>
+              <h2 className="text-2xl font-black text-white">Start a free pilot to unlock report creation.</h2>
               <p className="mt-2 max-w-2xl text-sm font-semibold leading-relaxed text-zinc-400">
-                Early users can use the audit workflow for free. Payment stays in the product for future paid plans.
+                Pilot users can use the governance workflow for free. Payment stays in the product for future paid plans.
               </p>
             </div>
-            <Link to="/pricing" className="btn-primary shrink-0">Start Free</Link>
+            <Link to="/pricing" className="btn-primary shrink-0">Start Pilot</Link>
           </div>
         </section>
       )}
 
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <StatCard label="Audits" value={loading ? '...' : stats.totalAudits || 0} detail="Reports created in your workspace" />
+        <StatCard label="Reports" value={loading ? '...' : stats.totalAudits || 0} detail="Governance reports created in your workspace" />
         <StatCard label="Monthly spend checked" value={loading ? '...' : formatCurrency(stats.monthlySpend)} detail="AI API and infrastructure spend reviewed" />
-        <StatCard label="Possible monthly savings" value={loading ? '...' : formatCurrency(stats.possibleMonthlySavings)} detail="Estimated waste you can help clients reduce" />
-        <StatCard label="Possible yearly savings" value={loading ? '...' : formatCurrency(stats.yearlySavings)} detail="Annualized opportunity from audit reports" />
+        <StatCard label="Possible monthly savings" value={loading ? '...' : formatCurrency(stats.possibleMonthlySavings)} detail="Estimated waste the company can reduce" />
+        <StatCard label="Possible yearly savings" value={loading ? '...' : formatCurrency(stats.yearlySavings)} detail="Annualized opportunity from governance reports" />
         <StatCard label="Confirmed savings" value={loading ? '...' : formatCurrency(stats.confirmedMonthlySavings)} detail="Monthly savings recorded after implementation" />
         <StatCard label="Actions done" value={loading ? '...' : `${stats.actionCompletionRate || 0}%`} detail="Before and after plan completion" />
         <StatCard label="Budget alerts" value={loading ? '...' : stats.activeAlerts || 0} detail="Reports with active spend warnings" />
@@ -130,8 +130,8 @@ export default function Dashboard() {
       <section className="panel mt-8">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p className="label text-sky-300">Audit reports</p>
-            <h2 className="mt-2 text-2xl font-black text-white">Recent audits</h2>
+              <p className="label text-sky-300">Governance reports</p>
+            <h2 className="mt-2 text-2xl font-black text-white">Recent reports</h2>
           </div>
           <Link to={planActive ? '/audits/new' : '/pricing'} className="btn-secondary">{planActive ? 'Create report' : 'Unlock reports'}</Link>
         </div>
@@ -139,8 +139,8 @@ export default function Dashboard() {
         <div className="mt-6 grid gap-3">
           {!loading && data.audits.length === 0 && (
             <div className="rounded-2xl border border-white/10 bg-black/20 p-6 text-center">
-              <p className="text-lg font-black text-white">No audits yet.</p>
-              <p className="mt-2 text-sm font-semibold text-zinc-500">Create your first client audit and turn real spend data into a report.</p>
+              <p className="text-lg font-black text-white">No reports yet.</p>
+              <p className="mt-2 text-sm font-semibold text-zinc-500">Create your first governance report and turn real spend data into decisions.</p>
             </div>
           )}
           {data.audits.map((audit) => (

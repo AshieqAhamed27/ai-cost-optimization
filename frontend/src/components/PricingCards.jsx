@@ -5,42 +5,42 @@ import { apiRequest, formatCurrency, getUser, isLoggedIn, setSession } from '../
 export const defaultPlans = [
   {
     id: 'mini_audit',
-    name: 'Mini Audit',
-    amount: 999,
-    description: 'A focused leak check for one AI workflow where the team needs a fast savings decision.'
+    name: 'Team Pilot',
+    amount: 2499,
+    description: 'A focused governance pilot for one AI workflow, team, or product area that needs a fast savings decision.'
   },
   {
     id: 'business_audit',
-    name: 'Business Audit',
-    amount: 4999,
-    description: 'A full AI usage and infrastructure savings report for a startup with active product traffic.'
+    name: 'Business Command',
+    amount: 14999,
+    description: 'A full AI usage and infrastructure governance report for a company with active product traffic and multiple owners.'
   },
   {
     id: 'monthly_monitor',
-    name: 'Monthly Monitor',
-    amount: 9999,
-    description: 'Ongoing AI spend control for teams that need recurring accountability after the first report.'
+    name: 'Global Governance',
+    amount: 49999,
+    description: 'Ongoing AI spend control for companies that need recurring accountability, executive reporting, and policy follow-up.'
   }
 ];
 
 const planDetails = {
   mini_audit: {
-    badge: 'Starter',
+    badge: 'Pilot',
     accent: 'border-white/10 bg-white/[0.04]',
     valueNote: 'Best when one assistant, agent, or API-heavy workflow is already creating billing doubt.',
-    features: ['One AI workflow leak map', 'Break-even savings estimate', '3 priority fixes for this week']
+    features: ['One AI workflow governance map', 'Break-even savings estimate', '3 priority fixes with owners']
   },
   business_audit: {
-    badge: 'Most Popular',
+    badge: 'Most Strategic',
     accent: 'border-yellow-300/40 bg-yellow-300/[0.08]',
-    valueNote: 'Best when AI spend affects product margin and leaders need a report engineers can act on.',
-    features: ['API and infrastructure waste findings', 'Unit economics and budget risk', '30-day action plan plus PDF report']
+    valueNote: 'Best when AI spend affects product margin and leaders need a report finance and engineering can act on.',
+    features: ['API and infrastructure waste findings', 'Unit economics and budget risk', '30-day governance plan plus PDF report']
   },
   monthly_monitor: {
-    badge: 'Growth',
+    badge: 'Enterprise',
     accent: 'border-sky-300/30 bg-sky-300/[0.06]',
-    valueNote: 'Best when usage changes every month and the team needs to prove savings did not disappear.',
-    features: ['Monthly spend and savings review', 'Confirmed savings proof ledger', 'Budget guardrails and follow-up actions']
+    valueNote: 'Best when usage changes every month and the company needs to prove savings did not disappear.',
+    features: ['Monthly executive savings review', 'Confirmed savings proof ledger', 'Budget guardrails and procurement evidence']
   }
 };
 
@@ -135,7 +135,7 @@ export default function PricingCards({ compact = false }) {
         key: data.keyId,
         amount: data.order.amount,
         currency: data.order.currency,
-        name: 'SpendGuard Audit',
+        name: 'SpendGuard',
         description: data.plan.name,
         order_id: data.order.id,
         prefill: {
@@ -217,18 +217,18 @@ export default function PricingCards({ compact = false }) {
                 onClick={() => startCheckout(plan.id)}
                 className="btn-primary w-full"
                 disabled={loadingPlan === plan.id}
-                aria-label={paymentsEnabled ? `Pay for ${plan.name}` : 'Start free early access'}
+                aria-label={paymentsEnabled ? `Pay for ${plan.name}` : 'Start free pilot'}
               >
                 {loadingPlan === plan.id
                   ? paymentsEnabled ? 'Opening...' : 'Starting...'
                   : paymentsEnabled
                     ? isLoggedIn() ? 'Pay with Razorpay' : 'Create Account'
-                    : isLoggedIn() ? 'Use Free Access' : 'Start Free Access'}
+                    : isLoggedIn() ? 'Use Free Pilot' : 'Start Free Pilot'}
               </button>
               <p className="mt-3 text-center text-xs font-bold text-zinc-500">
                 {paymentsEnabled
-                  ? 'No card details are stored by SpendGuard Audit.'
-                  : 'Payment is not required for early users.'}
+                  ? 'No card details are stored by SpendGuard.'
+                  : 'Payment is not required for pilot users.'}
               </p>
             </div>
           </article>

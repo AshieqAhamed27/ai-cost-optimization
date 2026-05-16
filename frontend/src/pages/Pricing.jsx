@@ -4,21 +4,21 @@ import TrialCallout from '../components/TrialCallout';
 import { formatCurrency } from '../utils/api';
 
 const steps = [
-  ['Add real spend lines', 'Enter provider bills, usage exports, model costs, vector storage, logs, cloud inference, and workflow details.'],
-  ['Find the highest-value leaks', 'See ranked waste findings, estimated monthly savings, budget risk, unit economics, and recommended fixes.'],
-  ['Prove the outcome', 'Track actions, record confirmed savings, export a PDF, and share a private report without giving account access.']
+  ['Add real spend evidence', 'Enter provider bills, usage exports, model costs, vector storage, logs, cloud inference, owners, budgets, and workflow details.'],
+  ['Find the highest-value controls', 'See ranked waste findings, estimated monthly savings, budget risk, unit economics, ownership gaps, and recommended fixes.'],
+  ['Prove the outcome', 'Track actions, record confirmed savings, export a PDF, and share a private governance report without giving account access.']
 ];
 
 const worthPaying = [
-  ['Monthly AI spend is rising', 'Useful when OpenAI, Anthropic, Gemini, vector DB, cloud inference, or observability spend is becoming hard to explain.'],
-  ['You need engineering-ready fixes', 'Useful when founders, finance, and engineers need one ranked action plan instead of vague cost advice.'],
-  ['You sell AI features to customers', 'Useful when gross margin matters and you need to know cost per user, request, workflow, or client.']
+  ['Monthly AI spend is spreading', 'Useful when OpenAI, Anthropic, Gemini, vector DB, cloud inference, or observability spend is becoming hard to explain across teams.'],
+  ['You need a governance plan', 'Useful when finance, product, procurement, and engineers need one ranked action plan instead of vague cost advice.'],
+  ['You sell AI at scale', 'Useful when gross margin matters and you need to know cost per user, request, workflow, product, region, or client.']
 ];
 
 const notFor = [
   'You have no meaningful AI API or infrastructure spend yet.',
   'You only want generic finance bookkeeping instead of AI usage analysis.',
-  'You cannot provide even rough spend lines, invoices, exports, or usage estimates.'
+  'You cannot provide even rough spend lines, invoices, exports, owners, or usage estimates.'
 ];
 
 export default function Pricing() {
@@ -31,13 +31,13 @@ export default function Pricing() {
   return (
     <main className="container-page py-10 md:py-16">
       <section className="mb-10 text-center">
-        <p className="label text-yellow-300">Pricing</p>
-        <h1 className="mx-auto mt-3 max-w-3xl text-4xl font-black text-white md:text-6xl">
-          Pay for savings clarity, not another unused dashboard.
-        </h1>
-        <p className="mx-auto mt-4 max-w-2xl text-sm font-semibold leading-relaxed text-zinc-400">
-          Early access is free right now. Paid plans are designed to feel worth it only when SpendGuard helps identify avoidable AI spend, prioritize fixes, and prove what changed after implementation.
-        </p>
+          <p className="label text-yellow-300">Pricing</p>
+          <h1 className="mx-auto mt-3 max-w-3xl text-4xl font-black text-white md:text-6xl">
+          Price the product like a serious AI governance company.
+          </h1>
+          <p className="mx-auto mt-4 max-w-2xl text-sm font-semibold leading-relaxed text-zinc-400">
+          Early access is free right now. Paid plans are designed for teams that need AI spend attribution, savings proof, owners, policy controls, and leadership-ready reporting.
+          </p>
       </section>
 
       <section className="mb-8">
@@ -48,7 +48,7 @@ export default function Pricing() {
         <div className="panel border-emerald-300/20 bg-emerald-300/[0.06]">
           <p className="label text-emerald-200">Worth Paying When</p>
           <h2 className="mt-3 text-3xl font-black text-white">
-            The product pays for itself by finding a leak you can actually fix.
+            The product pays for itself by finding a controllable leak.
           </h2>
           <div className="mt-6 grid gap-3 md:grid-cols-3">
             {worthPaying.map(([title, text]) => (

@@ -44,9 +44,9 @@ export default function ReportAgent({ audit }) {
       <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
         <div>
           <p className="label text-sky-200">AI Action Pack</p>
-          <h2 className="mt-2 text-3xl font-black text-white">Turn this audit into work the client can approve.</h2>
+          <h2 className="mt-2 text-3xl font-black text-white">Turn this report into work leadership can approve.</h2>
           <p className="mt-2 max-w-3xl text-sm font-semibold leading-relaxed text-zinc-400">
-            Generate an executive summary, savings narrative, 30-day plan, implementation checklist, and follow-up email from this audit.
+            Generate an executive summary, savings narrative, 30-day plan, implementation checklist, and follow-up email from this governance report.
           </p>
         </div>
         {provider && (

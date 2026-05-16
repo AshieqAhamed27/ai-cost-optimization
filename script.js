@@ -39,7 +39,7 @@ function calculate() {
   yearlySavingsEl.textContent = formatCurrency(yearlySavings);
 
   const message = [
-    'Hi, I am interested in a SpendGuard AI API and infrastructure cost audit.',
+    'Hi, I am interested in a SpendGuard AI cost governance review.',
     `Business type: ${businessTypeInput.value}`,
     `Team size: ${teamSize}`,
     `Estimated monthly AI and infrastructure spend: ${formatCurrency(totalSpend)}`,

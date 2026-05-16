@@ -4,7 +4,7 @@ import { apiRequest } from '../utils/api';
 
 const starterQuestions = [
   'Explain SpendGuard simply',
-  'How can I reduce my AI bill?',
+  'How do we govern AI spend?',
   'Is my data safe here?',
   'Can I ask business questions?'
 ];
@@ -14,7 +14,7 @@ export default function SiteChatWidget() {
   const [messages, setMessages] = useState([
     {
       role: 'assistant',
-      content: 'Hi, I am your SpendGuard guide. Ask me about the product, AI cost problems, business decisions, reports, security, early access, or anything you are unsure about. I will explain it clearly and keep it practical.'
+      content: 'Hi, I am your SpendGuard guide. Ask me about the product, AI cost governance, business decisions, reports, security, free pilot access, or anything you are unsure about. I will explain it clearly and keep it practical.'
     }
   ]);
   const [input, setInput] = useState('');
@@ -59,7 +59,7 @@ export default function SiteChatWidget() {
         ...nextMessages,
         {
           role: 'assistant',
-          content: 'I could not reach the AI assistant right now. You can still start free early access, add real spend data, and create an audit report. Please try the chat again in a moment.'
+          content: 'I could not reach the AI assistant right now. You can still start the free pilot, add real spend data, and create a governance report. Please try the chat again in a moment.'
         }
       ]);
     } finally {

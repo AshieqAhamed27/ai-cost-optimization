@@ -1,15 +1,15 @@
-# SpendGuard Audit
+# SpendGuard
 
-SpendGuard Audit is a full-stack audit company website and application for startups that want to reduce unnecessary AI API and infrastructure costs.
+SpendGuard is a full-stack AI cost governance website and application for companies that want to control AI API and infrastructure spend across teams, products, workflows, and customers.
 
 ## What the product does
 
-SpendGuard Audit helps businesses:
+SpendGuard helps businesses:
 
 - track model API, embedding, vector database, cloud inference, and observability spend
 - find waste from wrong model choices, oversized prompts, repeated calls, missing caching, and poor retention rules
 - estimate monthly and yearly savings
-- create AI usage audit reports
+- create AI cost governance reports
 - detect waste patterns across model routing, caching, token usage, retention, attribution, and budget controls
 - import CSV usage rows from billing exports or pasted cost data
 - keep a cost ledger by provider, model or service, workflow, customer, owner, request volume, token usage, and budget
@@ -18,9 +18,9 @@ SpendGuard Audit helps businesses:
 - create private shareable report links for clients or stakeholders
 - export reports through the browser print-to-PDF flow
 - track implementation status and confirmed monthly savings after fixes
-- give early users free access while keeping Razorpay payment infrastructure ready for later
+- give pilot users free access while keeping Razorpay payment infrastructure ready for later
 
-Report creation is free for early users right now. Razorpay payment routes, plan pricing, and verification logic remain in the codebase so paid plans can be enabled later without rebuilding checkout.
+Report creation is free for pilot users right now. Razorpay payment routes, plan pricing, and verification logic remain in the codebase so paid plans can be enabled later without rebuilding checkout.
 
 The website also includes company, security, privacy, terms, and refund pages so users can understand the service and how future payment handling works.
 
@@ -173,9 +173,9 @@ http://127.0.0.1:5174
 
 ## Important safety rule
 
-Do not ask clients for passwords or secret API keys.
+Do not ask customers for passwords or secret API keys.
 
-For audits, ask only for:
+For governance reports, ask only for:
 
 - cost line names
 - provider or service names
@@ -193,13 +193,13 @@ POST /api/agent/audit-advice
 POST /api/agent/report-pack/:auditId
 ```
 
-`/audit-advice` reviews draft cost lines before a report is created and returns quick wins, risks, audit questions, and next steps.
+`/audit-advice` reviews draft cost lines before a report is created and returns quick wins, risks, governance questions, and next steps.
 
-`/report-pack/:auditId` turns a saved audit into an executive summary, savings narrative, 30-day action plan, implementation checklist, and client follow-up email.
+`/report-pack/:auditId` turns a saved report into an executive summary, savings narrative, 30-day action plan, implementation checklist, and client follow-up email.
 
-Both endpoints are available to early access and paid users. If `OPENAI_API_KEY` is configured, the backend calls OpenAI's Responses API from the server. If no key is configured or the provider request fails, the app falls back to built-in rule-based audit guidance so the product still works.
+Both endpoints are available to pilot and paid users. If `OPENAI_API_KEY` is configured, the backend calls OpenAI's Responses API from the server. If no key is configured or the provider request fails, the app falls back to built-in rule-based guidance so the product still works.
 
-## Audit workflow features
+## Governance workflow features
 
 The product now supports a more complete business workflow:
 
@@ -214,7 +214,7 @@ The product now supports a more complete business workflow:
 - confirmed monthly savings, actual monthly spend after fixes, and implementation notes
 - private public report links at `/reports/public/:token`
 - PDF-ready report view using browser print
-- public website AI chat assistant for product questions, user doubts, business questions, security guidance, early access, imports, reports, and getting started
+- public website AI chat assistant for product questions, user doubts, business questions, security guidance, pilot access, imports, reports, and getting started
 
 ## Website chat assistant
 
@@ -230,7 +230,7 @@ The assistant should not ask users for passwords, API keys, card details, bank d
 
 ## Suggested packages
 
-- Early access: free for launch users
-- Mini Audit: Rs 999
-- Business Audit: Rs 4,999
-- Monthly Monitor: Rs 9,999/month
+- Pilot access: free for launch users
+- Team Pilot: Rs 2,499
+- Business Command: Rs 14,999
+- Global Governance: Rs 49,999/month

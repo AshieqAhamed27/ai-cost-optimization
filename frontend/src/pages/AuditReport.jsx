@@ -48,12 +48,12 @@ function PrintableReport({ audit, actionPlan, actionCompletion, savingsRate }) {
     : new Date().toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric' });
 
   return (
-    <section className="pdf-report" aria-label="PDF audit report">
+    <section className="pdf-report" aria-label="PDF governance report">
       <header className="pdf-cover">
         <div>
-          <p className="pdf-kicker">SpendGuard Audit</p>
+          <p className="pdf-kicker">SpendGuard</p>
           <h1>{audit.companyName}</h1>
-          <p className="pdf-subtitle">AI API and infrastructure cost audit report</p>
+          <p className="pdf-subtitle">AI API and infrastructure cost governance report</p>
         </div>
         <div className="pdf-meta">
           <p>Report date</p>
@@ -86,7 +86,7 @@ function PrintableReport({ audit, actionPlan, actionCompletion, savingsRate }) {
 
       {intakeRows.length > 0 && (
         <section className="pdf-section">
-          <p className="pdf-label">Audit Intake</p>
+          <p className="pdf-label">Governance Intake</p>
           <div className="pdf-info-grid">
             {intakeRows.map(([label, value]) => (
               <div key={label}>
@@ -191,7 +191,7 @@ function PrintableReport({ audit, actionPlan, actionCompletion, savingsRate }) {
       )}
 
       <footer className="pdf-footer">
-        <p>SpendGuard Audit</p>
+        <p>SpendGuard</p>
         <span>Estimates must be validated with billing exports, usage logs, architecture review, and implementation results.</span>
       </footer>
     </section>
@@ -307,7 +307,7 @@ export default function AuditReport() {
     <main className="container-page screen-report py-10">
       <section className="mb-8 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div>
-          <p className="label text-yellow-300">Audit report</p>
+          <p className="label text-yellow-300">Governance report</p>
           <h1 className="mt-3 text-4xl font-black text-white md:text-5xl">{audit.companyName}</h1>
           <p className="mt-3 text-sm font-semibold text-zinc-500">
             {[audit.workspaceName, audit.businessType, audit.productType, audit.teamSize ? `${audit.teamSize} team members` : ''].filter(hasMeaningfulValue).join(' | ')}
@@ -315,7 +315,7 @@ export default function AuditReport() {
         </div>
         <div className="flex flex-col gap-3 sm:flex-row print:hidden">
           <button type="button" onClick={exportPdf} className="btn-primary">Export PDF</button>
-          <Link to="/audits/new" className="btn-secondary">Create another audit</Link>
+          <Link to="/audits/new" className="btn-secondary">Create another report</Link>
         </div>
       </section>
 
@@ -336,7 +336,7 @@ export default function AuditReport() {
       <section className="panel mt-8 print:hidden">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div>
-            <p className="label text-emerald-200">Private client report link</p>
+            <p className="label text-emerald-200">Private governance report link</p>
             <h2 className="mt-2 text-2xl font-black text-white">Share this report without giving account access.</h2>
             <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-500">
               The public link shows the report only. Editing, progress updates, and AI actions stay inside your account.
@@ -372,7 +372,7 @@ export default function AuditReport() {
         </article>
 
         <aside className="panel">
-          <p className="label text-sky-200">Audit intake</p>
+          <p className="label text-sky-200">Governance intake</p>
           <div className="mt-4 grid gap-3">
             {intakeRows.map(([label, value]) => (
               <div key={label} className="rounded-lg border border-white/10 bg-black/20 p-3">
@@ -382,7 +382,7 @@ export default function AuditReport() {
             ))}
             {intakeRows.length === 0 && (
               <p className="rounded-lg border border-white/10 bg-black/20 p-3 text-sm font-semibold text-zinc-500">
-                Add intake details in the next audit to include this section.
+                Add intake details in the next report to include this section.
               </p>
             )}
           </div>
@@ -414,7 +414,7 @@ export default function AuditReport() {
           ))}
           {(!audit.wasteFindings || audit.wasteFindings.length === 0) && (
             <p className="rounded-2xl border border-white/10 bg-black/20 p-4 text-sm font-semibold text-zinc-400">
-              No waste findings were stored for this older report. Create a new audit to use the upgraded detector.
+              No waste findings were stored for this older report. Create a new report to use the upgraded detector.
             </p>
           )}
         </div>
@@ -531,7 +531,7 @@ export default function AuditReport() {
               className="input"
               value={progressForm.implementationNotes}
               onChange={(event) => setProgressForm({ ...progressForm, implementationNotes: event.target.value })}
-              placeholder="What changed after the audit?"
+              placeholder="What changed after the governance review?"
             />
           </label>
           <button type="submit" disabled={savingProgress} className="btn-primary">

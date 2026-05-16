@@ -45,12 +45,12 @@ export default function PublicReport() {
           <div className="flex items-center gap-3">
             <LogoMark className="h-11 w-11 shrink-0 rounded-lg" />
             <div>
-              <p className="label text-emerald-200">Shared SpendGuard report</p>
+              <p className="label text-emerald-200">Shared SpendGuard governance report</p>
               <h1 className="text-4xl font-black text-white md:text-5xl">{audit.companyName}</h1>
             </div>
           </div>
           <p className="mt-4 max-w-3xl text-sm font-semibold leading-relaxed text-zinc-400">
-            {audit.workspaceName || audit.businessType} cost review with {formatCurrency(audit.possibleMonthlySavings)} possible monthly savings and {audit.riskLevel || 'Medium'} risk profile.
+            {audit.workspaceName || audit.businessType} cost governance review with {formatCurrency(audit.possibleMonthlySavings)} possible monthly savings and {audit.riskLevel || 'Medium'} risk profile.
           </p>
         </div>
         <button type="button" onClick={() => window.print()} className="btn-primary print:hidden">Export PDF</button>
@@ -76,7 +76,7 @@ export default function PublicReport() {
           {savingsRate}% possible reduction opportunity before validation.
         </h2>
         <p className="mt-4 text-sm font-semibold leading-relaxed text-zinc-400">
-          This report highlights AI API and infrastructure waste patterns, budget risks, unit economics, and recommended cost-control actions. Editing access remains private to the report owner.
+          This report highlights AI API and infrastructure waste patterns, budget risks, unit economics, ownership gaps, and recommended cost-control actions. Editing access remains private to the report owner.
         </p>
       </section>
 

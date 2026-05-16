@@ -1,21 +1,21 @@
 const plans = {
   mini_audit: {
     id: 'mini_audit',
-    name: 'Mini Audit',
-    amount: 999,
-    description: 'A focused AI API and usage review for a small product or workflow.'
+    name: 'Team Pilot',
+    amount: 2499,
+    description: 'A focused AI cost governance pilot for one product area, workflow, or team.'
   },
   business_audit: {
     id: 'business_audit',
-    name: 'Business Audit',
-    amount: 4999,
-    description: 'A full AI usage and infrastructure cost report for startups with active product traffic.'
+    name: 'Business Command',
+    amount: 14999,
+    description: 'A full AI usage and infrastructure governance report for companies with active product traffic.'
   },
   monthly_monitor: {
     id: 'monthly_monitor',
-    name: 'Monthly Monitor',
-    amount: 9999,
-    description: 'Ongoing monthly AI cost monitoring, report updates, and savings follow-up.'
+    name: 'Global Governance',
+    amount: 49999,
+    description: 'Ongoing AI spend control, executive reporting, and savings follow-up for larger teams.'
   }
 };
 

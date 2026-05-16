@@ -80,7 +80,7 @@ const buildRuleAgent = ({ companyName, businessType, teamSize, notes, costLines,
   if (topLines.length) {
     quickWins.push({
       title: 'Start with the largest cost line',
-      detail: `${topLines[0].name} is the biggest monthly cost. Audit prompt size, retries, caching, and per-customer usage first.`,
+      detail: `${topLines[0].name} is the biggest monthly cost. Review prompt size, retries, caching, and per-customer usage first.`,
       impact: 'High'
     });
   }
@@ -122,7 +122,7 @@ const buildRuleAgent = ({ companyName, businessType, teamSize, notes, costLines,
     risks,
     questions,
     nextSteps,
-    disclaimer: 'This is an audit assistant estimate. Confirm savings with real usage exports, logs, architecture review, and billing data before promising results.'
+    disclaimer: 'This is a governance assistant estimate. Confirm savings with real usage exports, logs, architecture review, and billing data before promising results.'
   };
 };
 
@@ -136,7 +136,7 @@ const buildRuleReportPack = (audit) => {
 
   const executiveSummary = [
     `${audit.companyName} is currently tracking ${money(audit.monthlySpend)} in monthly AI and infrastructure spend.`,
-    `The audit model estimates up to ${money(audit.possibleMonthlySavings)} in possible monthly savings before deeper usage-log validation and rates the risk level as ${audit.riskLevel || 'Medium'}.`,
+    `The governance model estimates up to ${money(audit.possibleMonthlySavings)} in possible monthly savings before deeper usage-log validation and rates the risk level as ${audit.riskLevel || 'Medium'}.`,
     `The first priority should be reviewing ${topLineNames}, then adding ownership, budgets, and usage controls around recurring model and infrastructure spend.`
   ].join(' ');
 
@@ -165,7 +165,7 @@ const buildRuleReportPack = (audit) => {
       {
         week: 'Week 4',
         title: 'Validate savings and make it repeatable',
-        detail: 'Compare the new spend baseline against the original audit, document the changes, and schedule a monthly review for high-growth cost lines.'
+        detail: 'Compare the new spend baseline against the original review, document the changes, and schedule a monthly governance review for high-growth cost lines.'
       }
     ];
 
@@ -187,7 +187,7 @@ const buildRuleReportPack = (audit) => {
   });
 
   const clientEmail = [
-    `Subject: AI cost audit action plan for ${audit.companyName}`,
+    `Subject: AI cost governance action plan for ${audit.companyName}`,
     '',
     `Hi ${audit.companyName} team,`,
     '',
@@ -206,7 +206,7 @@ const buildRuleReportPack = (audit) => {
     actionPlan,
     implementationChecklist: checklist.slice(0, 8),
     clientEmail,
-    disclaimer: 'This action pack is generated from audit inputs and simple cost signals. Validate recommendations with billing exports, usage logs, architecture review, and security requirements before promising savings.'
+    disclaimer: 'This action pack is generated from governance inputs and simple cost signals. Validate recommendations with billing exports, usage logs, architecture review, and security requirements before promising savings.'
   };
 };
 
@@ -290,19 +290,19 @@ const siteChatFallback = (question) => {
   const text = cleanText(question, 600).toLowerCase();
 
   if (!text) {
-    return 'Ask me anything about SpendGuard Audit, AI cost problems, reports, CSV imports, security, early access, or how to start.\n\nIf the full AI assistant is connected, I can also answer broader business and product questions in a friendly way.';
+    return 'Ask me anything about SpendGuard, AI cost governance, reports, CSV imports, security, free pilot access, or how to start.\n\nIf the full AI assistant is connected, I can also answer broader business and product questions in a friendly way.';
   }
 
   if (/what|who|product|service|do you do|spendguard/.test(text)) {
-    return 'SpendGuard Audit helps startups understand and reduce AI API and infrastructure waste.\n\nIt turns messy billing data into a clear audit: where money is going, which workflows are expensive, what can be optimized, and what actions should happen first.\n\nThe goal is simple: help a founder or team stop guessing about AI spend and make cost decisions with real numbers.';
+    return 'SpendGuard helps companies understand and govern AI API and infrastructure waste.\n\nIt turns messy billing data into a clear governance report: where money is going, who owns it, which workflows are expensive, what can be optimized, and what actions should happen first.\n\nThe goal is simple: help finance, technology, product, and operations teams stop guessing about AI spend and make cost decisions with real numbers.';
   }
 
   if (/price|pricing|payment|pay|free|early|trial/.test(text)) {
-    return 'SpendGuard is free for early users right now.\n\nThat means users can create an account, add real spend data, generate reports, and test the value before any payment is required. Payment support remains in the product for future paid plans, but early users should not need checkout to use the audit workflow.';
+    return 'SpendGuard is free for pilot users right now.\n\nThat means users can create an account, add real spend data, generate reports, and test the value before any payment is required. Payment support remains in the product for future paid plans, but pilot users should not need checkout to use the governance workflow.';
   }
 
   if (/safe|security|password|api key|secret|data|privacy/.test(text)) {
-    return 'You should not share passwords, secret API keys, card details, bank details, or raw customer records in the chat or audit form.\n\nFor an AI cost audit, safer inputs are billing exports, invoices, provider names, service names, monthly cost lines, request volume, token estimates, workflow notes, and ownership details. That is enough to find waste without exposing private credentials.';
+    return 'You should not share passwords, secret API keys, card details, bank details, or raw customer records in the chat or report form.\n\nFor AI cost governance, safer inputs are billing exports, invoices, provider names, service names, monthly cost lines, request volume, token estimates, workflow notes, budget thresholds, and ownership details. That is enough to find waste without exposing private credentials.';
   }
 
   if (/csv|upload|import|billing|export|ledger/.test(text)) {
@@ -314,14 +314,14 @@ const siteChatFallback = (question) => {
   }
 
   if (/report|pdf|share|client|link/.test(text)) {
-    return 'The report is designed to feel like a real business deliverable.\n\nIt includes an executive summary, waste findings, cost ledger, unit economics, action plan, budget alerts, before-and-after savings tracking, PDF export, and private share links for clients or teammates.';
+    return 'The report is designed to feel like a real business deliverable.\n\nIt includes an executive summary, waste findings, cost ledger, unit economics, action plan, budget alerts, ownership notes, before-and-after savings tracking, PDF export, and private share links for clients or teammates.';
   }
 
   if (/start|signup|account|how/.test(text)) {
-    return 'Start with a free early-access account.\n\nThen create a new audit, add company details, paste or upload billing rows, review the waste detector, and generate the report. The best first audit uses real monthly spend data, even if it is simple.';
+    return 'Start with a free pilot account.\n\nThen create a new report, add company details, paste or upload billing rows, review the waste detector, and generate the governance report. The best first review uses real monthly spend data, even if it is simple.';
   }
 
-  return 'Good question. I can help like a friendly guide.\n\nWith the full AI assistant connected, I can answer broader questions about business, product decisions, AI cost strategy, and user doubts. Right now I can always explain SpendGuard, early access, safe data sharing, CSV import, reports, and how to reduce AI API or infrastructure waste.';
+  return 'Good question. I can help like a friendly guide.\n\nWith the full AI assistant connected, I can answer broader questions about business, product decisions, AI cost strategy, and user doubts. Right now I can always explain SpendGuard, pilot access, safe data sharing, CSV import, reports, and how to reduce AI API or infrastructure waste.';
 };
 
 const callOpenAISiteChat = async ({ message, history }) => {
@@ -335,7 +335,7 @@ const callOpenAISiteChat = async ({ message, history }) => {
       model: process.env.OPENAI_MODEL || 'gpt-5',
       instructions: [
         'You are SpendGuard Website Assistant, a friendly AI guide who speaks like a helpful teammate.',
-        'Answer visitor questions about SpendGuard Audit, AI cost problems, startups, business decisions, product strategy, reports, CSV imports, cost ledger, budget alerts, unit economics, security, and how to start.',
+        'Answer visitor questions about SpendGuard, AI cost governance, business decisions, product strategy, reports, CSV imports, cost ledger, budget alerts, unit economics, security, and how to start.',
         'You may answer broader general questions too, but connect back to SpendGuard only when it is useful and natural.',
         'Use simple English, warm tone, and clear explanations. When helpful, explain with short steps, examples, or bullets so a non-technical founder can understand.',
         'Do not ask for passwords, API keys, card details, bank details, raw customer data, or private credentials.',
@@ -348,9 +348,9 @@ const callOpenAISiteChat = async ({ message, history }) => {
         message,
         recentConversation: history,
         productFacts: {
-          product: 'SpendGuard Audit',
-          focus: 'AI API and infrastructure cost audit for startups',
-          access: 'Free for early users; payment remains built in for future paid plans',
+          product: 'SpendGuard',
+          focus: 'AI API and infrastructure cost governance for serious teams',
+          access: 'Free for pilot users; payment remains built in for future paid plans',
           safeInputs: 'billing screenshots, invoices, usage exports, cost lines, request volume, token estimates, tool names, workflow notes',
           unsafeInputs: 'passwords, secret API keys, card details, bank details, raw customer records',
           features: 'CSV import, cost ledger, waste detector, budget alerts, unit economics, action plan, PDF export, private report links, confirmed savings tracking'
@@ -415,10 +415,10 @@ const callOpenAIAgent = async (payload) => {
     body: JSON.stringify({
       model: process.env.OPENAI_MODEL || 'gpt-5',
       instructions: [
-        'You are SpendGuard Audit Agent, a practical AI cost optimization analyst for startups.',
+        'You are SpendGuard Governance Agent, a practical AI cost optimization analyst for companies governing AI spend.',
         'Analyze AI API, model usage, embeddings, vector database, cloud inference, observability, and workflow cost lines.',
         'Do not request passwords, secret API keys, private credentials, or raw customer personal data.',
-        'Do not invent case studies or guaranteed savings. Give concrete audit questions and engineering-ready next steps.',
+        'Do not invent case studies or guaranteed savings. Give concrete governance questions and engineering-ready next steps.',
         'Return only structured JSON that follows the schema.'
       ].join(' '),
       input: JSON.stringify(payload),
@@ -477,8 +477,8 @@ const callOpenAIReportPack = async (audit) => {
     body: JSON.stringify({
       model: process.env.OPENAI_MODEL || 'gpt-5',
       instructions: [
-        'You are SpendGuard Report Agent, an AI cost optimization operator for startups.',
-        'Turn an audit into a useful business deliverable: executive summary, savings narrative, 30-day action plan, implementation checklist, and client follow-up email.',
+        'You are SpendGuard Report Agent, an AI cost optimization operator for companies governing AI spend.',
+        'Turn a governance report into a useful business deliverable: executive summary, savings narrative, 30-day action plan, implementation checklist, and client follow-up email.',
         'Focus on real-world AI API, model routing, token usage, agent workflow, vector database, logs, cloud inference, and retention problems.',
         'Do not invent customer stories, fake benchmarks, guaranteed savings, secret access needs, or claims that cannot be verified.',
         'Return only structured JSON that follows the schema.'

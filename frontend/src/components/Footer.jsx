@@ -5,7 +5,7 @@ import LogoMark from './LogoMark';
 const footerLinks = [
   ['Company', '/company'],
   ['Security', '/security'],
-  ['Early Access and Plans', '/pricing'],
+  ['Pilot and Plans', '/pricing'],
   ['Create Account', '/signup'],
   ['Login', '/login']
 ];
@@ -17,10 +17,10 @@ const legalLinks = [
 ];
 
 const serviceLinks = [
-  'AI API usage audit',
+  'AI spend governance',
   'Infrastructure cost review',
   'Model routing recommendations',
-  'Before and after savings report'
+  'Executive savings report'
 ];
 
 export default function Footer() {
@@ -32,12 +32,12 @@ export default function Footer() {
             <Link to="/" className="flex items-center gap-3">
               <LogoMark className="h-11 w-11 shrink-0 rounded-lg" />
               <span>
-                <span className="block text-base font-black text-white">SpendGuard Audit</span>
-                <span className="block text-xs font-bold text-zinc-500">AI API and infrastructure audits</span>
+                <span className="block text-base font-black text-white">SpendGuard</span>
+                <span className="block text-xs font-bold text-zinc-500">AI cost governance platform</span>
               </span>
             </Link>
             <p className="mt-4 max-w-xl text-sm font-semibold leading-relaxed text-zinc-500">
-              We help startups review AI API and infrastructure costs, find waste, and deliver clear savings recommendations.
+              We help serious teams review AI API and infrastructure costs, find waste, assign ownership, and deliver leadership-ready savings recommendations.
             </p>
           </div>
 
@@ -64,9 +64,9 @@ export default function Footer() {
           <div>
             <p className="label text-zinc-400">Business Model</p>
             <div className="mt-4 grid gap-3 text-sm font-bold text-zinc-400">
-              <p>Free early access now</p>
-              <p>Razorpay checkout ready for later</p>
-              <p>Built for repeat monthly monitoring</p>
+              <p>Free enterprise pilot now</p>
+              <p>Razorpay checkout ready for paid rollout</p>
+              <p>Built for monthly governance reviews</p>
             </div>
           </div>
 
@@ -83,8 +83,8 @@ export default function Footer() {
         </div>
 
         <div className="mt-8 flex flex-col gap-3 border-t border-white/10 pt-6 text-xs font-bold uppercase tracking-widest text-zinc-600 sm:flex-row sm:items-center sm:justify-between">
-          <p>Copyright 2026 SpendGuard Audit. All rights reserved.</p>
-          <p>Built for startups that want controlled AI usage costs.</p>
+          <p>Copyright 2026 SpendGuard. All rights reserved.</p>
+          <p>Built for companies that want controlled AI usage costs.</p>
         </div>
       </div>
     </footer>

@@ -51,10 +51,10 @@ export default function AuditAgent({ form, tools, preview }) {
     <section className="panel border-sky-300/20 bg-sky-300/[0.06]">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <p className="label text-sky-200">SpendGuard Cost Agent</p>
-          <h2 className="mt-2 text-2xl font-black text-white">Get a focused answer to the real cost problem.</h2>
+          <p className="label text-sky-200">SpendGuard Governance Agent</p>
+          <h2 className="mt-2 text-2xl font-black text-white">Get a focused answer to the real cost-control problem.</h2>
           <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-400">
-            This is not a general chatbot. It reviews AI spend, usage signals, and controls to return quick wins, risks, questions, and next steps.
+            This is not a general chatbot. It reviews AI spend, usage signals, ownership, and controls to return quick wins, risks, questions, and next steps.
           </p>
         </div>
         {provider && (

@@ -32,8 +32,8 @@ export default function Navbar() {
         <Link to="/" className="flex items-center gap-3">
           <LogoMark className="h-11 w-11 shrink-0 rounded-lg" />
           <span>
-            <span className="block text-base font-black text-white">SpendGuard Audit</span>
-            <span className="block text-xs font-bold text-zinc-500">AI cost leak reports</span>
+            <span className="block text-base font-black text-white">SpendGuard</span>
+            <span className="block text-xs font-bold text-zinc-500">AI cost governance</span>
           </span>
         </Link>
 
@@ -45,13 +45,13 @@ export default function Navbar() {
           {loggedIn && (
             <>
               <NavLink to="/dashboard" className={navClass}>Dashboard</NavLink>
-              <NavLink to={hasActivePlan(user) ? '/audits/new' : '/pricing'} className={navClass}>New Audit</NavLink>
+              <NavLink to={hasActivePlan(user) ? '/audits/new' : '/pricing'} className={navClass}>New Report</NavLink>
             </>
           )}
           {!loggedIn ? (
             <>
               <NavLink to="/login" className={navClass}>Login</NavLink>
-              <Link to="/signup" className="btn-primary">Start Free</Link>
+              <Link to="/signup" className="btn-primary">Start Pilot</Link>
             </>
           ) : (
             <>

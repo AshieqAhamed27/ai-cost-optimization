@@ -50,12 +50,12 @@ const requireActivePlan = (req, res, next) => {
 
   if (req.user?.planStatus === 'expired') {
     return res.status(402).json({
-      message: 'Free early access is available. Activate early access to keep creating reports.'
+      message: 'Free pilot access is available. Activate the pilot to keep creating reports.'
     });
   }
 
   return res.status(402).json({
-    message: 'Start free early access before creating client reports'
+    message: 'Start the free pilot before creating governance reports'
   });
 };
 

@@ -49,7 +49,7 @@ export default function NewAudit() {
     setError('');
 
     if (!planActive) {
-      setError('Start free early access before creating client reports.');
+      setError('Start the free pilot before creating governance reports.');
       return;
     }
 
@@ -77,13 +77,13 @@ export default function NewAudit() {
     return (
       <main className="container-page py-10">
         <section className="panel border-yellow-300/25 bg-yellow-300/[0.07]">
-          <p className="label text-yellow-200">Early access required</p>
-          <h1 className="mt-3 text-4xl font-black text-white md:text-5xl">Unlock client report creation.</h1>
+          <p className="label text-yellow-200">Pilot access required</p>
+          <h1 className="mt-3 text-4xl font-black text-white md:text-5xl">Unlock governance report creation.</h1>
           <p className="mt-3 max-w-2xl text-sm font-semibold leading-relaxed text-zinc-400">
-            Start free early access to create reports now. Payment remains built in for future paid plans, but early users are free.
+            Start the free pilot to create reports now. Payment remains built in for future paid plans, but pilot users are free.
           </p>
           <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-            <Link to="/pricing" className="btn-primary">Start Free Access</Link>
+            <Link to="/pricing" className="btn-primary">Start Free Pilot</Link>
             <Link to="/dashboard" className="btn-secondary">Back to Dashboard</Link>
           </div>
         </section>
@@ -94,10 +94,10 @@ export default function NewAudit() {
   return (
     <main className="container-page py-10">
       <section className="mb-8">
-        <p className="label text-yellow-300">New audit</p>
-        <h1 className="mt-3 text-4xl font-black text-white md:text-5xl">Create AI cost report</h1>
+        <p className="label text-yellow-300">New governance report</p>
+        <h1 className="mt-3 text-4xl font-black text-white md:text-5xl">Create AI cost control report</h1>
         <p className="mt-3 max-w-2xl text-sm font-semibold leading-relaxed text-zinc-500">
-          Enter real model API, vector database, cloud inference, observability, or workflow cost lines to generate a report.
+          Enter real model API, vector database, cloud inference, observability, ownership, budget, or workflow cost lines to generate a leadership-ready report.
         </p>
       </section>
 
@@ -167,7 +167,7 @@ export default function NewAudit() {
               <textarea className="input min-h-28 resize-y" value={form.costConcern} onChange={(event) => setForm({ ...form, costConcern: event.target.value })} placeholder="Describe the cost problem or billing concern" />
             </label>
             <label className="grid gap-2">
-              <span className="label">Notes for the audit</span>
+              <span className="label">Governance notes</span>
               <textarea className="input min-h-28 resize-y" value={form.notes} onChange={(event) => setForm({ ...form, notes: event.target.value })} placeholder="Workflow, traffic pattern, architecture detail, or billing context" />
             </label>
           </div>
@@ -247,7 +247,7 @@ export default function NewAudit() {
             </div>
             {error && <p className="mt-4 rounded-2xl border border-red-300/20 bg-red-300/10 p-3 text-sm font-bold text-red-100">{error}</p>}
             <button type="submit" disabled={loading} className="btn-primary mt-5 w-full">
-              {loading ? 'Creating...' : 'Create Audit Report'}
+              {loading ? 'Creating...' : 'Create Governance Report'}
             </button>
           </aside>
 

@@ -35,9 +35,9 @@ export const isLoggedIn = () => Boolean(getToken());
 export const planNames = {
   early_access: 'Early Access',
   trial: 'Free Access',
-  mini_audit: 'Mini Audit',
-  business_audit: 'Business Audit',
-  monthly_monitor: 'Monthly Monitor'
+  mini_audit: 'Team Pilot',
+  business_audit: 'Business Command',
+  monthly_monitor: 'Global Governance'
 };
 
 export const isTrialActive = (user = getUser()) =>
