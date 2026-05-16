@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import BudgetAlerts from '../components/BudgetAlerts';
 import CostLedger from '../components/CostLedger';
@@ -59,6 +59,29 @@ const emptyProofForm = {
   customerQuote: '',
   quoteAuthor: '',
   permissionToUse: false,
+  caseStudyTitle: ''
+};
+
+const emptyImportForm = {
+  provider: 'csv',
+  periodType: 'baseline',
+  periodLabel: '',
+  notes: '',
+  csvText: ''
+};
+
+const emptyPilotForm = {
+  status: 'not_started',
+  customerName: '',
+  contactName: '',
+  contactEmail: '',
+  inviteMessage: '',
+  feedbackRating: '',
+  feedbackNotes: '',
+  outcomeNotes: '',
+  permissionStatus: 'not_requested',
+  customerQuote: '',
+  quoteAuthor: '',
   caseStudyTitle: ''
 };
 
@@ -235,6 +258,7 @@ function PrintableReport({ audit, actionPlan, actionCompletion, savingsRate }) {
 
 export default function AuditReport() {
   const { id } = useParams();
+  const evidenceFileRef = useRef(null);
   const [audit, setAudit] = useState(null);
   const [error, setError] = useState('');
   const [progressForm, setProgressForm] = useState({
@@ -243,8 +267,14 @@ export default function AuditReport() {
     implementationNotes: ''
   });
   const [proofForm, setProofForm] = useState(emptyProofForm);
+  const [importForm, setImportForm] = useState(emptyImportForm);
+  const [pilotForm, setPilotForm] = useState(emptyPilotForm);
   const [savingProgress, setSavingProgress] = useState(false);
   const [savingProof, setSavingProof] = useState(false);
+  const [importingEvidence, setImportingEvidence] = useState(false);
+  const [savingPilot, setSavingPilot] = useState(false);
+  const [proofReport, setProofReport] = useState(null);
+  const [proofReportLoading, setProofReportLoading] = useState(false);
   const [shareUrl, setShareUrl] = useState('');
   const [shareLoading, setShareLoading] = useState(false);
   const [approvalForm, setApprovalForm] = useState({
@@ -262,6 +292,7 @@ export default function AuditReport() {
     apiRequest(`/audits/${id}`)
       .then((data) => {
         const proof = data.audit.proof || {};
+        const pilot = data.audit.pilot || {};
         setAudit(data.audit);
         setProgressForm({
           confirmedMonthlySavings: data.audit.confirmedMonthlySavings || '',
@@ -282,6 +313,20 @@ export default function AuditReport() {
           customerQuote: proof.customerQuote || '',
           quoteAuthor: proof.quoteAuthor || '',
           permissionToUse: Boolean(proof.permissionToUse),
+          caseStudyTitle: proof.caseStudyTitle || ''
+        });
+        setPilotForm({
+          status: pilot.status || 'not_started',
+          customerName: pilot.customerName || data.audit.companyName || '',
+          contactName: pilot.contactName || '',
+          contactEmail: pilot.contactEmail || '',
+          inviteMessage: pilot.inviteMessage || '',
+          feedbackRating: pilot.feedbackRating || '',
+          feedbackNotes: pilot.feedbackNotes || '',
+          outcomeNotes: pilot.outcomeNotes || '',
+          permissionStatus: pilot.permissionStatus || 'not_requested',
+          customerQuote: proof.customerQuote || '',
+          quoteAuthor: proof.quoteAuthor || '',
           caseStudyTitle: proof.caseStudyTitle || ''
         });
       })
@@ -391,6 +436,77 @@ export default function AuditReport() {
     }
   };
 
+  const importEvidence = async ({ text, fileName = '' } = {}) => {
+    const csvText = text ?? importForm.csvText;
+    if (!String(csvText || '').trim()) {
+      setError('Upload or paste a billing CSV before importing evidence.');
+      return;
+    }
+
+    setImportingEvidence(true);
+    setError('');
+
+    try {
+      const data = await apiRequest(`/audits/${audit._id}/import-batch`, {
+        method: 'POST',
+        body: {
+          ...importForm,
+          csvText,
+          fileName
+        }
+      });
+      setAudit(data.audit);
+      setProofReport(data.proofReport);
+      setImportForm({ ...emptyImportForm, periodType: importForm.periodType === 'baseline' ? 'comparison' : 'baseline' });
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setImportingEvidence(false);
+    }
+  };
+
+  const handleEvidenceFile = async (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const text = await file.text();
+    await importEvidence({ text, fileName: file.name });
+    event.target.value = '';
+  };
+
+  const loadProofReport = async () => {
+    setProofReportLoading(true);
+    setError('');
+
+    try {
+      const data = await apiRequest(`/audits/${audit._id}/proof-report`);
+      setProofReport(data.proofReport);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setProofReportLoading(false);
+    }
+  };
+
+  const savePilot = async (event) => {
+    event.preventDefault();
+    setSavingPilot(true);
+    setError('');
+
+    try {
+      const data = await apiRequest(`/audits/${audit._id}/pilot`, {
+        method: 'PATCH',
+        body: pilotForm
+      });
+      setAudit(data.audit);
+      setProofReport(data.proofReport);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setSavingPilot(false);
+    }
+  };
+
   const createShareLink = async () => {
     setShareLoading(true);
     setError('');
@@ -437,6 +553,8 @@ export default function AuditReport() {
   const approvalSteps = ['finance', 'engineering', 'leadership'];
   const auditLog = audit.auditLog || [];
   const proof = audit.proof || {};
+  const importBatches = audit.importBatches || [];
+  const pilot = audit.pilot || {};
   const proofStatus = String(proof.status || 'not_started').replace(/_/g, ' ');
 
   return (
@@ -886,6 +1004,117 @@ export default function AuditReport() {
           </a>
         )}
 
+        <div className="mt-5 rounded-lg border border-sky-300/20 bg-sky-300/[0.06] p-4 print:hidden">
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+            <div>
+              <p className="label text-sky-200">Real data evidence</p>
+              <h3 className="mt-2 text-xl font-black text-white">Import baseline and after-period billing exports.</h3>
+              <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-500">
+                OpenAI, Anthropic, AWS, Azure, GCP, invoice, and generic CSV rows are normalized into proof.
+              </p>
+            </div>
+            <div className="flex flex-col gap-3 sm:flex-row">
+              <button type="button" onClick={() => evidenceFileRef.current?.click()} disabled={importingEvidence} className="btn-secondary">
+                Upload Evidence CSV
+              </button>
+              <button type="button" onClick={loadProofReport} disabled={proofReportLoading} className="btn-primary">
+                {proofReportLoading ? 'Generating...' : 'Generate Proof Report'}
+              </button>
+              <input ref={evidenceFileRef} type="file" accept=".csv,text/csv" onChange={handleEvidenceFile} className="hidden" />
+            </div>
+          </div>
+
+          <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+            <label className="grid gap-2">
+              <span className="label">Source</span>
+              <select className="input" value={importForm.provider} onChange={(event) => setImportForm({ ...importForm, provider: event.target.value })}>
+                <option value="csv">Auto / CSV</option>
+                <option value="openai">OpenAI</option>
+                <option value="anthropic">Anthropic</option>
+                <option value="aws">AWS</option>
+                <option value="azure">Azure</option>
+                <option value="gcp">GCP</option>
+                <option value="invoice">Invoice</option>
+              </select>
+            </label>
+            <label className="grid gap-2">
+              <span className="label">Period type</span>
+              <select className="input" value={importForm.periodType} onChange={(event) => setImportForm({ ...importForm, periodType: event.target.value })}>
+                <option value="baseline">Baseline before fixes</option>
+                <option value="comparison">After implementation</option>
+                <option value="current">Current reference</option>
+              </select>
+            </label>
+            <label className="grid gap-2">
+              <span className="label">Period label</span>
+              <input className="input" value={importForm.periodLabel} onChange={(event) => setImportForm({ ...importForm, periodLabel: event.target.value })} placeholder="Apr 2026" />
+            </label>
+            <label className="grid gap-2">
+              <span className="label">Evidence notes</span>
+              <input className="input" value={importForm.notes} onChange={(event) => setImportForm({ ...importForm, notes: event.target.value })} placeholder="Billing export from finance" />
+            </label>
+          </div>
+
+          <textarea
+            className="input mt-4 min-h-28"
+            value={importForm.csvText}
+            onChange={(event) => setImportForm({ ...importForm, csvText: event.target.value })}
+            placeholder="Paste CSV evidence here, or use Upload Evidence CSV"
+          />
+
+          <div className="mt-3 flex justify-end">
+            <button type="button" onClick={() => importEvidence()} disabled={importingEvidence} className="btn-primary">
+              {importingEvidence ? 'Importing...' : 'Import Evidence'}
+            </button>
+          </div>
+
+          {importBatches.length > 0 && (
+            <div className="mt-5 grid gap-3 md:grid-cols-2">
+              {importBatches.slice(0, 6).map((batch, index) => (
+                <article key={`${batch.provider}-${batch.periodType}-${batch.importedAt}-${index}`} className="rounded-lg border border-white/10 bg-black/20 p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <p className="label text-sky-200">{batch.periodType}</p>
+                      <h4 className="mt-1 font-black text-white">{batch.provider?.toUpperCase()} {batch.periodLabel || 'import'}</h4>
+                    </div>
+                    <p className="text-sm font-black text-emerald-200">{formatCurrency(batch.totalSpend)}</p>
+                  </div>
+                  <p className="mt-2 text-xs font-bold uppercase tracking-widest text-zinc-600">
+                    {batch.rowCount} rows | {formatNumber(batch.totalRequests)} usage units
+                  </p>
+                  {batch.notes && <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-400">{batch.notes}</p>}
+                </article>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {proofReport && (
+          <div className="mt-5 rounded-lg border border-emerald-300/20 bg-emerald-300/[0.06] p-4">
+            <p className="label text-emerald-200">Generated proof report</p>
+            <h3 className="mt-2 text-xl font-black text-white">{proofReport.title}</h3>
+            <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-400">{proofReport.summary}</p>
+            <div className="mt-4 grid gap-3 md:grid-cols-4">
+              {[
+                ['Baseline', proofReport.metrics?.baselineSpend],
+                ['Spend after', proofReport.metrics?.verifiedSpendAfter],
+                ['Monthly proof', proofReport.metrics?.verifiedMonthlySavings],
+                ['Annualized proof', proofReport.metrics?.annualizedVerifiedSavings]
+              ].map(([label, value]) => (
+                <div key={label} className="rounded-lg border border-white/10 bg-black/20 p-3">
+                  <p className="label">{label}</p>
+                  <p className="mt-1 font-black text-white">{formatCurrency(value)}</p>
+                </div>
+              ))}
+            </div>
+            {proofReport.caseStudy?.ready && (
+              <p className="mt-4 rounded-lg border border-white/10 bg-black/20 p-3 text-sm font-semibold leading-relaxed text-emerald-100">
+                Case study ready: {proofReport.caseStudy.title || 'Approved customer proof'}
+              </p>
+            )}
+          </div>
+        )}
+
         <form onSubmit={saveProof} className="mt-5 grid gap-4 border-t border-white/10 pt-5 print:hidden">
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
             <label className="grid gap-2">
@@ -980,6 +1209,126 @@ export default function AuditReport() {
           <div className="flex justify-end">
             <button type="submit" disabled={savingProof} className="btn-primary">
               {savingProof ? 'Saving...' : 'Save Proof'}
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <section className="panel mt-8">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <p className="label text-yellow-200">Pilot proof workflow</p>
+            <h2 className="mt-2 text-2xl font-black text-white">Invite a pilot customer, collect feedback, and request case-study permission.</h2>
+            <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-500">
+              This turns a useful internal report into believable market proof.
+            </p>
+          </div>
+          <div className="rounded-lg border border-white/10 bg-black/20 px-4 py-3 text-left lg:text-right">
+            <p className="label">Pilot status</p>
+            <p className="mt-1 text-2xl font-black capitalize text-white">{String(pilot.status || 'not_started').replace(/_/g, ' ')}</p>
+          </div>
+        </div>
+
+        <div className="mt-5 grid gap-4 md:grid-cols-4">
+          {[
+            ['Customer', pilot.customerName || audit.companyName],
+            ['Contact', pilot.contactName || 'Not set'],
+            ['Feedback', pilot.feedbackRating ? `${pilot.feedbackRating}/10` : 'Waiting'],
+            ['Permission', pilot.permissionStatus || 'not_requested']
+          ].map(([label, value]) => (
+            <div key={label} className="rounded-lg border border-white/10 bg-white/[0.04] p-4">
+              <p className="label">{label}</p>
+              <p className="mt-2 text-lg font-black capitalize text-white">{value}</p>
+            </div>
+          ))}
+        </div>
+
+        <form onSubmit={savePilot} className="mt-5 grid gap-4 border-t border-white/10 pt-5 print:hidden">
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            <label className="grid gap-2">
+              <span className="label">Pilot status</span>
+              <select className="input" value={pilotForm.status} onChange={(event) => setPilotForm({ ...pilotForm, status: event.target.value })}>
+                <option value="not_started">Not started</option>
+                <option value="invited">Invited</option>
+                <option value="in_review">In review</option>
+                <option value="feedback_received">Feedback received</option>
+                <option value="case_study_requested">Case study requested</option>
+                <option value="case_study_approved">Case study approved</option>
+                <option value="case_study_declined">Case study declined</option>
+              </select>
+            </label>
+            <label className="grid gap-2">
+              <span className="label">Customer</span>
+              <input className="input" value={pilotForm.customerName} onChange={(event) => setPilotForm({ ...pilotForm, customerName: event.target.value })} />
+            </label>
+            <label className="grid gap-2">
+              <span className="label">Contact name</span>
+              <input className="input" value={pilotForm.contactName} onChange={(event) => setPilotForm({ ...pilotForm, contactName: event.target.value })} />
+            </label>
+            <label className="grid gap-2">
+              <span className="label">Contact email</span>
+              <input className="input" type="email" value={pilotForm.contactEmail} onChange={(event) => setPilotForm({ ...pilotForm, contactEmail: event.target.value })} />
+            </label>
+          </div>
+
+          <label className="grid gap-2">
+            <span className="label">Invite message</span>
+            <textarea
+              className="input min-h-24"
+              value={pilotForm.inviteMessage}
+              onChange={(event) => setPilotForm({ ...pilotForm, inviteMessage: event.target.value })}
+              placeholder="Short message asking the pilot customer to review the proof report."
+            />
+          </label>
+
+          <div className="grid gap-4 md:grid-cols-[180px_minmax(0,1fr)]">
+            <label className="grid gap-2">
+              <span className="label">Feedback score</span>
+              <input className="input" type="number" min="0" max="10" value={pilotForm.feedbackRating} onChange={(event) => setPilotForm({ ...pilotForm, feedbackRating: event.target.value })} />
+            </label>
+            <label className="grid gap-2">
+              <span className="label">Feedback notes</span>
+              <input className="input" value={pilotForm.feedbackNotes} onChange={(event) => setPilotForm({ ...pilotForm, feedbackNotes: event.target.value })} placeholder="What did the customer say was useful or missing?" />
+            </label>
+          </div>
+
+          <label className="grid gap-2">
+            <span className="label">Outcome notes</span>
+            <textarea
+              className="input min-h-24"
+              value={pilotForm.outcomeNotes}
+              onChange={(event) => setPilotForm({ ...pilotForm, outcomeNotes: event.target.value })}
+              placeholder="Decision, next step, renewal chance, expansion opportunity, or proof gap."
+            />
+          </label>
+
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            <label className="grid gap-2">
+              <span className="label">Permission</span>
+              <select className="input" value={pilotForm.permissionStatus} onChange={(event) => setPilotForm({ ...pilotForm, permissionStatus: event.target.value })}>
+                <option value="not_requested">Not requested</option>
+                <option value="requested">Requested</option>
+                <option value="approved">Approved</option>
+                <option value="declined">Declined</option>
+              </select>
+            </label>
+            <label className="grid gap-2 xl:col-span-2">
+              <span className="label">Approved quote</span>
+              <input className="input" value={pilotForm.customerQuote} onChange={(event) => setPilotForm({ ...pilotForm, customerQuote: event.target.value })} placeholder="Only use a quote the customer approved." />
+            </label>
+            <label className="grid gap-2">
+              <span className="label">Quote author</span>
+              <input className="input" value={pilotForm.quoteAuthor} onChange={(event) => setPilotForm({ ...pilotForm, quoteAuthor: event.target.value })} placeholder="Name, title" />
+            </label>
+            <label className="grid gap-2 md:col-span-2 xl:col-span-4">
+              <span className="label">Case study title</span>
+              <input className="input" value={pilotForm.caseStudyTitle} onChange={(event) => setPilotForm({ ...pilotForm, caseStudyTitle: event.target.value })} placeholder="How the customer reduced AI spend with verified evidence" />
+            </label>
+          </div>
+
+          <div className="flex justify-end">
+            <button type="submit" disabled={savingPilot} className="btn-primary">
+              {savingPilot ? 'Saving...' : 'Save Pilot Proof'}
             </button>
           </div>
         </form>

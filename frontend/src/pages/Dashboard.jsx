@@ -176,6 +176,8 @@ export default function Dashboard() {
         <StatCard label="Due reviews" value={loading ? '...' : stats.dueReviews || 0} detail="Recurring governance reviews ready for follow-up" />
         <StatCard label="Verified proof" value={loading ? '...' : stats.proofSummary?.verifiedReports || 0} detail="Reports with savings evidence reviewed" />
         <StatCard label="Case studies" value={loading ? '...' : stats.proofSummary?.caseStudyApproved || 0} detail="Proof approved for public customer use" />
+        <StatCard label="Imported evidence" value={loading ? '...' : stats.proofSummary?.importBatches || 0} detail="Billing or usage exports attached to reports" />
+        <StatCard label="Pilot feedback" value={loading ? '...' : stats.proofSummary?.pilotFeedback || 0} detail="Customer reviews captured for market proof" />
       </section>
 
       <section className="mt-8 grid gap-6 lg:grid-cols-2">
@@ -270,7 +272,7 @@ export default function Dashboard() {
                 <div className="text-left sm:text-right">
                   <p className="text-sm font-black text-emerald-200">{formatCurrency(audit.possibleMonthlySavings)} possible monthly savings</p>
                   <p className="text-xs font-bold uppercase tracking-widest text-zinc-600">
-                    {audit.confirmedMonthlySavings ? `${formatCurrency(audit.confirmedMonthlySavings)} confirmed | ` : ''}{audit.proof?.status ? `${audit.proof.status.replace(/_/g, ' ')} proof | ` : ''}{audit.status}
+                    {audit.confirmedMonthlySavings ? `${formatCurrency(audit.confirmedMonthlySavings)} confirmed | ` : ''}{audit.importBatches?.length ? `${audit.importBatches.length} imports | ` : ''}{audit.proof?.status ? `${audit.proof.status.replace(/_/g, ' ')} proof | ` : ''}{audit.status}
                   </p>
                 </div>
               </div>

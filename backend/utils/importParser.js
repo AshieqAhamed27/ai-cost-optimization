@@ -4,12 +4,8 @@ const normalizeHeader = (value) =>
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '');
 
-const getFirst = (row, keys) => {
-  for (const key of keys) {
-    if (row[key] !== undefined && String(row[key]).trim() !== '') return row[key];
-  }
-  return '';
-};
+const cleanText = (value, maxLength = 160) =>
+  String(value || '').trim().slice(0, maxLength);
 
 const parseNumber = (value) => {
   const cleaned = String(value || '').replace(/[^0-9.-]/g, '');
@@ -17,7 +13,14 @@ const parseNumber = (value) => {
   return Number.isFinite(parsed) ? parsed : 0;
 };
 
-const normalizeValue = (value, allowed, fallback) => {
+const getFirst = (row, keys) => {
+  for (const key of keys) {
+    if (row[key] !== undefined && String(row[key]).trim() !== '') return row[key];
+  }
+  return '';
+};
+
+const normalizeChoice = (value, allowed, fallback) => {
   const clean = String(value || '').trim().toLowerCase();
   return allowed.includes(clean) ? clean : fallback;
 };
@@ -32,7 +35,7 @@ const providerAliases = {
   csv: ['csv', 'generic']
 };
 
-export const normalizeProvider = (value = '') => {
+const normalizeProvider = (value = '') => {
   const clean = String(value || '').trim().toLowerCase();
   const match = Object.entries(providerAliases).find(([, aliases]) =>
     aliases.some((alias) => clean.includes(alias))
@@ -40,7 +43,7 @@ export const normalizeProvider = (value = '') => {
   return match?.[0] || 'csv';
 };
 
-export function parseCsv(text) {
+const parseCsv = (text = '') => {
   const rows = [];
   let current = [];
   let value = '';
@@ -82,15 +85,17 @@ export function parseCsv(text) {
   current.push(value.trim());
   if (current.some((cell) => cell !== '')) rows.push(current);
 
-  if (rows.length < 2) return [];
+  if (rows.length < 2) return { headers: [], rows: [] };
 
   const headers = rows[0].map(normalizeHeader);
-
-  return rows.slice(1).map((row) => headers.reduce((record, header, index) => {
-    record[header] = row[index] || '';
-    return record;
-  }, {}));
-}
+  return {
+    headers,
+    rows: rows.slice(1).map((row) => headers.reduce((record, header, index) => {
+      record[header] = row[index] || '';
+      return record;
+    }, {}))
+  };
+};
 
 const providerColumns = {
   provider: ['provider', 'vendor', 'platform', 'publishername', 'billingaccountname', 'serviceprovider'],
@@ -115,44 +120,45 @@ const providerColumns = {
   budget: ['budget', 'budgetlimit', 'monthlybudget']
 };
 
-const detectProvider = (rows, explicitProvider) => {
+const detectProvider = (headers, explicitProvider) => {
   const explicit = normalizeProvider(explicitProvider);
   if (explicit && explicit !== 'csv') return explicit;
-  const headers = Object.keys(rows[0] || {}).join(' ');
 
-  if (/lineitem|unblended|productproductname|usagetype/.test(headers)) return 'aws';
-  if (/metercategory|pretaxcost|subscriptionname|resourcegroup/.test(headers)) return 'azure';
-  if (/skudescription|servicedescription|projectid|costusd/.test(headers)) return 'gcp';
-  if (/claude|anthropic|inputtokens|outputtokens/.test(headers)) return 'anthropic';
-  if (/model|prompttokens|completiontokens|nummodelrequests/.test(headers)) return 'openai';
+  const joined = headers.join(' ');
+  if (/lineitem|unblended|productproductname|usagetype/.test(joined)) return 'aws';
+  if (/metercategory|pretaxcost|subscriptionname|resourcegroup/.test(joined)) return 'azure';
+  if (/skudescription|servicedescription|projectid|costusd/.test(joined)) return 'gcp';
+  if (/claude|anthropic|inputtokens|outputtokens/.test(joined)) return 'anthropic';
+  if (/model|prompttokens|completiontokens|nummodelrequests/.test(joined)) return 'openai';
   return explicit || 'csv';
 };
 
 const rowToTool = (row, provider) => {
-  const providerName = getFirst(row, providerColumns.provider) || provider.toUpperCase();
-  const service = getFirst(row, providerColumns.service) || `${providerName} spend`;
-  const monthlyCost = parseNumber(getFirst(row, providerColumns.amount));
-  const monthlyRequests = parseNumber(getFirst(row, providerColumns.requests));
+  const rowProvider = cleanText(getFirst(row, providerColumns.provider)) || provider.toUpperCase();
+  const service = cleanText(getFirst(row, providerColumns.service)) || `${rowProvider} spend`;
+  const amount = parseNumber(getFirst(row, providerColumns.amount));
+  const requests = parseNumber(getFirst(row, providerColumns.requests));
   const totalTokens = providerColumns.tokens.reduce((sum, key) => sum + parseNumber(row[key]), 0);
+  const avgTokens = requests ? Math.round(totalTokens / requests) : totalTokens;
 
   return {
-    name: service || [providerName, getFirst(row, ['model', 'modelname'])].filter(Boolean).join(' '),
-    provider: providerName,
-    modelName: getFirst(row, ['model', 'modelname', 'modelid', 'skudescription', 'metername']),
-    workflow: getFirst(row, providerColumns.workflow),
-    customer: getFirst(row, providerColumns.customer),
-    monthlyCost,
+    name: service,
+    provider: rowProvider,
+    modelName: cleanText(getFirst(row, ['model', 'modelname', 'modelid', 'skudescription', 'metername'])),
+    workflow: cleanText(getFirst(row, providerColumns.workflow)),
+    customer: cleanText(getFirst(row, providerColumns.customer)),
+    monthlyCost: amount,
     seats: 1,
-    usage: normalizeValue(getFirst(row, ['usage', 'usagelevel']), ['high', 'medium', 'low', 'unused'], monthlyCost > 0 ? 'high' : 'medium'),
+    usage: normalizeChoice(getFirst(row, ['usage', 'usagelevel']), ['high', 'medium', 'low', 'unused'], amount > 0 ? 'high' : 'medium'),
     category: provider === 'aws' || provider === 'azure' || provider === 'gcp' ? 'Cloud AI / Infrastructure' : 'Model API',
-    monthlyRequests,
-    avgTokens: monthlyRequests ? Math.round(totalTokens / monthlyRequests) : totalTokens,
+    monthlyRequests: requests,
+    avgTokens,
     modelTier: /gpt-4|opus|premium|pro|ultra/i.test(service) ? 'premium' : 'unknown',
-    caching: normalizeValue(getFirst(row, ['caching', 'cache']), ['none', 'partial', 'good', 'unknown'], 'unknown'),
-    owner: getFirst(row, providerColumns.owner),
-    department: getFirst(row, providerColumns.department),
-    region: getFirst(row, providerColumns.region),
-    costCenter: getFirst(row, providerColumns.costCenter),
+    caching: normalizeChoice(getFirst(row, ['caching', 'cache']), ['none', 'partial', 'good', 'unknown'], 'unknown'),
+    owner: cleanText(getFirst(row, providerColumns.owner)),
+    department: cleanText(getFirst(row, providerColumns.department)),
+    region: cleanText(getFirst(row, providerColumns.region)),
+    costCenter: cleanText(getFirst(row, providerColumns.costCenter)),
     budgetLimit: parseNumber(getFirst(row, providerColumns.budget))
   };
 };
@@ -193,30 +199,32 @@ const aggregateTools = (tools) => {
     .sort((a, b) => b.monthlyCost - a.monthlyCost);
 };
 
-export function csvRowsToTools(rows, provider = '') {
-  const detectedProvider = detectProvider(rows, provider);
-  return aggregateTools(rows.map((row) => rowToTool(row, detectedProvider)))
-    .filter((tool) => tool.name && Number(tool.monthlyCost || 0) >= 0);
-}
+const parseUsageImport = ({ csvText = '', provider = '' } = {}) => {
+  const parsed = parseCsv(csvText);
+  const detectedProvider = detectProvider(parsed.headers, provider);
+  const rowTools = parsed.rows.map((row) => rowToTool(row, detectedProvider));
+  const tools = aggregateTools(rowTools).filter((tool) => tool.name && tool.monthlyCost >= 0);
+  const totalSpend = rowTools.reduce((sum, tool) => sum + (tool.monthlyCost || 0), 0);
+  const totalRequests = rowTools.reduce((sum, tool) => sum + (tool.monthlyRequests || 0), 0);
+  const warnings = [];
 
-export function parseUsageImport(text, provider = '') {
-  const rows = parseCsv(text);
-  const detectedProvider = detectProvider(rows, provider);
-  const rowTools = rows.map((row) => rowToTool(row, detectedProvider));
-  const tools = aggregateTools(rowTools).filter((tool) => tool.name && Number(tool.monthlyCost || 0) >= 0);
-  const totalSpend = rowTools.reduce((sum, tool) => sum + Number(tool.monthlyCost || 0), 0);
-  const totalRequests = rowTools.reduce((sum, tool) => sum + Number(tool.monthlyRequests || 0), 0);
+  if (!parsed.rows.length) warnings.push('No data rows found.');
+  if (!totalSpend) warnings.push('No spend column was detected.');
+  if (!totalRequests) warnings.push('No request or usage quantity column was detected.');
 
   return {
     provider: detectedProvider,
-    rowCount: rows.length,
+    columns: parsed.headers,
+    rowCount: parsed.rows.length,
     totalSpend: Math.round(totalSpend * 100) / 100,
     totalRequests: Math.round(totalRequests),
     tools,
-    warnings: [
-      rows.length ? '' : 'No data rows found.',
-      totalSpend ? '' : 'No spend column detected.',
-      totalRequests ? '' : 'No request or usage quantity column detected.'
-    ].filter(Boolean)
+    warnings
   };
-}
+};
+
+module.exports = {
+  parseCsv,
+  parseUsageImport,
+  normalizeProvider
+};

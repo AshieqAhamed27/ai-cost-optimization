@@ -38,6 +38,8 @@ export default function PublicReport() {
     ? Math.round((audit.possibleMonthlySavings / audit.monthlySpend) * 100)
     : 0;
   const proof = audit.proof || {};
+  const pilot = audit.pilot || {};
+  const importEvidence = audit.importEvidence || [];
 
   return (
     <main className="container-page py-10">
@@ -119,6 +121,24 @@ export default function PublicReport() {
             <blockquote className="mt-4 rounded-lg border border-white/10 bg-black/20 p-4 text-sm font-semibold leading-relaxed text-emerald-100">
               "{proof.customerQuote}" {proof.quoteAuthor ? `- ${proof.quoteAuthor}` : ''}
             </blockquote>
+          )}
+          {importEvidence.length > 0 && (
+            <div className="mt-5 grid gap-3 md:grid-cols-2">
+              {importEvidence.map((batch, index) => (
+                <article key={`${batch.provider}-${batch.periodType}-${index}`} className="rounded-lg border border-white/10 bg-black/20 p-4">
+                  <p className="label text-sky-200">{batch.periodType}</p>
+                  <h3 className="mt-2 font-black text-white">{batch.provider?.toUpperCase()} {batch.periodLabel || 'evidence'}</h3>
+                  <p className="mt-2 text-sm font-semibold text-zinc-400">
+                    {formatCurrency(batch.totalSpend)} across {batch.rowCount} imported rows.
+                  </p>
+                </article>
+              ))}
+            </div>
+          )}
+          {(pilot.feedbackNotes || pilot.outcomeNotes) && (
+            <p className="mt-4 rounded-lg border border-white/10 bg-black/20 p-4 text-sm font-semibold leading-relaxed text-zinc-300">
+              {pilot.outcomeNotes || pilot.feedbackNotes}
+            </p>
           )}
         </section>
       )}

@@ -236,6 +236,102 @@ const proofSchema = new mongoose.Schema({
   updatedAt: Date
 }, { _id: false });
 
+const importBatchSchema = new mongoose.Schema({
+  provider: {
+    type: String,
+    enum: ['openai', 'anthropic', 'aws', 'azure', 'gcp', 'invoice', 'csv'],
+    default: 'csv'
+  },
+  periodType: {
+    type: String,
+    enum: ['baseline', 'comparison', 'current'],
+    default: 'current'
+  },
+  periodLabel: {
+    type: String,
+    default: ''
+  },
+  sourceType: {
+    type: String,
+    default: ''
+  },
+  fileName: {
+    type: String,
+    default: ''
+  },
+  rowCount: {
+    type: Number,
+    default: 0
+  },
+  totalSpend: {
+    type: Number,
+    default: 0
+  },
+  totalRequests: {
+    type: Number,
+    default: 0
+  },
+  columns: [String],
+  toolsPreview: [toolSchema],
+  notes: {
+    type: String,
+    default: ''
+  },
+  importedBy: {
+    type: String,
+    default: ''
+  },
+  importedAt: {
+    type: Date,
+    default: Date.now
+  }
+}, { _id: false });
+
+const pilotSchema = new mongoose.Schema({
+  status: {
+    type: String,
+    enum: ['not_started', 'invited', 'in_review', 'feedback_received', 'case_study_requested', 'case_study_approved', 'case_study_declined'],
+    default: 'not_started'
+  },
+  customerName: {
+    type: String,
+    default: ''
+  },
+  contactName: {
+    type: String,
+    default: ''
+  },
+  contactEmail: {
+    type: String,
+    default: ''
+  },
+  inviteMessage: {
+    type: String,
+    default: ''
+  },
+  feedbackRating: {
+    type: Number,
+    default: 0
+  },
+  feedbackNotes: {
+    type: String,
+    default: ''
+  },
+  outcomeNotes: {
+    type: String,
+    default: ''
+  },
+  permissionStatus: {
+    type: String,
+    enum: ['not_requested', 'requested', 'approved', 'declined'],
+    default: 'not_requested'
+  },
+  lastContactedAt: Date,
+  invitedAt: Date,
+  feedbackAt: Date,
+  updatedAt: Date
+}, { _id: false });
+
 const unitEconomicsSchema = new mongoose.Schema({
   costPerActiveUser: {
     type: Number,
@@ -404,6 +500,11 @@ const auditSchema = new mongoose.Schema({
   auditLog: [auditLogEntrySchema],
   proof: {
     type: proofSchema,
+    default: () => ({})
+  },
+  importBatches: [importBatchSchema],
+  pilot: {
+    type: pilotSchema,
     default: () => ({})
   },
   unitEconomics: {

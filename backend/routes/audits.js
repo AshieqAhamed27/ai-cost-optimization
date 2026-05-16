@@ -3,6 +3,7 @@ const crypto = require('crypto');
 const Audit = require('../models/Audit');
 const { requireAuth, requireActivePlan, requireEditor, getAccessRole, hasCapability } = require('../middleware/auth');
 const { calculateAudit } = require('../utils/costEngine');
+const { parseUsageImport, normalizeProvider } = require('../utils/importParser');
 
 const router = express.Router();
 
@@ -26,6 +27,19 @@ const normalizeProofStatus = (value) =>
   ['not_started', 'collecting', 'verified', 'case_study_ready'].includes(value)
     ? value
     : 'collecting';
+
+const normalizeImportPeriod = (value) =>
+  ['baseline', 'comparison', 'current'].includes(value) ? value : 'current';
+
+const normalizePilotStatus = (value) =>
+  ['not_started', 'invited', 'in_review', 'feedback_received', 'case_study_requested', 'case_study_approved', 'case_study_declined'].includes(value)
+    ? value
+    : 'not_started';
+
+const normalizePermissionStatus = (value) =>
+  ['not_requested', 'requested', 'approved', 'declined'].includes(value)
+    ? value
+    : 'not_requested';
 
 const normalizeCadence = (value) =>
   ['none', 'monthly', 'quarterly'].includes(value) ? value : 'monthly';
@@ -133,6 +147,11 @@ const proofSummary = (audits) => audits.reduce((summary, audit) => {
   summary.verifiedReports += ['verified', 'case_study_ready'].includes(status) ? 1 : 0;
   summary.caseStudyApproved += audit.proof?.permissionToUse ? 1 : 0;
   summary.verifiedMonthlySavings += audit.proof?.verifiedMonthlySavings || 0;
+  summary.importBatches += audit.importBatches?.length || 0;
+  summary.pilotFeedback += audit.pilot?.feedbackNotes ? 1 : 0;
+  summary.pilotInvites += ['invited', 'in_review', 'feedback_received', 'case_study_requested', 'case_study_approved', 'case_study_declined'].includes(audit.pilot?.status)
+    ? 1
+    : 0;
   return summary;
 }, {
   not_started: 0,
@@ -141,7 +160,10 @@ const proofSummary = (audits) => audits.reduce((summary, audit) => {
   case_study_ready: 0,
   verifiedReports: 0,
   caseStudyApproved: 0,
-  verifiedMonthlySavings: 0
+  verifiedMonthlySavings: 0,
+  importBatches: 0,
+  pilotInvites: 0,
+  pilotFeedback: 0
 });
 
 const publicProof = (proof = {}) => {
@@ -170,9 +192,125 @@ const publicProof = (proof = {}) => {
   };
 };
 
+const publicPilot = (pilot = {}, proof = {}) => {
+  if (!proof.permissionToUse && pilot.permissionStatus !== 'approved') {
+    return {
+      status: pilot.status || 'not_started',
+      permissionStatus: pilot.permissionStatus || 'not_requested'
+    };
+  }
+
+  return {
+    status: pilot.status || 'not_started',
+    customerName: pilot.customerName || '',
+    contactName: pilot.contactName || '',
+    feedbackRating: pilot.feedbackRating || 0,
+    feedbackNotes: pilot.feedbackNotes || '',
+    outcomeNotes: pilot.outcomeNotes || '',
+    permissionStatus: pilot.permissionStatus || 'not_requested',
+    updatedAt: pilot.updatedAt
+  };
+};
+
+const latestImportBatch = (audit, periodType) =>
+  [...(audit.importBatches || [])]
+    .filter((batch) => batch.periodType === periodType)
+    .sort((a, b) => new Date(b.importedAt || 0).getTime() - new Date(a.importedAt || 0).getTime())[0];
+
+const syncProofFromImports = (audit) => {
+  const baseline = latestImportBatch(audit, 'baseline');
+  const comparison = latestImportBatch(audit, 'comparison');
+  audit.proof = audit.proof || {};
+
+  if (baseline) {
+    audit.proof.baselinePeriod = baseline.periodLabel || audit.proof.baselinePeriod || '';
+    audit.proof.baselineSpend = baseline.totalSpend || 0;
+  }
+
+  if (comparison) {
+    audit.proof.comparisonPeriod = comparison.periodLabel || audit.proof.comparisonPeriod || '';
+    audit.proof.verifiedSpendAfter = comparison.totalSpend || 0;
+  }
+
+  if (baseline && comparison) {
+    const verifiedMonthlySavings = Math.max(0, (baseline.totalSpend || 0) - (comparison.totalSpend || 0));
+    audit.proof.verifiedMonthlySavings = verifiedMonthlySavings;
+    audit.proof.status = audit.proof.permissionToUse ? 'case_study_ready' : 'verified';
+    audit.proof.validationMethod = audit.proof.validationMethod ||
+      `Compared ${baseline.provider.toUpperCase()} ${baseline.periodLabel || 'baseline'} import against ${comparison.provider.toUpperCase()} ${comparison.periodLabel || 'comparison'} import.`;
+    audit.proof.evidenceNotes = audit.proof.evidenceNotes ||
+      `Baseline import: ${baseline.rowCount} rows, ${baseline.totalRequests || 0} usage units. Comparison import: ${comparison.rowCount} rows, ${comparison.totalRequests || 0} usage units.`;
+    audit.confirmedSpendAfter = comparison.totalSpend || audit.confirmedSpendAfter;
+    audit.confirmedMonthlySavings = verifiedMonthlySavings;
+  } else if (baseline || comparison) {
+    audit.proof.status = audit.proof.status === 'not_started' ? 'collecting' : audit.proof.status || 'collecting';
+  }
+
+  audit.proof.updatedAt = new Date();
+};
+
+const buildProofReport = (audit) => {
+  const baseline = latestImportBatch(audit, 'baseline');
+  const comparison = latestImportBatch(audit, 'comparison');
+  const proof = audit.proof || {};
+  const pilot = audit.pilot || {};
+  const verifiedMonthlySavings = proof.verifiedMonthlySavings || audit.confirmedMonthlySavings || 0;
+  const baselineSpend = proof.baselineSpend || baseline?.totalSpend || audit.monthlySpend || 0;
+  const verifiedSpendAfter = proof.verifiedSpendAfter || comparison?.totalSpend || audit.confirmedSpendAfter || 0;
+
+  return {
+    title: `${audit.companyName} verified AI savings proof report`,
+    status: proof.status || 'not_started',
+    summary: verifiedMonthlySavings
+      ? `${audit.companyName} has ${verifiedMonthlySavings} verified monthly savings from imported billing and usage evidence.`
+      : `${audit.companyName} has not recorded verified monthly savings yet.`,
+    metrics: {
+      baselineSpend,
+      verifiedSpendAfter,
+      verifiedMonthlySavings,
+      annualizedVerifiedSavings: verifiedMonthlySavings * 12
+    },
+    evidence: {
+      baseline: baseline ? {
+        provider: baseline.provider,
+        periodLabel: baseline.periodLabel,
+        rowCount: baseline.rowCount,
+        totalSpend: baseline.totalSpend,
+        totalRequests: baseline.totalRequests,
+        importedAt: baseline.importedAt
+      } : null,
+      comparison: comparison ? {
+        provider: comparison.provider,
+        periodLabel: comparison.periodLabel,
+        rowCount: comparison.rowCount,
+        totalSpend: comparison.totalSpend,
+        totalRequests: comparison.totalRequests,
+        importedAt: comparison.importedAt
+      } : null,
+      validationMethod: proof.validationMethod || '',
+      evidenceNotes: proof.evidenceNotes || ''
+    },
+    pilot: {
+      status: pilot.status || 'not_started',
+      customerName: pilot.customerName || '',
+      contactName: pilot.contactName || '',
+      feedbackRating: pilot.feedbackRating || 0,
+      permissionStatus: pilot.permissionStatus || 'not_requested',
+      outcomeNotes: pilot.outcomeNotes || ''
+    },
+    caseStudy: {
+      ready: proof.status === 'case_study_ready' && Boolean(proof.permissionToUse),
+      title: proof.caseStudyTitle || '',
+      quote: proof.permissionToUse ? proof.customerQuote || '' : '',
+      quoteAuthor: proof.permissionToUse ? proof.quoteAuthor || '' : ''
+    }
+  };
+};
+
 const buildEnterprisePack = (audit) => {
   const tools = audit.tools || [];
   const proof = audit.proof || {};
+  const proofReport = buildProofReport(audit);
   const vendors = Object.values(tools.reduce((groups, tool) => {
     const name = tool.provider || tool.name || 'Unknown vendor';
     if (!groups[name]) groups[name] = { name, spend: 0, workflows: new Set(), owners: new Set() };
@@ -247,6 +385,15 @@ const buildEnterprisePack = (audit) => {
       validationMethod: proof.validationMethod || '',
       evidenceNotes: proof.evidenceNotes || '',
       verifiedBy: proof.verifiedBy || '',
+      dataImports: (audit.importBatches || []).slice(0, 6).map((batch) => ({
+        provider: batch.provider,
+        periodType: batch.periodType,
+        periodLabel: batch.periodLabel,
+        totalSpend: batch.totalSpend,
+        rowCount: batch.rowCount,
+        importedAt: batch.importedAt
+      })),
+      pilotStatus: proofReport.pilot.status,
       customerQuote: proof.permissionToUse ? proof.customerQuote || '' : '',
       caseStudyReady: proof.status === 'case_study_ready' && Boolean(proof.permissionToUse)
     }
@@ -280,6 +427,18 @@ const getPublicAudit = (audit) => ({
   unitEconomics: audit.unitEconomics,
   approval: audit.approval,
   proof: publicProof(audit.proof),
+  pilot: publicPilot(audit.pilot, audit.proof),
+  importEvidence: audit.proof?.permissionToUse
+    ? (audit.importBatches || []).slice(0, 4).map((batch) => ({
+      provider: batch.provider,
+      periodType: batch.periodType,
+      periodLabel: batch.periodLabel,
+      rowCount: batch.rowCount,
+      totalSpend: batch.totalSpend,
+      totalRequests: batch.totalRequests,
+      importedAt: batch.importedAt
+    }))
+    : [],
   actionPlan: audit.actionPlan,
   confirmedMonthlySavings: audit.confirmedMonthlySavings,
   confirmedSpendAfter: audit.confirmedSpendAfter,
@@ -604,6 +763,71 @@ router.patch('/:id/progress', requireEditor, async (req, res, next) => {
   }
 });
 
+router.post('/:id/import-batch', requireEditor, async (req, res, next) => {
+  try {
+    const audit = await Audit.findOne({ _id: req.params.id, user: req.user._id });
+
+    if (!audit) {
+      return res.status(404).json({ message: 'Audit not found' });
+    }
+
+    const csvText = String(req.body.csvText || '');
+    if (!csvText.trim()) {
+      return res.status(400).json({ message: 'Paste or upload a CSV export first' });
+    }
+
+    const parsed = parseUsageImport({
+      csvText,
+      provider: req.body.provider
+    });
+
+    if (!parsed.rowCount || !parsed.tools.length) {
+      return res.status(400).json({
+        message: 'No usable billing rows found. Include spend columns from OpenAI, Anthropic, AWS, Azure, GCP, invoice, or CSV export.'
+      });
+    }
+
+    const periodType = normalizeImportPeriod(req.body.periodType);
+    const batch = {
+      provider: normalizeProvider(parsed.provider),
+      periodType,
+      periodLabel: cleanText(req.body.periodLabel, 80),
+      sourceType: cleanText(req.body.sourceType || 'Provider export', 80),
+      fileName: cleanText(req.body.fileName, 160),
+      rowCount: parsed.rowCount,
+      totalSpend: parsed.totalSpend,
+      totalRequests: parsed.totalRequests,
+      columns: parsed.columns.slice(0, 30),
+      toolsPreview: parsed.tools.slice(0, 40),
+      notes: cleanText(req.body.notes || parsed.warnings.join(' '), 800),
+      importedBy: req.user.name || 'User',
+      importedAt: new Date()
+    };
+
+    audit.importBatches = [batch, ...(audit.importBatches || [])].slice(0, 24);
+    syncProofFromImports(audit);
+    addAuditLog(
+      audit,
+      req,
+      'Evidence import added',
+      `${periodType} ${batch.provider.toUpperCase()} import captured ${batch.rowCount} rows and ${batch.totalSpend} spend.`
+    );
+    await audit.save();
+
+    res.status(201).json({
+      audit,
+      importBatch: batch,
+      parsed: {
+        ...parsed,
+        tools: parsed.tools.slice(0, 40)
+      },
+      proofReport: buildProofReport(audit)
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
 router.patch('/:id/proof', requireEditor, async (req, res, next) => {
   try {
     const audit = await Audit.findOne({ _id: req.params.id, user: req.user._id });
@@ -649,6 +873,63 @@ router.patch('/:id/proof', requireEditor, async (req, res, next) => {
     await audit.save();
 
     res.json({ audit });
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.patch('/:id/pilot', requireEditor, async (req, res, next) => {
+  try {
+    const audit = await Audit.findOne({ _id: req.params.id, user: req.user._id });
+
+    if (!audit) {
+      return res.status(404).json({ message: 'Audit not found' });
+    }
+
+    const status = normalizePilotStatus(req.body.status);
+    const permissionStatus = normalizePermissionStatus(req.body.permissionStatus);
+    const now = new Date();
+    const previousStatus = audit.pilot?.status || 'not_started';
+
+    audit.pilot = {
+      ...(audit.pilot?.toObject?.() || audit.pilot || {}),
+      status,
+      customerName: cleanText(req.body.customerName || audit.companyName, 160),
+      contactName: cleanText(req.body.contactName, 160),
+      contactEmail: cleanText(req.body.contactEmail, 200),
+      inviteMessage: cleanText(req.body.inviteMessage, 1200),
+      feedbackRating: Math.max(0, Math.min(10, Math.round(toNumber(req.body.feedbackRating)))),
+      feedbackNotes: cleanText(req.body.feedbackNotes, 1600),
+      outcomeNotes: cleanText(req.body.outcomeNotes, 1600),
+      permissionStatus,
+      lastContactedAt: ['invited', 'case_study_requested'].includes(status) ? now : audit.pilot?.lastContactedAt,
+      invitedAt: status === 'invited' && previousStatus === 'not_started' ? now : audit.pilot?.invitedAt,
+      feedbackAt: status === 'feedback_received' ? now : audit.pilot?.feedbackAt,
+      updatedAt: now
+    };
+
+    audit.proof = audit.proof || {};
+    if (req.body.customerQuote !== undefined) audit.proof.customerQuote = cleanText(req.body.customerQuote, 800);
+    if (req.body.quoteAuthor !== undefined) audit.proof.quoteAuthor = cleanText(req.body.quoteAuthor, 160);
+    if (req.body.caseStudyTitle !== undefined) audit.proof.caseStudyTitle = cleanText(req.body.caseStudyTitle, 160);
+
+    if (permissionStatus === 'approved') {
+      audit.proof.permissionToUse = true;
+      if (['verified', 'case_study_ready'].includes(audit.proof.status)) {
+        audit.proof.status = 'case_study_ready';
+      }
+    }
+
+    if (permissionStatus === 'declined') {
+      audit.proof.permissionToUse = false;
+      if (audit.proof.status === 'case_study_ready') audit.proof.status = 'verified';
+    }
+
+    audit.proof.updatedAt = now;
+    addAuditLog(audit, req, 'Pilot workflow updated', `${status} pilot status with ${permissionStatus} case-study permission.`);
+    await audit.save();
+
+    res.json({ audit, proofReport: buildProofReport(audit) });
   } catch (error) {
     next(error);
   }
@@ -728,6 +1009,14 @@ router.post('/:id/monthly-review', requireActivePlan, requireEditor, async (req,
         baselinePeriod: source.reviewPeriod || '',
         baselineSpend: source.monthlySpend || 0
       },
+      importBatches: [],
+      pilot: {
+        status: 'not_started',
+        customerName: source.pilot?.customerName || source.companyName || '',
+        contactName: source.pilot?.contactName || '',
+        contactEmail: source.pilot?.contactEmail || '',
+        permissionStatus: 'not_requested'
+      },
       approval: {
         finance: { status: 'pending', owner: source.approval?.finance?.owner || '' },
         engineering: { status: 'pending', owner: source.approval?.engineering?.owner || '' },
@@ -760,6 +1049,24 @@ router.get('/:id/audit-log', async (req, res, next) => {
     }
 
     res.json({ auditLog: audit.auditLog || [] });
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.get('/:id/proof-report', async (req, res, next) => {
+  try {
+    if (!hasCapability(req.user, 'export')) {
+      return res.status(403).json({ message: 'Your current role cannot generate proof reports' });
+    }
+
+    const audit = await Audit.findOne({ _id: req.params.id, user: req.user._id });
+
+    if (!audit) {
+      return res.status(404).json({ message: 'Audit not found' });
+    }
+
+    res.json({ proofReport: buildProofReport(audit) });
   } catch (error) {
     next(error);
   }

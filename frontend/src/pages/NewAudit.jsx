@@ -42,11 +42,16 @@ export default function NewAudit() {
 
   const preview = useMemo(() => calculateAuditPreview({ tools, form }), [tools, form]);
 
-  const importTools = (importedTools) => {
+  const importTools = (importedTools, importSummary = {}) => {
     setTools((current) => {
       const existing = current.filter((tool) => tool.name.trim());
       return [...existing, ...importedTools];
     });
+    setForm((current) => ({
+      ...current,
+      dataSource: current.dataSource || `${String(importSummary.provider || 'CSV').toUpperCase()} provider export`,
+      monthlyRequests: current.monthlyRequests || importSummary.totalRequests || current.monthlyRequests
+    }));
   };
 
   const submit = async (event) => {
